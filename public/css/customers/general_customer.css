@@ -1,0 +1,115 @@
+body {
+    background: #f2f3f4;
+}
+.alerts {
+    color: #e81123;
+    font-size: 0.85rem;
+    display: none;
+}
+.alerts-success {
+    color: #49b676;
+    font-size: 0.85rem;
+    display: none;
+}
+.pointer {
+    cursor: pointer;
+}
+.p-a {
+    position: absolute;
+}
+.p-r {
+    position: relative;
+}
+.upload {
+    background: white !important;
+    border: gray dashed;
+    text-align: center !important;
+    cursor: pointer;
+}
+.upload:hover {
+    border: #a2d0f6 dashed !important;
+}
+.pagination {
+    justify-content: center !important;
+}
+.bold {
+    font-weight: bold;
+}
+.normal {
+    font-weight: normal;
+}
+.font-small {
+    font-size: 0.7rem;
+}
+.img-edit {
+    height: 390px;
+    object-fit: cover;
+    object-position: center;
+}
+.div-logo-edit {
+    width: 130px;
+    height: 140px;
+    position: absolute;
+    vertical-align: bottom;
+    bottom: 15px;
+}
+.border-logo-edit {
+    border: 2px dashed grey;
+}
+.back-title-edit {
+    background: rgba(0,0,0,0.6);
+    padding-left: 20vh;
+    position: absolute;
+    bottom: 0;
+}
+.div-modal-edit {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.div-modal-edit span:hover {
+    text-decoration: underline;
+}
+.div-modal-image {
+    position: absolute;
+    top: 15vh;
+    right: 5vh;
+}
+.div-modal-image:hover {
+    text-decoration: underline;
+}
+.logotype {
+    left: 0;
+    top: 0;
+    object-fit: contain;
+}
+.editLogo {
+    top: 0;
+    right: 0;
+}
+.btnDeleteLogo {
+    bottom: 0;
+    right: 0;
+}
+.inputs-dates-create-event {
+    flex: auto !important;
+    width: 12vh;
+}
+.img-index {
+    object-fit: cover;
+    object-position: left;
+}
+.pac-container {
+    z-index: 9998 !important;
+}
+#modalEditLocation{
+    z-index: 9997;   
+}
+#map {
+    z-index: 9998;
+    position: relative !important;
+    height: 300px;
+}
+#content-map {
+    height: 150px;
+}
