@@ -126,7 +126,6 @@ var conektaSuccessReponseHandler = function(token) {
         reverseButtons: true
     }).then((result) => {
         if (result.value) {
-            alert('SUCCESS');
             var msgAlert = 'Procesando pago, no cierre ni actualice esta página. Por favor espere!!';
             var msgSuccess = 'Su pago se realizó con éxito, recibirá un correo electrónico con sus boletos';
             jsPay(msgAlert, msgSuccess);
@@ -205,8 +204,8 @@ function jsPay(msgAlert, msgSuccess) {
             card: $('#card').val(),
             quantities: quantities,
             tickets: idTickets,
-            typePayment: $('#payment-method').val(),
-            event: $('#idEvent').val()
+            payment_method: $('#payment-method').val(),
+            event_id: $('#idEvent').val()
         },
         success: function(response) {
             if(response.status=='success') {

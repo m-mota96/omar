@@ -52,7 +52,7 @@ Route::get('/paymentMethod/{method}', function($method) {
         return View::make("oxxoPayment")->render();
     }
 });
-Route::get('makePayment', 'PublicController@makePayment');
+Route::post('makePayment', 'PublicController@makePayment');
 
 // Routes usage for admin
 Route::post('checkEvent', 'AdminController@checkEvent');
