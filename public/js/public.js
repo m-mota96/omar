@@ -1,4 +1,13 @@
 Conekta.setPublicKey("key_BpoqCZd5rqzFZXrxfjjFVQQ");
+
+$(document).ready(()=> {
+    if($('#ticket-value').val() != '') {
+        $('html,body').animate({
+            scrollTop: $("#div-tickets").offset().top
+        }, 1000);
+    }
+});
+
 $("#more-info").click(function () {
     $('html,body').animate({
         scrollTop: $("#div-info").offset().top
@@ -92,6 +101,7 @@ $('#payment-method').change(()=> {
     $.get(
         $('#URL').val()+"paymentMethod/"+$('#payment-method').val(),
         function (data) {
+            console.log(data);
             $("#divContentPayment").html(data);
         }
     );
@@ -100,9 +110,26 @@ $('#payment-method').change(()=> {
 $('#formSale').submit((e)=> {
     e.preventDefault();
     if (sales == true) {
-        if($('#payment-method').val()=='card') {
+        if($('#payment-method').val() == 'card') {
             var $form = $('#formSale');
             Conekta.Token.create($form, conektaSuccessReponseHandler, conektaErrorReponseHandler);
+        } else if ($('#payment-method').val() == 'oxxo') {
+            Swal.fire({
+                title: "¡Atención!",
+                html: "Tu referencia de pago se enviará a:<br><b>"+$('#email').val()+"</b><br> ¿Es correcta esta información?",
+                showCancelButton: true,
+                cancelButtonColor: '#3085d6',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Aceptar',
+                reverseButtons: true
+            }).then((willDelete) => {
+                if (willDelete) {
+                    var msgAlert = 'Creando referencia de pago, no cierre ni actualice esta página. Por favor espere!!';
+                    var msgSuccess = 'Su referencia se genero con éxito, en breve la recibira en su correo electrónico';
+                    jsPay(msgAlert, msgSuccess);
+                }
+            });
         }
     } else {
         Swal.fire({
@@ -127,7 +154,7 @@ var conektaSuccessReponseHandler = function(token) {
     }).then((result) => {
         if (result.value) {
             var msgAlert = 'Procesando pago, no cierre ni actualice esta página. Por favor espere!!';
-            var msgSuccess = 'Su pago se realizó con éxito, recibirá un correo electrónico con sus boletos';
+            var msgSuccess = '<span>Su pago se realizo con éxito </span><br><span>Recibira sus boletos por correo electrónico</span>';
             jsPay(msgAlert, msgSuccess);
         }
     });
@@ -201,6 +228,7 @@ function jsPay(msgAlert, msgSuccess) {
             conektaTokenId: $('#conektaTokenId').val(),
             name: $('#name').val(),
             email: $('#email').val(),
+            phone: $('#phone').val(),
             card: $('#card').val(),
             quantities: quantities,
             tickets: idTickets,
@@ -208,19 +236,40 @@ function jsPay(msgAlert, msgSuccess) {
             event_id: $('#idEvent').val()
         },
         success: function(response) {
-            if(response.status=='success') {
+            if (response.status == true) {
+                // $('#modalSale').modal('hide');
                 jsRemoveWindowLoad();
-                // swal('¡Correcto!', msgSuccess, 'success');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Correcto',
+                    html: msgSuccess,
+                });
                 // setTimeout(function(){
                 //     location.reload();
                 // },2000);
             } else {
                 jsRemoveWindowLoad();
-                // swal('¡Error!', response.error, 'error');
+                if(response.error == 'exceeded') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '¡Atención!',
+                        html: response.msj,
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        html: response.error,
+                    });
+                }
             }
         },
         error: function() {
-            // swal('Error!', 'Lo sentimos ocurrio un error. Si el problema persiste intente con otro navegador', 'error');
+            Swal.fire({
+                icon: 'error',
+                title: 'Lo sentimos ocurrio un error',
+                html: '<span>Si el problema persiste intente con otro navegador</span><br><span>o contacte a soporte</span>',
+            });
             jsRemoveWindowLoad();
         },
     });

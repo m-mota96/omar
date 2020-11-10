@@ -1,3 +1,7 @@
+$(document).ready(()=> {
+    $('[data-toggle="tooltip"]').tooltip();
+});
+
 $('input:radio[name=price]').click(()=> {	 
     if ($('input:radio[name=price]:checked').val() == 1) {
         $('#priceTicket').css('display', 'block');
@@ -105,7 +109,8 @@ function chargingDom(tickets, action = null) {
             content += '<div class="row">';
                 content += '<div class="col-xl-8">';
                     content += '<h4 class="bold mb-2 name">'+tickets[i].name+'</h4>';
-                    content += '<h4 class="bold text-gray-600 mb-0 price">$'+tickets[i].price+'.00 MXN</h4>';
+                    content += '<h4 class="bold text-gray-600 mb-2 price">$'+tickets[i].price+'.00 MXN</h4>';
+                    content += '<span class="mb-2 pointer text-blue" onclick="copyToClipboard(\'#linkTicket'+i+'\')" data-toggle="tooltip" data-placement="right" title="Copiar enlace"><i class="fas fa-link"></i> <span id="linkTicket'+i+'">'+$('#URL').val()+''+tickets[i].event.url+'/'+tickets[i].name+'</span></span>';
                     content += '<p></p>';
                     content += '<span class="font-small mr-4 pointer edit" onclick="saveTicket('+tickets[i].id+', \''+tickets[i].name+'\', \''+tickets[i].description+'\', '+tickets[i].min_reservation+', '+tickets[i].max_reservation+', '+tickets[i].quantity+', \''+tickets[i].start_sale+'\', \''+tickets[i].stop_sale+'\', '+tickets[i].price+', '+tickets[i].status+')"><i class="fas fa-pen"></i> EDITAR</span>';
                     content += '<span class="font-small mr-4 pointer delete" onclick="deleteTicket('+tickets[i].id+')"><i class="fas fa-trash-alt"></i> ELIMINAR</span>';
@@ -181,3 +186,11 @@ $('#formTickets').submit((e)=> {
         }
     });
 });
+
+function copyToClipboard(elemento) {
+    var $temp = $("<input>");
+    $("body").append($temp);
+    $temp.val($(elemento).text()).select();
+    document.execCommand("copy");
+    $temp.remove();
+}

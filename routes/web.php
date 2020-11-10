@@ -44,7 +44,7 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'checkrole:cus
     Route::get('/purchases', 'CustomerController@purchases')->name('purchases');
 });
 
-Route::get('/{event}', 'PublicController@index')->name('/');
+Route::get('/{event}/{ticket?}', 'PublicController@index')->name('/');
 Route::get('/paymentMethod/{method}', function($method) {
     if ($method == 'card') {
         return View::make("cardPayment")->render();
@@ -53,6 +53,7 @@ Route::get('/paymentMethod/{method}', function($method) {
     }
 });
 Route::post('makePayment', 'PublicController@makePayment');
+Route::post('reference_paid', 'WebhookController@reference_paid');
 
 // Routes usage for admin
 Route::post('checkEvent', 'AdminController@checkEvent');

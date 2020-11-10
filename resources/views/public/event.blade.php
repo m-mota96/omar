@@ -74,13 +74,18 @@
     <div class="row bg-white">
         <div class="container">
             <div class="row">
-                <div class="col-xl-10 offset-xl-1 pt-5 pb-4">
+                <input type="hidden" id="ticket-value" value="{{$ticket}}">
+                <div class="col-xl-10 offset-xl-1 pt-5 pb-4" id="div-tickets">
                     <div class="row">
                         <h2 class="bold w-100">Selecciona tus boletos</h2>
                         <h4 class="text-gray-600 w-100 mb-5">Máximo 10 boletos por orden</h4>
                     </div>
                     @foreach ($event->tickets as $t)
-                        <div class="row mb-3">
+                        @if ($t->name == $ticket)
+                        <div class="row mb-3 card-tickets p-2">  
+                        @else
+                        <div class="row mb-3 p-2">
+                        @endif
                             <div class="col-xl-9 pl-0">
                                 <h4>{{$t->name}}</h4>
                                 <h5 class="text-blue">${{number_format($t->price, 2)}} MXN</h5>
