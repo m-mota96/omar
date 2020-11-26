@@ -116,7 +116,7 @@ function chargingDom(tickets, action = null) {
                     content += '<span class="font-small mr-4 pointer delete" onclick="deleteTicket('+tickets[i].id+')"><i class="fas fa-trash-alt"></i> ELIMINAR</span>';
                 content += '</div>';
                 content += '<div class="col-xl-4 text-right">';
-                    content += '<h3 class="mb-0"><span class="text-blue-400">0/</span><span class="text-blue-300 quantity">'+tickets[i].quantity+'</span></h3>';
+                    content += '<h3 class="mb-0"><span class="text-blue-400">'+tickets[i].access.length+'/</span><span class="text-blue-300 quantity">'+tickets[i].quantity+'</span></h3>';
                     content += '<span class="font-small mt-0">BOLETOS RESERVADOS</span>';
                 content += '</div>';
             content += '</div>';

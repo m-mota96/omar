@@ -13,4 +13,8 @@ class Access extends Model
     public function ticket() {
         return $this->belongsTo(Ticket::class);
     }
+
+    public function payment() {
+        return $this->belongsTo(Payment::class);
+    }
 }

@@ -26,6 +26,13 @@ body {
     text-align: center !important;
     cursor: pointer;
 }
+.upload-documents {
+    background: white !important;
+    border: gray solid 2px;
+    text-align: left !important;
+    cursor: pointer;
+    border-radius: 10px;;
+}
 .upload:hover {
     border: #a2d0f6 dashed !important;
 }
@@ -112,4 +119,10 @@ body {
 }
 #content-map {
     height: 150px;
+}
+.hidden {
+    display: none;
+}
+.btn-sm {
+    width: 31px !important;
 }

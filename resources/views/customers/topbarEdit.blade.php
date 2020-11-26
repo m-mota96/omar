@@ -40,7 +40,7 @@
             {{-- <div class="topbar-divider d-none d-sm-block"></div> --}}
             <!-- Nav Item - User Information -->
             <li class="mr-4">
-                <span class="text-white pointer"><i class="fas fa-chart-line"></i> Estadísticas</span>
+                <a class="text-white pointer" href="{{route('admin.stats', $event_id)}}"><i class="fas fa-chart-line"></i> Estadísticas</a>
             </li>
             <li class="mr-4">
                 <a class="text-white pointer" href="{{route('admin.edit', $event_id)}}"><i class="fas fa-cog"></i> Configuración</a>
@@ -49,13 +49,10 @@
                 <a class="text-white pointer" href="{{route('admin.tickets', $event_id)}}"><i class="fas fa-tag"></i> Boletos</a>
             </li>
             <li class="mr-4">
-                <span class="text-white pointer"><i class="fas fa-shopping-cart"></i> Reservaciones</span>
+                <a class="text-white pointer" href="{{route('admin.reservations', $event_id)}}"><i class="fas fa-shopping-cart"></i> Reservaciones</a>
             </li>
             <li class="mr-4">
                 <span class="text-white pointer"><i class="fas fa-list-ul"></i> Registro</span>
-            </li>
-            <li class="mr-4">
-                <span class="text-white pointer"><i class="fas fa-star"></i> Promociones</span>
             </li>
         </ul>
     </div>

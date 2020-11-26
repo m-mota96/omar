@@ -17,27 +17,30 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Authentication Routes...
-Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
-Route::post('login', 'Auth\LoginController@login');
-Route::post('logout', 'Auth\LoginController@logout')->name('logout');
+Auth::routes(['verify' => true]);
+// // Authentication Routes...
+// Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
+// Route::post('login', 'Auth\LoginController@login');
+// Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
-// Registration Routes...
-Route::get('register', 'Auth\RegisterController@showRegistrationForm')->name('register');
-Route::post('register', 'Auth\RegisterController@register');
+// // Registration Routes...
+// Route::get('register', 'Auth\RegisterController@showRegistrationForm')->name('register');
+// Route::post('register', 'Auth\RegisterController@register');
 
-// Password Reset Routes...
-Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
-Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
-Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
-Route::post('password/reset', 'Auth\ResetPasswordController@reset');
+// // Password Reset Routes...
+// Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+// Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+// Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+// Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 
-Route::get('/home/{search?}', 'HomeController@index')->name('home')->middleware(['auth']);
+Route::get('/home/{search?}', 'HomeController@index')->name('home')->middleware(['auth', 'verified']);
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'checkrole:customer'])->group(function() {
     Route::get('edit/{id}', 'AdminController@editEvent')->name('edit');
     Route::get('tickets/{id}', 'AdminController@tickets')->name('tickets');
-    Route::get('documents', 'AdminController@documents')->name('documents');
+    Route::get('documents', 'DocumentController@documents')->name('documents');
+    Route::get('stats/{id}', 'StatisticController@stats')->name('stats');
+    Route::get('reservations/{id}', 'StatisticController@reservations')->name('reservations');
 });
 
 Route::prefix('customer')->name('customer.')->middleware(['auth', 'checkrole:customer'])->group(function() {
@@ -69,3 +72,7 @@ Route::post('addLocation', 'AdminController@addLocation');
 Route::post('saveTicket', 'AdminController@saveTicket');
 Route::post('deleteTicket', 'AdminController@deleteTicket');
 Route::post('searchEvents', 'AdminController@searchEvents');
+Route::post('extractSales', 'StatisticController@extractSales');
+Route::post('resetPassword', 'DocumentController@resetPassword');
+Route::post('editAccount', 'DocumentController@editAccount');
+Route::post('detailsSale', 'StatisticController@detailsSale');

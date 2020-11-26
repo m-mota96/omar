@@ -47,7 +47,7 @@
                                     <span class="font-small mr-4"><a class="text-dark" href="">ELIMINAR</a></span>
                                 </div>
                                 <div class="col-xl-4 text-right">
-                                    <h3 class="mb-0"><span class="text-blue-400">0/</span><span class="text-blue-300">{{$e->quantity_tickets}}</span></h3>
+                                    <h3 class="mb-0"><span class="text-blue-400">{{$e->sales}}/</span><span class="text-blue-300">{{$e->quantity_tickets}}</span></h3>
                                     <span class="font-small mt-0">BOLETOS RESERVADOS</span>
                                 </div>
                             </div>

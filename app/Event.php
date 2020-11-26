@@ -29,4 +29,8 @@ class Event extends Model
     public function tickets() {
         return $this->hasMany(Ticket::class);
     }
+
+    public function payments() {
+        return $this->hasMany(Payment::class)->where('status', 'payed');
+    }
 }

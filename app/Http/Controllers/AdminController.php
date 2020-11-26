@@ -272,7 +272,11 @@ class AdminController extends Controller {
     }
 
     public function tickets($id) {
-        $tickets = Ticket::with(['event'])->where('event_id', $id)->get();
+        $tickets = Ticket::with(['event', 'access' => function($query) {
+            $query->with('payment')->whereHas('payment', function($query2) {
+                $query2->where('status', 'payed');
+            });
+        }])->where('event_id', $id)->get();
         return view('customers.tickets')->with(['tickets' => $tickets, 'event_id' => $id]);
     }
 

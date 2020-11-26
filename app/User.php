@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Auth;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
 
@@ -45,5 +45,9 @@ class User extends Authenticatable
 
     public function role() {
         return $this->belongsTo(Role::class);
+    }
+
+    public function documents() {
+        return $this->hasMany(Document::class);
     }
 }

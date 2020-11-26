@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use App\User;
 use App\Event;
 use App\Ticket;
+use App\Access;
+use App\Payment;
 
 class HomeController extends Controller
 {
@@ -17,9 +19,8 @@ class HomeController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-        // $this->middleware('auth');
+    public function __construct() {
+        date_default_timezone_set('America/Mexico_City');
     }
 
     /**
@@ -53,11 +54,13 @@ class HomeController extends Controller
             $quantities['past'] = Event::where('user_id', auth()->user()->id)->where('status', 2)->get()->count();
             $quantities['all'] = Event::where('user_id', auth()->user()->id)->get()->count();
             if ($status != 3) {
-                $events = Event::with(['profile', 'eventDates'])->addSelect(['quantity_tickets' => Ticket::selectRaw('SUM(quantity) as quantity')
+                $events = Event::with(['profile', 'eventDates', 'payments' => function($query) {
+                    $query->addSelect(['quantity' => Access::selectRaw('COUNT(id) as quantity')->whereColumn('payment_id', 'payments.id')->groupBy('payment_id')]);
+                }])->addSelect(['quantity_tickets' => Ticket::selectRaw('SUM(quantity) as quantity')
                     ->whereColumn('event_id', 'events.id')
                     ->groupBy('event_id')
-                ])
-                ->where('user_id', auth()->user()->id)->where('status', $status)->paginate(10);
+                ])->where('user_id', auth()->user()->id)->where('status', $status)->paginate(10);
+                // dd($events);
             } else {
                 $events = Event::with(['profile', 'eventDates'])->addSelect(['quantity_tickets' => Ticket::selectRaw('SUM(quantity) as quantity')
                     ->whereColumn('event_id', 'events.id')
@@ -65,6 +68,7 @@ class HomeController extends Controller
                 ])
                 ->where('user_id', auth()->user()->id)->paginate(10);
             }
+            $total = 0;
             foreach ($events as $key => $e) {
                 $e->initial_date = Carbon::parse($e->eventDates[0]->date)->locale('es')->isoFormat('D MMM Y').' - '.substr($e->eventDates[0]->initial_time, 0, 5);
                 $pos = sizeof($e->eventDates) - 1;
@@ -74,6 +78,11 @@ class HomeController extends Controller
                 } else {
                     $e->profile->name = 'events/'.$e->id.'/'.$e->profile->name;
                 }
+                foreach ($e->payments as $key2 => $p) {
+                    $total = $total + $p->quantity;
+                }
+                $e->sales = $total;
+                $total = 0;
             }
             return view('customers.index')->with(['events' => $events, 'quantities' => $quantities]);
         }
