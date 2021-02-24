@@ -5,18 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Compra boletos para {{$event->name}} - Boletos</title>
+    <meta property="og:title" content="{{$event->name}}"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:url" content="https://ticketland.mx/{{$event->url}}"/>
+    @if (isset($event->profile->name))
+        <meta property="og:image" content="{{asset('media/events/'.$event->id.'/'.$event->profile->name.'')}}"/>
+    @else
+        <meta property="og:image" content="{{asset('media/general/not_image.png')}}"/>
+    @endif
+    <meta property="og:description" content="{{$event->description}}"/>
+    <title>Compra boletos para {{$event->name}} - Ticketland</title>
     <link rel="stylesheet" href="{{asset('fontawesome5.12.1/css/all.css')}}">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/public.css') }}" rel="stylesheet">
 </head>
 <body >
-    <nav class="navbar navbar-expand navbar-light topbar static-top shadow bg-white">
+    {{-- <nav class="navbar navbar-expand navbar-light topbar static-top shadow bg-white">
         <div class="container">
-            <!-- Topbar Navbar -->
             <ul class="navbar-nav pt-1 pb-1">
-                {{-- <div class="topbar-divider d-none d-sm-block"></div> --}}
-                <!-- Nav Item - User Information -->
                 <li class="mr-4">
                     <span class="text-white pointer"><i class="fas fa-chart-line"></i> Estadísticas</span>
                 </li>
@@ -37,12 +43,20 @@
                 </li>
             </ul>
         </div>
-    </nav>
+    </nav> --}}
     <div class="row content-head p-r">
         <div class="col-xl-12 p-a opacy">
-            <img class="h-100 w-100 img-transparent" src="{{asset('media/events/'.$event->id.'/'.$event->profile->name.'')}}">
+            @if (isset($event->profile->name))
+                <img class="h-100 w-100 img-transparent" src="{{asset('media/events/'.$event->id.'/'.$event->profile->name.'')}}" alt="{{$event->name}}">
+            @else
+                <img class="h-100 w-100 img-transparent" src="{{asset('media/general/not_image.png')}}">
+            @endif
         </div>
-        <img class="col-xl-6 offset-xl-3 p-a img-event p-0" src="{{asset('media/events/'.$event->id.'/'.$event->profile->name.'')}}">
+        @if (isset($event->profile->name))
+            <img class="col-xl-6 offset-xl-3 p-a img-event p-0" src="{{asset('media/events/'.$event->id.'/'.$event->profile->name.'')}}" alt="{{$event->name}}">
+        @else
+            <img class="col-xl-6 offset-xl-3 p-a img-event p-0 cover" src="{{asset('media/general/not_image.png')}}">
+        @endif
     </div>
     <div class="container mt-5">
         <div class="row">
@@ -50,7 +64,7 @@
                 <div class="row">
                     <div class="col-xl-9 pl-0">
                         <h2 class="bold mb-3">{{$event->name}}</h2>
-                        <h5><i class="fas fa-map-marked-alt"></i> {{$event->location->name}}</h5>
+                        @if (isset($event->location->name)) <h5><i class="fas fa-map-marked-alt"></i> {{$event->location->name}}</h5> @endif
                         <h5 class="mb-5">
                             <i class="fas fa-calendar-alt"></i>
                             <span>
@@ -65,7 +79,7 @@
                         <p class="bold">COMPARTE ESTE EVENTO</p>
                         <a class="btn bg-blue-600 text-white rounded-circle mr-3" href=""><i class="fab fa-facebook-f"></i></a>
                         <a class="btn bg-blue-400 text-white rounded-circle mr-3" href=""><i class="fab fa-twitter"></i></a>
-                        <a class="btn bg-green-400 text-white rounded-circle" href="https://api.whatsapp.com/send?text=Voy a asistir al evento {{$event->name}} https://boletos.com/{{$event->url}}" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                        <a class="btn bg-green-400 text-white rounded-circle" href="https://api.whatsapp.com/send?text=Voy a asistir al evento {{$event->name.':'}} https://ticketland.mx/{{$event->url}}" target="_blank"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
             </div>
@@ -87,11 +101,17 @@
                         <div class="row mb-3 p-2">
                         @endif
                             <div class="col-xl-9 pl-0">
-                                <h4>{{$t->name}}</h4>
-                                <h5 class="text-blue">${{number_format($t->price, 2)}} MXN</h5>
-                                <input class="prices" type="hidden" value="{{$t->price}}" data-name="{{$t->name}}" data-idTicket="{{$t->id}}" id="price-{{$t->id}}">
+                                <h4>{{$t->name}} @if(!empty($t->promotion) && date('Y-m-d') <= $t->date_promotion) <sup class="badge badge-danger"> -{{$t->promotion}}% Descuento</sup> @endif</h4>
+                                @if (!empty($t->promotion) && date('Y-m-d') <= $t->date_promotion)
+                                    <h6 class="text-gray line">${{number_format($t->price, 2)}} MXN</h6>
+                                    <h5 class="text-blue">${{number_format($t->price - ($t->price*($t->promotion/100)), 2)}} MXN</h5>
+                                    <input class="prices" type="hidden" value="{{$t->price - ($t->price*($t->promotion/100))}}" data-name="{{$t->name}}" data-idTicket="{{$t->id}}" id="price-{{$t->id}}">
+                                @else
+                                    <h5 class="text-blue">${{number_format($t->price, 2)}} MXN</h5>
+                                    <input class="prices" type="hidden" value="{{$t->price}}" data-name="{{$t->name}}" data-idTicket="{{$t->id}}" id="price-{{$t->id}}">
+                                @endif
                             </div>
-                            <div class="col-xl-3">
+                            <div class="col-10 col-xl-3 pl-0">
                                 <div class="input-group input-group-lg pt-1 mb-2">
                                     <div class="input-group-prepend">
                                     <span class="btn bg-blue text-white bold btn-minus" data-id="{{$t->id}}">-</span>
@@ -115,7 +135,7 @@
             <div class="row">
                 <div class="col-xl-10 offset-xl-1 pt-4 pb-4">
                     <div class="row">
-                        <div class="col-xl-7 pl-0 pr-5">
+                        <div class="col-xl-7 pl-0 pr-5 mb-4">
                             <h4 class="w-100">Tienes <b id="quantityTickets">0</b> boletos seleccionados</h4>
                             <h4 class="bold text-blue d-i" id="total">$0.00 MXN</h4><span class="text-gray-600">&nbsp;+ CARGOS</span>
                         </div>
@@ -133,17 +153,19 @@
             <div class="row">
                 <div class="col-xl-10 offset-xl-1 pt-5 pb-5">
                     <div class="row">
-                        <div class="col-xl-7 pl-0 pr-5 text-justify">
+                        <div class="col-xl-7 pl-0 pr-5 text-justify mb-4">
                             <h2 class="text-gray-dark-300 mb-3">Sobre el evento</h2>
                             <h5>{{$event->description}}</h5>
                         </div>
-                        <div class="col-xl-5 text-justify">
-                            <h2 class="text-gray-dark-300 mb-3">Lugar</h2>
-                            <h5 class="bold mb-3">{{$event->location->name}}</h5>
-                            <h5 class="mb-3">{{$event->location->address}}</h5>
-                            <div class="w-100 map mb-3" id="map">
+                        <div class="col-xl-5 text-justify location">
+                            @if (isset($event->location->name) && isset($event->location->address))
+                                <h2 class="text-gray-dark-300 mb-3">Lugar</h2>
+                                <h5 class="bold mb-3">{{$event->location->name}}</h5>
+                                <h5 class="mb-3">{{$event->location->address}}</h5>
+                                <div class="w-100 map mb-3" id="map">
 
-                            </div>
+                                </div>
+                            @endif
                             <div class="dropdown-divider w-100"></div>
                             <h2 class="text-gray-dark-300 mb-3 text-left mt-4">Contacta al Organizador</h2>
                             @if (!empty($event->email))
@@ -173,9 +195,9 @@
     <div class="row footer-top" style="height: 150px;">
 
     </div>
-    <div class="row footer-bottom" style="height: 170px;">
+    {{-- <div class="row footer-bottom" style="height: 170px;">
 
-    </div>
+    </div> --}}
     <input type="hidden" id="URL" value="{{URL::asset('')}}">
     <input type="hidden" id="idEvent" value="{{$event->id}}">
     @include('modals.public.sale')
@@ -187,7 +209,11 @@
 <script src="{{asset('js/charging.js')}}"></script>
 <script src="{{asset('js/public.js')}}"></script>
 <script>
-    initMap("<?= $event->location->latitude ?>", "<?= $event->location->longitude ?>");
+    var lat = @json(isset($event->location->latitude) ? $event->location->latitude : null);
+    var lon = @json(isset($event->location->longitude) ? $event->location->longitude : null);
+    if (lat != null && lon != null) {
+        initMap(lat, lon);
+    }
 </script>
 </body>
 </html>

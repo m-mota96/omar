@@ -9,7 +9,7 @@
             <span class="text-gray-600 font-small">© Derechos reservados <?= date('Y') ?> - Hecho en México</span>
         </div>
         <div class="col-xl-4 text-right">
-            <span class="font-small"><i class="fas fa-phone"></i> Lllámanos al (55) 10-11-12-13</span> &nbsp;
+            <span class="font-small"><i class="fas fa-phone"></i> Llámanos al (55) 10-11-12-13</span> &nbsp;
             <span class="font-small"><a class="text-dark" href=""><i class="fab fa-facebook-f"></i> Facebook</a></span> &nbsp;
             <span class="font-small"><a class="text-dark" href=""><i class="fab fa-twitter"></i> Twitter</a></span> 
         </div>

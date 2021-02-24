@@ -32,7 +32,7 @@ class HomeController extends Controller
     {
         $user = Auth::user();
         if ($user->role_id == 1) {
-            return view('customers.index');
+            return view('admin.index');
         } elseif($user->role_id == 2) {
             $status = 1;
             switch ($search) {

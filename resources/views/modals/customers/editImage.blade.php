@@ -11,7 +11,7 @@
                 <div class="modal-body">
                     <label>Imagen de fondo</label>
                     <div class="col-lg-12 upload rounded pt-5 pb-5 mb-4" id="upload">
-                        <text class="text-upload" div="drop">
+                        <text class="text-upload dz-message needsclick" div="drop">
                             <i class="fa fa-upload fa-2x valign "></i><br>
                             Suelte la imagen o haga click en el recuadro para cargar.
                         </text>

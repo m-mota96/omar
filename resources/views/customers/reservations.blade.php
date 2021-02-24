@@ -34,5 +34,6 @@
 @section('scripts')
     <script src="{{asset('datatables/datatables.min.js')}}"></script>
     <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+    <script src="{{asset('js/charging.js')}}"></script>
     <script src="{{asset('js/customers/reservations.js')}}"></script>
 @endsection

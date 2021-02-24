@@ -1,0 +1,9 @@
+.pointer {
+    cursor: pointer;
+}
+.buttons-small {
+    width: 35px !important;
+}
+table.dataTable tbody td {
+    vertical-align: middle;
+}

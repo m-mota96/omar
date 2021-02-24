@@ -6,7 +6,7 @@
             {{-- <div class="topbar-divider d-none d-sm-block"></div> --}}
             <!-- Nav Item - User Information -->
             <li class="mr-2">
-                <a class="nav-link text-white" href="{{route('admin.documents')}}">
+                <a class="nav-link text-white" href="{{route('customer.documents')}}">
                     <span class="mr-2 d-none d-lg-inline text-white">Mi cuenta</span>
                 </a>
             </li>

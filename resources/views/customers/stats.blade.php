@@ -10,16 +10,18 @@
     <div class="row">
         <div class="card w-100 pb-5">
             <div class="row p-5">
+                <input type="hidden" id="event_id" value="{{$event_id}}">
                 <div class="col-xl-6">
+                    <label class="bold">Rango de fechas:</label>
                     <div class="input-group mb-3 input-daterange">
                         <div class="input-group-prepend">
                           <span class="input-group-text">De:</span>
                         </div>
-                        <input type="text" class="form-control" placeholder="1/{{date('m/Y')}}">
+                        <input type="date" class="form-control" id="start_date">
                         <div class="input-group-prepend">
                             <span class="input-group-text">a:</span>
                         </div>
-                        <input type="text" class="form-control" placeholder="{{date('d/m/Y')}}">
+                        <input type="date" class="form-control" id="end_date">
                     </div>
                 </div>
             </div>
@@ -28,7 +30,52 @@
             
                 </div>
             </div>
-            <div class="row">
+            <div class="row pl-5 pr-5">
+                <div class="col-xl-12 text-center">
+                    <h4 class="bold">Ingresos totales</h4>
+                </div>
+                <div class="col-xl-12">
+                    <table class="table table-striped">
+                        <thead>
+                            <th>METODO DE PAGO</th>
+                            <th>VENTAS TOTALES</th>
+                            <th>CARGO POR SERVICIO</th>
+                            <th>INGRESO NETO</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="bold">Tarjeta de Crédito / Débito</td>
+                                <td>${{(isset($payments[0]->total)) ? number_format($payments[0]->total, 2) : "0.00"}} MXN</td>
+                                <td>${{(isset($payments[0]->total)) ? number_format($payments[0]->total * 0.05, 2) : "0.00"}} MXN</td>
+                                <td class="text-green bold">${{(isset($payments[0]->total)) ? number_format($payments[0]->total - ($payments[0]->total * 0.05), 2) : "0.00"}} MXN</td>
+                            </tr>
+                            <tr>
+                                <td class="bold">Oxxo</td>
+                                <td>${{(isset($payments[1]->total)) ? number_format($payments[1]->total, 2) : "0.00"}} MXN</td>
+                                <td>${{(isset($payments[1]->total)) ? number_format($payments[1]->total * 0.05, 2) : "0.00"}} MXN</td>
+                                <td class="text-green bold">${{(isset($payments[1]->total)) ? number_format($payments[1]->total - ($payments[1]->total * 0.05), 2) : "0.00"}} MXN</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td class="bold">Total</td>
+                                <td class="bold text-orange">
+                                    @if (isset($payments[0]->total) && !isset($payments[1]->total))
+                                        ${{number_format(($payments[0]->total - ($payments[0]->total * 0.05)), 2)}}
+                                    @elseif (!isset($payments[0]->total) && isset($payments[1]->total))
+                                        ${{number_format(($payments[1]->total - ($payments[1]->total * 0.05)), 2)}}
+                                    @elseif (isset($payments[0]->total) && isset($payments[1]->total))
+                                        ${{number_format(($payments[0]->total - ($payments[0]->total * 0.05)) + ($payments[1]->total - ($payments[1]->total * 0.05)), 2)}}
+                                    @else
+                                        $0.00
+                                    @endif
+                                    MXN
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{-- <div class="row">
                 <div class="col-xl-4 text-center">
                     <h5 class="mb-3">Boletos pagados: <b>{{$total_sales}}</b></h5>
                     <h5>Ingresos: <b>${{number_format($moneySales, 2)}} MXN</b></h5>
@@ -40,7 +87,8 @@
                 <div class="col-xl-4 text-center">
                     <h5>Boletos vencidos: <b>0</b></h5>
                 </div>
-            </div>
+            </div> --}}
+
         </div>
     </div>
 </div>
@@ -53,9 +101,4 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
     <script src="{{asset('js/datepicker_es.js')}}"></script>
     <script src="{{asset('js/customers/stats.js')}}"></script>
-    <script>
-        var sales = @json($sales);
-        var pending = @json($pending);
-        chart('<?= $final_day; ?>', sales, pending);
-    </script>
 @endsection

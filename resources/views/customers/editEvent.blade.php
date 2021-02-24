@@ -55,11 +55,11 @@
                                     <div class="dropdown-divider mt-3 mb-3"></div>
                                     <h6><b><i class="fas fa-map-marker-alt"></i> DÓNDE</b> &nbsp;&nbsp;&nbsp;<span class="font-small pointer" id="btnEditAddress"><i class="fas fa-pen"></i> Editar</span></h6>
                                     <div class="row pl-3 pr-3">
-                                        @if (isset($event->location->name))
-                                            <div class="col-xl-12 w-100" id="content-map">
+                                        {{-- @if (isset($event->location->name)) --}}
+                                            <div class="col-xl-12 w-100 @if (isset($event->location->name)) content-map @endif" id="content-map">
 
                                             </div>
-                                        @endif
+                                        {{-- @endif --}}
                                     </div>
                                     <div class="dropdown-divider mt-3 mb-3"></div>
                                     <h6><b><i class="far fa-id-card"></i> CONTACTO</b> &nbsp;&nbsp;&nbsp;<span class="font-small pointer" id="btnAddContact"><i class="fas fa-pen"></i> Editar</span></h6>
@@ -86,7 +86,7 @@
                                         </div>
                                     </div>
                                     <div class="dropdown-divider mt-3 mb-3"></div>
-                                    <h6><b><i class="fas fa-tags"></i> TRACKING</b> &nbsp;&nbsp;&nbsp;<span class="font-small pointer"><i class="fas fa-pen"></i> Editar</span></h6>
+                                    {{-- <h6><b><i class="fas fa-tags"></i> TRACKING</b> &nbsp;&nbsp;&nbsp;<span class="font-small pointer"><i class="fas fa-pen"></i> Editar</span></h6>
                                     <div class="row">
                                         <div class="col xl-12">
                                             <p class="bold mt-3 mb-2">Google Tag Manager</p>
@@ -94,7 +94,7 @@
                                             <p class="bold mt-3 mb-2">Facebook Pixel</p>
                                             <span>Inactivo</span>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
@@ -117,7 +117,11 @@
     {{-- <script src="{{asset('js/jquery.imgareaselect.js')}}"></script> --}}
     <script src="{{asset('js/customers/editEvent.js')}}"></script>
     <script>
-        processingDates('<?= $event->eventDates; ?>');
+        // processingDates('<?= $event->eventDates; ?>');
+        $('#initial_date').val(@json($event->original_initial_date));
+        $('#final_date').val(@json($event->original_final_date));
+        var schedules = @json($event->eventDates);
+        chargingSchedules(schedules);
         chargingMap('<?= (isset($event->location->latitude)) ? $event->location->latitude : null ?>', '<?= (isset($event->location->longitude)) ? $event->location->longitude : null ?>');
     </script>
 @endsection

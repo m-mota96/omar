@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Payment extends Model
 {
     protected $fillable = [
-        'event_id', 'email', 'phone', 'reference', 'amount', 'status', 
+        'event_id', 'name', 'email', 'phone', 'type', 'reference', 'amount', 'status', 
     ];
 
     public function accesses() {

@@ -12,7 +12,7 @@
                     <div class="row">
                         <div class="col-xl-6 mb-3">
                             <label>Nombre del evento:</label>
-                            <input class="form-control" type="text" id="nameEvent" required>
+                            <input class="form-control" type="text" id="nameEvent" required autocomplete="off">
                             <span class="alerts" id="txt_name_alert">Este nombre no esta disponible</span>
                             <span class="alerts-success" id="txt_name_success">Este nombre esta disponible</span>
                         </div>
@@ -23,7 +23,7 @@
                                     <h5 class="font-weight-bolder">bolteos.com/</h5>
                                 </div>
                                 <div class="col-xl-8">
-                                    <input class="form-control" type="text" id="website" required>
+                                    <input class="form-control" type="text" id="website" required autocomplete="off">
                                 </div>
                             </div>
                             <span class="alerts" id="txt_website_alert">Este sitio web no esta disponible</span>
@@ -41,104 +41,26 @@
                             <label>Lugar del evento:</label>
                             <input class="form-control" type="text" id="location" required>
                         </div> --}}
-                        <div class="col-xl-6 mb-3">
-                            <label>Días de evento:</label>
-                            <select class="form-control" id="daysEvent">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
-                                <option value="9">9</option>
-                                <option value="10">10</option>
-                            </select>
-                        </div>
-                        <div class="col-xl-12 mb-3" id="dates">
-                            <label>Día 1:</label>
+                        <div class="col-xl-6">
+                            <label>Fechas del evento (<b>Inicial - Final</b>):</label><br>
+                            {{-- <p class="btn btn-primary" data-finalId="1" id="moreDays">Añadir 1 día</p> --}}
                             <div class="input-group mb-2">
-                                <input class="form-control inputs-dates-create-event" type="date" id="date_0" required>
+                                <input class="form-control" type="date" id="initial_date" required>
                                 <div class="input-group-prepend">
-                                  <div class="input-group-text bold"> De:</div>
+                                    <div class="input-group-text bold">-</div>
                                 </div>
-                                {{-- <input class="form-control" type="time" id="initial_time_start" required> --}}
-                                <select class="form-control" id="initial_hour_0">
-                                    <option value="00">00</option>
-                                    <option value="01">01</option>
-                                    <option value="02">02</option>
-                                    <option value="03">03</option>
-                                    <option value="04">04</option>
-                                    <option value="05">05</option>
-                                    <option value="06">06</option>
-                                    <option value="07">07</option>
-                                    <option value="08">08</option>
-                                    <option value="09">09</option>
-                                    <option value="10">10</option>
-                                    <option value="11">11</option>
-                                    <option value="12">12</option>
-                                    <option value="13">13</option>
-                                    <option value="14">14</option>
-                                    <option value="15">15</option>
-                                    <option value="16">16</option>
-                                    <option value="17">17</option>
-                                    <option value="18">18</option>
-                                    <option value="19">19</option>
-                                    <option value="20">20</option>
-                                    <option value="21">21</option>
-                                    <option value="22">22</option>
-                                    <option value="23">23</option>
-                                </select>
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">:</div>
-                                </div>
-                                <select class="form-control" id="initial_minute_0">
-                                    <option value="00">00</option>
-                                    <option value="15">15</option>
-                                    <option value="30">30</option>
-                                    <option value="45">45</option>
-                                </select>
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text bold">a: </div>
-                                </div>
-                                {{-- <input class="form-control" type="time" id="final_time_start" required> --}}
-                                <select class="form-control" id="final_hour_0">
-                                    <option value="00">00</option>
-                                    <option value="01">01</option>
-                                    <option value="02">02</option>
-                                    <option value="03">03</option>
-                                    <option value="04">04</option>
-                                    <option value="05">05</option>
-                                    <option value="06">06</option>
-                                    <option value="07">07</option>
-                                    <option value="08">08</option>
-                                    <option value="09">09</option>
-                                    <option value="10">10</option>
-                                    <option value="11">11</option>
-                                    <option value="12">12</option>
-                                    <option value="13">13</option>
-                                    <option value="14">14</option>
-                                    <option value="15">15</option>
-                                    <option value="16">16</option>
-                                    <option value="17">17</option>
-                                    <option value="18">18</option>
-                                    <option value="19">19</option>
-                                    <option value="20">20</option>
-                                    <option value="21">21</option>
-                                    <option value="22">22</option>
-                                    <option value="23">23</option>
-                                </select>
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">:</div>
-                                </div>
-                                <select class="form-control" id="final_minute_0">
-                                    <option value="00">00</option>
-                                    <option value="15">15</option>
-                                    <option value="30">30</option>
-                                    <option value="45">45</option>
-                                </select>
+                                <input class="form-control" type="date" id="final_date" required>
                             </div>
+                            <span class="text-red hidden" id="incorrectDates">La fecha inicial debe ser menor o igual que la fecha final</span>
+                        </div>
+                        <div class="col-xl-8 mb-4" id="divSchedules">
+                            <div class="form-check form-check-inline mt-1 pb-1">
+                                <input class="form-check-input pointer" type="checkbox" id="indicatorSchedule" value="option1">
+                                <label class="form-check-label pointer" for="indicatorSchedule">Los horarios serán los mismos para todos los días</label>
+                            </div>
+                        </div>
+                        <div class="col-xl-12 mb-3" id="divDates">
+                            
                         </div>
                         {{-- <div class="col-xl-12 mb-3">
                             <label>Finaliza:</label>

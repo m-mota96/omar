@@ -52,7 +52,7 @@ function tableSales() {
                 "render": (data, type, row, meta) => {
                     var btn = '<button type="button" class="btn btn-success btn-sm mr-2" data-toggle="tooltip" data-placement="right" title="Detalles de la compra" onclick="detailsSale('+row.id+')"><i class="fas fa-info"></i></button>';
                     if (row.status == 'payed') {
-                        btn += '<button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="right" title="Reenviar boletos"><i class="fas fa-envelope"></i></button>';
+                        btn += '<button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="right" title="Reenviar boletos" onclick="resendTickets('+row.id+', \''+row.email+'\')"><i class="fas fa-envelope"></i></button>';
                         $('[data-toggle="tooltip"]').tooltip();
                         return btn;
                     }
@@ -90,6 +90,50 @@ function detailsSale(payment_id) {
             console.log('ERROR');
         }
     });
+}
+
+function resendTickets(payment_id, email) {
+    Swal.fire({
+        icon: 'warning',
+        html: '<span>Los boletos seran enviados al siguiente correo:</span><br><span><b>Nota: </b>si el correo es incorrecto ingrese el nuevo</span>',
+        input: 'email',
+        inputAttributes: {
+          autocapitalize: 'off'
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Reenviar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        inputValue : email,
+    }).then((result) => {
+        if (result.value) {
+            jsShowWindowLoad('Reenviando boletos, por favor espere!!');
+            $.ajax({
+                url: $('#URL').val()+'resendTickets',
+                method: 'post',
+                data: {
+                    "_token": $("meta[name='csrf-token']").attr("content"),
+                    payment_id: payment_id,
+                    email: result.value
+                },
+                success: (res)=> {
+                    if(res.status == true) {
+                        jsRemoveWindowLoad();
+                        tableSales();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Correcto',
+                            text: 'Los boletos se reenviaron con éxito'
+                        });
+                    }
+                },
+                error: ()=> {
+                    jsRemoveWindowLoad();
+                    console.log('ERROR');
+                }
+            })
+        }
+    })
 }
 
 function formatMoney(number, decPlaces, decSep, thouSep) {

@@ -35,20 +35,22 @@ Auth::routes(['verify' => true]);
 
 Route::get('/home/{search?}', 'HomeController@index')->name('home')->middleware(['auth', 'verified']);
 
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'checkrole:customer'])->group(function() {
-    Route::get('edit/{id}', 'AdminController@editEvent')->name('edit');
-    Route::get('tickets/{id}', 'AdminController@tickets')->name('tickets');
+Route::prefix('customer')->name('customer.')->middleware(['auth', 'checkrole:customer'])->group(function() {
+    Route::get('edit/{id}', 'CustomerController@editEvent')->name('edit');
+    Route::get('tickets/{id}', 'CustomerController@tickets')->name('tickets');
     Route::get('documents', 'DocumentController@documents')->name('documents');
     Route::get('stats/{id}', 'StatisticController@stats')->name('stats');
     Route::get('reservations/{id}', 'StatisticController@reservations')->name('reservations');
 });
 
-Route::prefix('customer')->name('customer.')->middleware(['auth', 'checkrole:customer'])->group(function() {
-    Route::get('/purchases', 'CustomerController@purchases')->name('purchases');
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'checkrole:admin'])->group(function() {
+    // Route::get('/purchases', 'CustomerController@purchases')->name('purchases');
+    Route::get('documents', 'AdminController@documents')->name('documents');
+    Route::get('contracts', 'AdminController@contracts')->name('contracts');
 });
 
 Route::get('/{event}/{ticket?}', 'PublicController@index')->name('/');
-Route::get('/paymentMethod/{method}', function($method) {
+Route::get('payments/paymentMethod/{method}', function($method) {
     if ($method == 'card') {
         return View::make("cardPayment")->render();
     } else if ($method == 'oxxo') {
@@ -58,21 +60,32 @@ Route::get('/paymentMethod/{method}', function($method) {
 Route::post('makePayment', 'PublicController@makePayment');
 Route::post('reference_paid', 'WebhookController@reference_paid');
 
-// Routes usage for admin
-Route::post('checkEvent', 'AdminController@checkEvent');
-Route::post('createEvent', 'AdminController@createEvent');
-Route::post('uploadImage', 'AdminController@uploadImage');
-Route::post('extractEvent', 'AdminController@extractEvent');
-Route::post('updateNameWebsite', 'AdminController@updateNameWebsite');
-Route::post('deleteLogo', 'AdminController@deleteLogo');
-Route::post('editDescription', 'AdminController@editDescription');
-Route::post('editDates', 'AdminController@editDates');
-Route::post('addContact', 'AdminController@addContact');
-Route::post('addLocation', 'AdminController@addLocation');
-Route::post('saveTicket', 'AdminController@saveTicket');
-Route::post('deleteTicket', 'AdminController@deleteTicket');
-Route::post('searchEvents', 'AdminController@searchEvents');
+// Routes usage for customers
+Route::post('checkEvent', 'CustomerController@checkEvent');
+Route::post('createEvent', 'CustomerController@createEvent');
+Route::post('uploadImage', 'CustomerController@uploadImage');
+Route::post('extractEvent', 'CustomerController@extractEvent');
+Route::post('updateNameWebsite', 'CustomerController@updateNameWebsite');
+Route::post('deleteLogo', 'CustomerController@deleteLogo');
+Route::post('editDescription', 'CustomerController@editDescription');
+Route::post('editDates', 'CustomerController@editDates');
+Route::post('addContact', 'CustomerController@addContact');
+Route::post('addLocation', 'CustomerController@addLocation');
+Route::post('saveTicket', 'CustomerController@saveTicket');
+Route::post('deleteTicket', 'CustomerController@deleteTicket');
+Route::post('searchEvents', 'CustomerController@searchEvents');
 Route::post('extractSales', 'StatisticController@extractSales');
 Route::post('resetPassword', 'DocumentController@resetPassword');
 Route::post('editAccount', 'DocumentController@editAccount');
 Route::post('detailsSale', 'StatisticController@detailsSale');
+Route::post('chargingGraphic', 'StatisticController@chargingGraphic');
+Route::post('saveTaxData', 'DocumentController@saveTaxData');
+Route::post('saveBankData', 'DocumentController@saveBankData');
+Route::post('uploadDocuments', 'DocumentController@uploadDocuments');
+Route::post('changeStatusEvent', 'CustomerController@changeStatusEvent');
+Route::post('resendTickets', 'CustomerController@resendTickets');
+
+// Routes usage for admin
+Route::post('extractUsersDocuments', 'AdminController@extractUsersDocuments');
+Route::post('statusDocument', 'AdminController@statusDocument');
+Route::post('extractUsersInfo', 'AdminController@extractUsersInfo');

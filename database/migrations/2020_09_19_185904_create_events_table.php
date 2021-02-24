@@ -28,6 +28,7 @@ class CreateEventsTable extends Migration
             $table->text('instagram')->nullable();
             $table->text('website')->nullable();
             $table->date('final_date')->nullable();
+            $table->string('authorization', 255)->nullable();
             $table->integer('status')->default(0)->comment('0=inactivo, 1=activo, 2=finalizado');
             $table->timestamps();
         });

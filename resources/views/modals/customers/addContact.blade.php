@@ -16,13 +16,13 @@
                             <label>Teléfono <span class="text-gray-600">(Opcional)</span></label>
                             <input class="form-control mb-3" type="number" id="phoneContact" value="{{$event->phone}}">
                             <label>Twitter <span class="text-gray-600">(Opcional)</span></label>
-                            <input class="form-control mb-3" type="text" id="twitterContact" placeholder="p.ej: boletos sin el @" value="{{$event->twitter}}">
+                            <input class="form-control mb-3" type="text" id="twitterContact" placeholder="p.ej: ticketland sin el @" value="{{$event->twitter}}">
                             <label>Facebook <span class="text-gray-600">(Opcional)</span></label>
-                            <input class="form-control mb-3" type="url" id="facebookContact" placeholder="p.ej: https://facebook.com/boletos" value="{{$event->facebook}}">
+                            <input class="form-control mb-3" type="url" id="facebookContact" placeholder="p.ej: https://facebook.com/ticketland" value="{{$event->facebook}}">
                             <label>Instagram <span class="text-gray-600">(Opcional)</span></label>
-                            <input class="form-control mb-3" type="url" id="instagramContact" placeholder="p.ej: https://www.instagram.com/boletos" value="{{$event->instagram}}">
+                            <input class="form-control mb-3" type="url" id="instagramContact" placeholder="p.ej: https://www.instagram.com/ticketland" value="{{$event->instagram}}">
                             <label>Página web <span class="text-gray-600">(Opcional)</span></label>
-                            <input class="form-control mb-3" type="url" id="websiteContact" placeholder="p.ej: https://boletos.com" value="{{$event->website}}">
+                            <input class="form-control mb-3" type="url" id="websiteContact" placeholder="p.ej: https://ticketland.com" value="{{$event->website}}">
                         </div>
                     </div>
                 </div>

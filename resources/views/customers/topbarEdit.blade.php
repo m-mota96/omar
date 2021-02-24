@@ -2,6 +2,24 @@
 <nav class="navbar navbar-expand navbar-light topbar static-top shadow bg-gray-dark-800">
     <div class="container">
         <!-- Topbar Navbar -->
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown no-arrow">
+                <a class="nav-link text-white" href="{{URL::asset('').$event_url}}" target="_blank">
+                    <span class="mr-2 d-none d-lg-inline text-white"><i class="fas fa-link"></i> {{URL::asset('').$event_url}}</span>
+                </a>
+            </li>
+            <li class="nav-item dropdown no-arrow">
+                @if (empty(auth()->user()->contract))
+                    <a class="nav-link text-red">
+                        <span class="mr-2 d-none d-lg-inline bold"><i class="fas fa-file"></i> &nbsp;Sin contrato</span>
+                    </a>
+                @else
+                    <a class="nav-link text-green">
+                        <span class="mr-2 d-none d-lg-inline bold"><i class="fas fa-file"></i> &nbsp;Con contrato</span>
+                    </a>
+                @endif
+            </li>
+        </ul>
         <ul class="navbar-nav ml-auto">
             {{-- <div class="topbar-divider d-none d-sm-block"></div> --}}
             <!-- Nav Item - User Information -->
@@ -40,19 +58,19 @@
             {{-- <div class="topbar-divider d-none d-sm-block"></div> --}}
             <!-- Nav Item - User Information -->
             <li class="mr-4">
-                <a class="text-white pointer" href="{{route('admin.stats', $event_id)}}"><i class="fas fa-chart-line"></i> Estadísticas</a>
+                <a class="nav-link text-white" href="{{route('customer.stats', $event_id)}}"><i class="fas fa-chart-line"></i> Estadísticas</a>
             </li>
             <li class="mr-4">
-                <a class="text-white pointer" href="{{route('admin.edit', $event_id)}}"><i class="fas fa-cog"></i> Configuración</a>
+                <a class="nav-link text-white" href="{{route('customer.edit', $event_id)}}"><i class="fas fa-cog"></i> Configuración</a>
             </li>
             <li class="mr-4">
-                <a class="text-white pointer" href="{{route('admin.tickets', $event_id)}}"><i class="fas fa-tag"></i> Boletos</a>
+                <a class="nav-link text-white" href="{{route('customer.tickets', $event_id)}}"><i class="fas fa-tag"></i> Boletos</a>
             </li>
             <li class="mr-4">
-                <a class="text-white pointer" href="{{route('admin.reservations', $event_id)}}"><i class="fas fa-shopping-cart"></i> Reservaciones</a>
+                <a class="nav-link text-white" href="{{route('customer.reservations', $event_id)}}"><i class="fas fa-shopping-cart"></i> Reservaciones</a>
             </li>
             <li class="mr-4">
-                <span class="text-white pointer"><i class="fas fa-list-ul"></i> Registro</span>
+                {{-- <span class="nav-link text-white"><i class="fas fa-list-ul"></i> Registro</span> --}}
             </li>
         </ul>
     </div>

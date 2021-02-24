@@ -23,6 +23,10 @@
                 <h3>Referencia</h3>
                 <h1>{{ $reference }}</h1>
             </div>
+            <div>
+                <br><h3>Fecha de expiración</h3>
+                <h1>{{$expiration}}</h1>
+            </div>
         </div>
         <div class="opps-instructions">
             <h3>Instrucciones</h3>

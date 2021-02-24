@@ -151,6 +151,7 @@ $('#formEditLocation').submit((e)=> {
         },
         success: (response)=> {
             if(response.status == true) {
+                $('#content-map').addClass('content-map');
                 const myLang2 = {lat: parseFloat($('#latitude').val()), lng: parseFloat($('#longitude').val())}
                 
                 const options2 = {
@@ -371,49 +372,61 @@ $('#formEditDates').submit((e)=> {
     var dates = [];
     var initial_times = [];
     var final_times = [];
-    for (var i = 0; i <= $('#modalEditDates #moreDays').attr('data-finalId'); i++) {
+    var ban = true;
+    for (var i = 0; i < daysEvent; i++) {
         dates[i] = $('#date_'+i).val();
         initial_times[i] = $('#initial_hour_'+i).val()+':'+$('#initial_minute_'+i).val();
         final_times[i] = $('#final_hour_'+i).val()+':'+$('#final_minute_'+i).val();
-    }
-    $.ajax({
-        method: 'POST',
-        url: $('#URL').val()+'editDates',
-        dataType: 'json',
-        async: false,
-        data: {
-            "_token": $("meta[name='csrf-token']").attr("content"),
-            event_id: $("#eventId").val(),
-            dates: dates,
-            initial_times: initial_times,
-            final_times: final_times
-        },
-        success: (response)=> {
-            if(response.status == true) {
-                $('#modalEditDates').modal('hide');
-                $('#content-initial_date').text(response.initial_date);
-                $('#content-final_date').text(response.final_date);
-                Swal.fire({
-                    position: 'bottom-end',
-                    icon: 'success',
-                    text: 'Las fechas se modificaron correctamente',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            } else {
-                Swal.fire({
-                    position: 'bottom-end',
-                    icon: 'error',
-                    text: 'Lo sentimos ocurrio un error',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
-        },
-        error: ()=> {
-            console.log('ERROR');
+        if (parseInt($('#initial_hour_'+i).val()) > parseInt($('#final_hour_'+i).val())) {
+            $('#initial_hour_'+i).addClass('border border-danger');
+            $('#initial_minute_'+i).addClass('border border-danger');
+            $('#final_hour_'+i).addClass('border border-danger');
+            $('#final_minute_'+i).addClass('border border-danger');
+            ban = false;
         }
-    });
+    }
+    if (ban == true) {
+        $.ajax({
+            method: 'POST',
+            url: $('#URL').val()+'editDates',
+            dataType: 'json',
+            async: false,
+            data: {
+                "_token": $("meta[name='csrf-token']").attr("content"),
+                event_id: $("#eventId").val(),
+                dates: dates,
+                initial_times: initial_times,
+                final_times: final_times
+            },
+            success: (response)=> {
+                if(response.status == true) {
+                    $('#modalEditDates').modal('hide');
+                    $('#content-initial_date').text(response.initial_date);
+                    $('#content-final_date').text(response.final_date);
+                    Swal.fire({
+                        position: 'bottom-end',
+                        icon: 'success',
+                        text: 'Las fechas se modificaron correctamente',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        position: 'bottom-end',
+                        icon: 'error',
+                        text: 'Lo sentimos ocurrio un error',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            },
+            error: ()=> {
+                console.log('ERROR');
+            }
+        });
+    } else {
+        $('#submitEditDates').attr('disabled', true);
+    }
 });
 
 var myDropzone = '';
@@ -594,96 +607,81 @@ function checkEventAvailable() {
     }
 }
 
-function processingDates(dates) {
-    dates = JSON.parse(dates);
-    var selects = '';
-    selects += '<p class="btn btn-primary" data-finalId="'+dates.length+'" id="moreDays">Añadir 1 día</p><br>';
-    for (var i = 0; i < dates.length; i++) {
-        selects += '<label id="infoDay-'+i+'">Día '+(i+1)+'</label>';
-        selects += '<div class="input-group mb-2" id="groupDate-'+i+'">';
-            selects += '<input class="form-control inputs-dates-create-event" type="date" id="date_'+i+'" value="'+dates[i].date+'" required></input>';
-            selects += '<div class="input-group-prepend">';
-                selects += '<div class="input-group-text bold"> De:</div>';
-            selects += '</div>';
-            selects += '<select class="form-control" id="initial_hour_'+i+'" required>';
-                for (var j = 0; j < 24; j++) {
-                    if (j < 10) {
-                        var num = '0'+j;
-                    } else {
-                        var num = j;
-                    }
-                    selects += '<option value="'+num+'"'; if (num == dates[i].initial_time.substring(0, 2)) { selects +='selected'; } selects += '>'+num+'</option>';
-                }
-            selects += '</select>';
-            selects += '<div class="input-group-prepend">';
-                selects += '<div class="input-group-text">:</div>';
-            selects += '</div>';
-            selects += '<select class="form-control" id="initial_minute_'+i+'">';
-                for (var j = 0; j < 46; j+=15) {
-                    if (j < 10) {
-                        var num = '0'+j;
-                    } else {
-                        var num = j;
-                    }
-                    selects += '<option value="'+num+'"'; if (num == dates[i].initial_time.substring(3, 5)) { selects += 'selected'; } selects += '>'+num+'</option>';
-                }
-            selects += '</select>';
-            selects += '<div class="input-group-prepend">';
-                selects += '<div class="input-group-text bold"> a:</div>';
-            selects += '</div>';
-            selects += '<select class="form-control" id="final_hour_'+i+'" required>';
-                for (var j = 0; j < 24; j++) {
-                    if (j < 10) {
-                        var num = '0'+j;
-                    } else {
-                        var num = j;
-                    }
-                    selects += '<option value="'+num+'"'; if (num == dates[i].final_time.substring(0, 2)) { selects +='selected'; } selects += '>'+num+'</option>';
-                }
-            selects += '</select>';
-            selects += '<div class="input-group-prepend">';
-                selects += '<div class="input-group-text">:</div>';
-            selects += '</div>';
-            selects += '<select class="form-control" id="final_minute_'+i+'">';
-                for (var j = 0; j < 46; j+=15) {
-                    if (j < 10) {
-                        var num = '0'+j;
-                    } else {
-                        var num = j;
-                    }
-                    selects += '<option value="'+num+'"'; if (num == dates[i].final_time.substring(3, 5)) { selects += 'selected'; } selects += '>'+num+'</option>';
-                }
-            selects += '</select>';
-            if (i > 0) {
-                selects += '<span class="btn btn-danger ml-3" onclick="deleteDate('+i+')"><i class="fas fa-trash-alt"></i></span>';
-            } else {
-                selects += '<span class="btn btn-danger ml-3"><i class="fas fa-trash-alt"></i></span>';
-            }
-        selects += '</div>';
+$('#initial_date').change(function() {
+    calculateDates();
+});
+
+$('#final_date').change(function() {
+    calculateDates();
+});
+
+$('#indicatorSchedule').click(function() {
+    if ($(this).is(':checked')) {
+        chargeSchedules();
+    } else {
+        $('#contentSchedules').remove();
+        calculateDates();
     }
-    $('#divDates').append(selects);
-    addEvent();
+});
+
+
+var daysEvent = 0;
+function calculateDates() {
+    var initial_date = $("#initial_date").val();
+    var final_date = $("#final_date").val();
+    var validateSchedules = true;
+    if (initial_date != '' && final_date != '') {
+        if (initial_date <= final_date) {
+            $('#incorrectDates').addClass('hidden');
+            if ($('#indicatorSchedule').is(':checked') == true) {
+                var scheduleStart = $('#initialScheduleHour').val()+':'+$('#initialScheduleMinute').val();
+                var scheduleEnd = $('#finalScheduleHour').val()+':'+$('#finalScheduleMinute').val();
+                if (scheduleStart > scheduleEnd) {
+                    validateSchedules = false;
+                }
+            }
+            if (validateSchedules == true) {
+                $('#submitEditDates').attr('disabled', false);
+                $('#incorrectSchedules').addClass('hidden');
+                var dateStart = new Date(initial_date);
+                var dateEnd    = new Date(final_date);
+                var finalId = 0;
+                $('#modalEditDates #divDates').html('');
+                while(dateEnd.getTime() >= dateStart.getTime()) {
+                    dateStart.setDate(dateStart.getDate() + 1);
+                    var month = dateStart.getMonth() + 1;
+                    var day = dateStart.getDate();
+                    if (month < 10) {
+                        month = '0' + month;
+                    }
+                    if (day < 10) {
+                        day = '0' + day;
+                    }
+                    var dateParse = dateStart.getFullYear() + '-' + month + '-' + day;
+                    createDates(finalId, dateParse, $('#indicatorSchedule').is(':checked'));
+                    finalId++;
+                    daysEvent++;
+                }
+            } else {
+                $('#incorrectSchedules').removeClass('hidden');
+                $('#submitEditDates').attr('disabled', true);
+            }
+        } else {
+            $('#incorrectDates').removeClass('hidden');
+            $('#submitEditDates').attr('disabled', true);
+        }
+    }
 }
 
-function deleteDate(id) {
-    $('#groupDate-'+id).remove();
-    $('#infoDay-'+id).remove();
-    var cont = 0;
-    $("#modalEditDates .inputs-dates-create-event").each(function (e) {
-        cont++;
-    });
-    $('#modalEditDates #moreDays').attr('data-finalId', cont);
-}
-
-function createDates(finalId) {
+function createDates(finalId, dateValue, indicatorSchedule) {
     var options = '';
     options += '<label id="infoDay-'+finalId+'">Día '+(parseInt(finalId)+1)+':</label>';
     options += '<div class="input-group mb-2" id="groupDate-'+finalId+'">';
-        options += '<input class="form-control inputs-dates-create-event" type="date" id="date_'+finalId+'" required>';
+        options += '<input class="form-control inputs-dates-create-event bg-white" type="date" id="date_'+finalId+'" value="'+dateValue+'" required disabled>';
         options += '<div class="input-group-prepend">';
             options += '<div class="input-group-text bold"> De:</div>';
         options += '</div>';
-        options += '<select class="form-control" id="initial_hour_'+finalId+'">';
+        options += '<select class="form-control" id="initial_hour_'+finalId+'" onchange="checkSchedules()">';
             for (var j = 0; j < 24; j++) {
                 if (j < 10) {
                     options += '<option value="0'+j+'">0'+j+'</option>';
@@ -695,7 +693,7 @@ function createDates(finalId) {
         options += '<div class="input-group-prepend">';
             options += '<div class="input-group-text">:</div>';
         options += '</div>';
-        options += '<select class="form-control" id="initial_minute_'+finalId+'">';
+        options += '<select class="form-control" id="initial_minute_'+finalId+'" onchange="checkSchedules()">';
             options += '<option value="00">00</option>';
             options += '<option value="15">15</option>';
             options += '<option value="30">30</option>';
@@ -704,7 +702,7 @@ function createDates(finalId) {
         options += '<div class="input-group-prepend">';
             options += '<div class="input-group-text bold">a: </div>';
         options += '</div>';
-        options += '<select class="form-control" id="final_hour_'+finalId+'">';
+        options += '<select class="form-control" id="final_hour_'+finalId+'" onchange="checkSchedules()">';
             for (var j = 0; j < 24; j++) {
                 if (j < 10) {
                     options += '<option value="0'+j+'">0'+j+'</option>';
@@ -716,20 +714,129 @@ function createDates(finalId) {
         options += '<div class="input-group-prepend">';
             options += '<div class="input-group-text">:</div>';
         options += '</div>';
-        options += '<select class="form-control" id="final_minute_'+finalId+'">';
+        options += '<select class="form-control" id="final_minute_'+finalId+'" onchange="checkSchedules()">';
             options += '<option value="00">00</option>';
             options += '<option value="15">15</option>';
             options += '<option value="30">30</option>';
             options += '<option value="45">45</option>';
         options += '</select>';
-        options += '<span class="btn btn-danger ml-3" onclick="deleteDate('+finalId+')"><i class="fas fa-trash-alt"></i></span>';
+        // options += '<span class="btn btn-danger ml-3" onclick="deleteDate('+finalId+')"><i class="fas fa-trash-alt"></i></span>';
     options += '</div>';
     $('#modalEditDates #divDates').append(options);
-    var cont = 0;
-    $("#modalEditDates .inputs-dates-create-event").each(function (e) {
-        cont++;
-    });
-    $('#modalEditDates #moreDays').attr('data-finalId', cont);
+    if (indicatorSchedule == true) {
+        $('#initial_hour_'+finalId).val($('#initialScheduleHour').val());
+        $('#initial_minute_'+finalId).val($('#initialScheduleMinute').val());
+        $('#final_hour_'+finalId).val($('#finalScheduleHour').val());
+        $('#final_minute_'+finalId).val($('#finalScheduleMinute').val());
+    }
+}
+
+function chargingSchedules(schedules) {
+    var ban = true;
+    for (var i = 0; i < schedules.length; i++) {
+        if ((i + 1) < schedules.length) {
+            if (schedules[i].initial_time.substring(0, 2) != schedules[i+1].initial_time.substring(0, 2) && schedules[i].final_time.substring(0, 2) != schedules[i+1].final_time.substring(0, 2)) {
+                ban = false;
+            }
+        }
+    }
+
+    if (ban == true) {
+        $('#indicatorSchedule').prop('checked', true);
+        chargeSchedules(null, schedules[0].initial_time.substring(0, 2), schedules[0].initial_time.substring(3, 5), schedules[0].final_time.substring(0, 2), schedules[0].final_time.substring(3, 5));
+        calculateDates();
+    } else {
+        calculateDates();
+        for (var i = 0; i < schedules.length; i++) {
+            $('#initial_hour_'+i).val(schedules[i].initial_time.substring(0, 2));
+            $('#initial_minute_'+i).val(schedules[i].initial_time.substring(3, 5));
+            $('#final_hour_'+i).val(schedules[i].final_time.substring(0, 2));
+            $('#final_minute_'+i).val(schedules[i].final_time.substring(3, 5));
+        }
+    }
+}
+
+function checkSchedules() {
+    var ban = true;
+    for (var i = 0; i < daysEvent; i++) {
+        if (parseInt($('#initial_hour_'+i).val()) > parseInt($('#final_hour_'+i).val())) {
+            $('#initial_hour_'+i).addClass('border border-danger');
+            $('#initial_minute_'+i).addClass('border border-danger');
+            $('#final_hour_'+i).addClass('border border-danger');
+            $('#final_minute_'+i).addClass('border border-danger');
+            ban = false;
+        } else {
+            $('#initial_hour_'+i).removeClass('border border-danger');
+            $('#initial_minute_'+i).removeClass('border border-danger');
+            $('#final_hour_'+i).removeClass('border border-danger');
+            $('#final_minute_'+i).removeClass('border border-danger');
+            $('#initial_hour_'+i).addClass('border border-success');
+            $('#initial_minute_'+i).addClass('border border-success');
+            $('#final_hour_'+i).addClass('border border-success');
+            $('#final_minute_'+i).addClass('border border-success');
+        }
+    }
+    if (ban == true) {
+        $('#submitEditDates').attr('disabled', false);
+    } else {
+        $('#submitEditDates').attr('disabled', true);
+    }
+}
+
+function chargeSchedules(schedules = null, initial_hour = null, initial_minute = null, final_hour = null, final_minute = null) {
+    var schedules = '';
+    schedules += '<div class="input-group mb-2" id="contentSchedules">';
+        schedules += '<div class="input-group-prepend">';
+            schedules += '<div class="input-group-text">De:</div>';
+        schedules += '</div>';
+        schedules += '<select class="form-control" id="initialScheduleHour" onChange="calculateDates()">';
+            for (var i = 0; i < 24; i++) {
+                if (i < 10) {
+                    schedules += '<option value="0'+i+'">0'+i+'</option>';
+                } else {
+                    schedules += '<option value="'+i+'">'+i+'</option>';
+                }
+            }
+        schedules += '</select>';
+        schedules += '<div class="input-group-prepend">';
+            schedules += '<div class="input-group-text">:</div>';
+        schedules += '</div>';
+        schedules += '<select class="form-control" id="initialScheduleMinute" onChange="calculateDates()">';
+            schedules += '<option value="00">00</option>';
+            schedules += '<option value="15">15</option>';
+            schedules += '<option value="30">30</option>';
+            schedules += '<option value="45">45</option>';
+        schedules += '</select>';
+        schedules += '<div class="input-group-prepend">';
+            schedules += '<div class="input-group-text bold">a: </div>';
+        schedules += '</div>';
+        schedules += '<select class="form-control" id="finalScheduleHour" onChange="calculateDates()">';
+            for (var i = 0; i < 24; i++) {
+                if (i < 10) {
+                    schedules += '<option value="0'+i+'">0'+i+'</option>';
+                } else {
+                    schedules += '<option value="'+i+'">'+i+'</option>';
+                }
+            }
+        schedules += '</select>';
+        schedules += '<div class="input-group-prepend">';
+            schedules += '<div class="input-group-text">:</div>';
+        schedules += '</div>';
+        schedules += '<select class="form-control" id="finalScheduleMinute" onChange="calculateDates()">';
+            schedules += '<option value="00">00</option>';
+            schedules += '<option value="15">15</option>';
+            schedules += '<option value="30">30</option>';
+            schedules += '<option value="45">45</option>';
+        schedules += '</select>';
+    schedules += '</div>';
+    schedules += '<span class="text-red hidden" id="incorrectSchedules">La hora inicial debe ser menor que la final</span>';
+    $('#divSchedules').append(schedules);
+    if (initial_hour != null && initial_minute != null && final_hour != null && final_minute != null) {
+        $('#initialScheduleHour').val(initial_hour);
+        $('#initialScheduleMinute').val(initial_minute);
+        $('#finalScheduleHour').val(final_hour);
+        $('#finalScheduleMinute').val(final_minute);
+    }
 }
 
 function chargingMap(latitude = '', longitude = '') {

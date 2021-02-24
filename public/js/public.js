@@ -99,42 +99,51 @@ $('.btn-minus').click(function() {
 
 $('#payment-method').change(()=> {
     $.get(
-        $('#URL').val()+"paymentMethod/"+$('#payment-method').val(),
+        $('#URL').val()+"payments/paymentMethod/"+$('#payment-method').val(),
         function (data) {
-            console.log(data);
             $("#divContentPayment").html(data);
+            $("#confirmEmail").on('paste', function(e){
+                e.preventDefault();
+            });
         }
     );
 });
 
 $('#formSale').submit((e)=> {
     e.preventDefault();
-    if (sales == true) {
-        if($('#payment-method').val() == 'card') {
-            var $form = $('#formSale');
-            Conekta.Token.create($form, conektaSuccessReponseHandler, conektaErrorReponseHandler);
-        } else if ($('#payment-method').val() == 'oxxo') {
+    if ($('#email').val() == $('#confirmEmail').val()) {
+        if (sales == true) {
+            if($('#payment-method').val() == 'card') {
+                var $form = $('#formSale');
+                Conekta.Token.create($form, conektaSuccessReponseHandler, conektaErrorReponseHandler);
+            } else if ($('#payment-method').val() == 'oxxo') {
+                Swal.fire({
+                    title: "¡Atención!",
+                    html: "Tu referencia de pago se enviará a:<br><b>"+$('#email').val()+"</b><br> ¿Es correcta esta información?",
+                    showCancelButton: true,
+                    cancelButtonColor: '#3085d6',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Aceptar',
+                    reverseButtons: true
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        var msgAlert = 'Creando referencia de pago, no cierre ni actualice esta página. Por favor espere!!';
+                        var msgSuccess = 'Su referencia se genero con éxito, en breve la recibira en su correo electrónico';
+                        jsPay(msgAlert, msgSuccess);
+                    }
+                });
+            }
+        } else {
             Swal.fire({
-                title: "¡Atención!",
-                html: "Tu referencia de pago se enviará a:<br><b>"+$('#email').val()+"</b><br> ¿Es correcta esta información?",
-                showCancelButton: true,
-                cancelButtonColor: '#3085d6',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Aceptar',
-                reverseButtons: true
-            }).then((willDelete) => {
-                if (willDelete) {
-                    var msgAlert = 'Creando referencia de pago, no cierre ni actualice esta página. Por favor espere!!';
-                    var msgSuccess = 'Su referencia se genero con éxito, en breve la recibira en su correo electrónico';
-                    jsPay(msgAlert, msgSuccess);
-                }
+                icon: 'error',
+                text: 'Debe elegir al menos un boleto',
             });
         }
     } else {
         Swal.fire({
             icon: 'error',
-            text: 'Debe elegir al menos un boleto',
+            text: 'Los correos no coinciden',
         });
     }
 });
@@ -244,9 +253,9 @@ function jsPay(msgAlert, msgSuccess) {
                     title: 'Correcto',
                     html: msgSuccess,
                 });
-                // setTimeout(function(){
-                //     location.reload();
-                // },2000);
+                setTimeout(function(){
+                    location.reload();
+                },3000);
             } else {
                 jsRemoveWindowLoad();
                 if(response.error == 'exceeded') {

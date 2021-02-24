@@ -14,6 +14,8 @@ use App\Event;
 use App\Ticket;
 use App\Payment;
 use App\Access;
+use DateTime;
+use DateInterval;
 use PDF;
 
 class PublicController extends Controller
@@ -41,14 +43,21 @@ class PublicController extends Controller
 
     public function makePayment(Request $request) {
         // dd($request->input());
-        $event = Event::with(['profile'])->where('id', $request->input('event_id'))->first();
+        $event = Event::with(['profile', 'eventDates', 'location'])->where('id', $request->input('event_id'))->first();
+        $initial_date = Carbon::parse($event->eventDates[0]->date)->locale('es')->isoFormat('D-MM-Y');
+        $pos = sizeof($event->eventDates) - 1;
+        $final_date = Carbon::parse($event->eventDates[$pos]->date)->locale('es')->isoFormat('D-MM-Y');
+        $address = $event->location->name;
         $tickets = Array();
         $folios = Array();
         $total = 0;
         $pos = 0;
+        if (!file_exists('media/pdf/events/'.$event->id)) {
+            mkdir('media/pdf/events/'.$event->id, 0777, true);
+        }
         for ($i = 0; $i < sizeof($request->input('quantities')); $i++) {
             if ($request->input('quantities')[$i] > 0) {
-                $ticket = Ticket::select('id', 'name', 'description', 'price', 'quantity', 'sales')->where('id', $request->input('tickets')[$i])->first();
+                $ticket = Ticket::select('id', 'name', 'description', 'price', 'quantity', 'sales', 'valid', 'promotion', 'date_promotion', 'status')->where('id', $request->input('tickets')[$i])->first();
                 if ($ticket->quantity == $ticket->sales) {
                     return response()->json([
                         'status' => false,
@@ -62,23 +71,35 @@ class PublicController extends Controller
                         'msj' => 'No es posible comprar '.$request->input('quantities')[$i].' '.$ticket->name.'<br>solo quedan '.($ticket->quantity - $ticket->sales).' disponibles'
                     ]);
                 }
+                $ticket->sales = $ticket->sales + $request->input('quantities')[$i];
+                if ($ticket->quantity == $ticket->sales) {
+                    $ticket->status = 0;
+                }
+                $ticket->save();
+                if (!empty($ticket->promotion) && !empty($ticket->date_promotion)) {
+                    if (date('Y-m-d') <= $ticket->date_promotion) {
+                        $ticket->price = $ticket->price - ($ticket->price * ($ticket->promotion / 100));
+                    }
+                }
                 $tickets[$i]['name'] = $ticket->name;
                 // $tickets[$i]['description'] = $ticket->description;
                 $tickets[$i]['price'] = $ticket->price;
                 $total = $total + ($ticket->price * $request->input('quantities')[$i]);
                 try {
-                    $ticket->img_event = 'media/events/'.$event->id.'/'.$event->profile->name;
+                    $ticket->img_event = asset('media/events/'.$event->id.'/'.$event->profile->name);
                     for ($j = 0; $j < $request->input('quantities')[$i]; $j++) {
                         $folio = strtoupper(uniqid());
-                        $code_QR = QrCode::generate($folio);
+                        $code_QR = QrCode::backgroundColor(255, 125, 0, 0.5)->size(550)->format('svg')->generate($folio);
                         $ticket->qr = base64_encode($code_QR);
+                        $ticket->initial_date = $initial_date;
+                        $ticket->final_date = $final_date;
+                        $ticket->address = $address;
+                        $ticket->eventName = $event->name;
                         $pdf = PDF::loadView('pdfTicket', $ticket);
-                        if (!file_exists('media/pdf/events/'.$event->id)) {
-                            mkdir('media/pdf/events/'.$event->id, 0777, true);
-                        }
                         $pdf->save('media/pdf/events/'.$event->id.'/'.$folio.'.pdf');
                         $folios[$pos]['folio'] = $folio;
                         $folios[$pos]['ticket_id'] = $ticket->id;
+                        $folios[$pos]['valid'] = $ticket->valid;
                         $pos++;
                     }
                 } catch(\Exception $e) {
@@ -93,6 +114,7 @@ class PublicController extends Controller
                 $tickets[$i]['price'] = null;
             }
         }
+        // dd('STOP');
         \Conekta\Conekta::setApiKey($this->ApiKey);
         \Conekta\Conekta::setApiVersion($this->ApiVersion);
         if ($request->input('payment_method') == 'card') {
@@ -100,7 +122,7 @@ class PublicController extends Controller
             if ($customer['status'] == true) {
                 $order = $this->createOrder($total, 'Compra de boletos para '.$event->name, 1);
                 if ($order['status'] == true) {
-                    $payment = $this->registerPayment($event->id, substr($request->input('card'), -4), $request->input('email'), 'payed', $total);
+                    $payment = $this->registerPayment($event->id, $request->input('name'), substr($request->input('card'), -4), 'card', $request->input('email'), 'payed', $total, $request->input('phone'));
                     $this->saveAccesses($payment->id, $folios);
                 } else {
                     // $this->deleteFiles($folios);
@@ -119,11 +141,14 @@ class PublicController extends Controller
         } else if ($request->input('payment_method') == 'oxxo') {
             $order = $this->createOrderOxxo($total, 'Compra de boletos para '.$event->name, $request->input('name'), $request->input('email'), $request->input('phone'), 1);
             if($order['status'] == true) {
-                $payment = $this->registerPayment($event->id, $order['reference'], $request->input('email'), 'pending', $total);
+                $payment = $this->registerPayment($event->id, $request->input('name'), $order['reference'], 'oxxo', $request->input('email'), 'pending', $total, $request->input('phone'));
+                $date = Carbon::now();
+                $expiration = Carbon::parse($date->addDays(2)->format('Y-m-d'))->locale('es')->isoFormat('D MMMM Y');
                 $dataReference = array(
                     'reference' => $order['reference'],
                     'monto' => $total,
-                    'name_event' => $event->name
+                    'name_event' => $event->name,
+                    'expiration' => $expiration
                 );
                 $pdf = PDF::loadView('pdfOxxo', $dataReference);
                 if (!file_exists('media/pdf/events/'.$event->id)) {
@@ -153,10 +178,13 @@ class PublicController extends Controller
         ]);
     }
 
-    public function registerPayment($event_id, $reference, $email, $status, $total) {
+    public function registerPayment($event_id, $name, $reference, $type, $email, $status, $total, $phone) {
         $payment = Payment::create([
             'event_id' => $event_id,
+            'name' => $name,
             'email' => $email,
+            'phone' => $phone,
+            'type' => $type,
             'reference' => $reference,
             'amount' => $total,
             'status' => $status
@@ -169,7 +197,8 @@ class PublicController extends Controller
             Access::create([
                 'payment_id' => $payment_id,
                 'ticket_id' => $folios[$i]['ticket_id'],
-                'folio' => $folios[$i]['folio']
+                'folio' => $folios[$i]['folio'],
+                'quantity' => $folios[$i]['valid']
             ]);
         }
         return true;
@@ -244,6 +273,8 @@ class PublicController extends Controller
 
     public function createOrderOxxo($price, $description, $name, $email, $phone, $quantity) {
         $data['status'] = true;
+        $date = Carbon::now();
+        $expiration = (new DateTime($date->addDays(2)->format('Y-m-d')))->getTimestamp();
         try{
             $this->order = \Conekta\Order::create(
                 array(
@@ -264,6 +295,7 @@ class PublicController extends Controller
                     array(
                         "payment_method" => array(
                             "type" => "oxxo_cash",
+                            "expires_at" => $expiration
                         )//payment_method
                     ) //first charge
                 ) //charges

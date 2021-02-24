@@ -19,8 +19,9 @@ class CreatePaymentsTable extends Migration
             $table->foreign('event_id')->references('id')->on('events');
             $table->string('name', 255);
             $table->string('email', 255);
-            $table->integer('phone')->nullable();
+            $table->string('phone', 20)->nullable();
             $table->string('reference', 150);
+            $table->string('type', 15)->nullable();
             $table->integer('amount');
             $table->string('status');
             $table->timestamps();

@@ -52,11 +52,108 @@ $("#modalCreateEvent").on("hidden.bs.modal", function () {
     $('#modalCreateEvent #txt_website_alert').css('display', 'none');
     $('#modalCreateEvent #txt_name_success').css('display', 'none');
     $('#modalCreateEvent #txt_website_success').css('display', 'none');
-    createDates(1);
+    $('#modalCreateEvent #divDates').html('');
 });
 
-$('#daysEvent').on('change', function() {
-    createDates($(this).val());
+$('#moreDays').click(function() {
+    createDates($(this).attr('data-finalId'));
+});
+
+$('#initial_date').change(function() {
+    calculateDates();
+});
+
+$('#final_date').change(function() {
+    calculateDates();
+});
+
+$('#indicatorSchedule').click(function() {
+    if ($(this).is(':checked')) {
+        var schedules = '';
+        schedules += '<div class="input-group mb-2" id="contentSchedules">';
+            schedules += '<div class="input-group-prepend">';
+                schedules += '<div class="input-group-text">De:</div>';
+            schedules += '</div>';
+            schedules += '<select class="form-control" id="initialScheduleHour" onChange="calculateDates()">';
+                schedules += '<option value="00">00</option>';
+                schedules += '<option value="01">01</option>';
+                schedules += '<option value="02">02</option>';
+                schedules += '<option value="03">03</option>';
+                schedules += '<option value="04">04</option>';
+                schedules += '<option value="05">05</option>';
+                schedules += '<option value="06">06</option>';
+                schedules += '<option value="07">07</option>';
+                schedules += '<option value="08">08</option>';
+                schedules += '<option value="09">09</option>';
+                schedules += '<option value="10">10</option>';
+                schedules += '<option value="11">11</option>';
+                schedules += '<option value="12">12</option>';
+                schedules += '<option value="13">13</option>';
+                schedules += '<option value="14">14</option>';
+                schedules += '<option value="15">15</option>';
+                schedules += '<option value="16">16</option>';
+                schedules += '<option value="17">17</option>';
+                schedules += '<option value="18">18</option>';
+                schedules += '<option value="19">19</option>';
+                schedules += '<option value="20">20</option>';
+                schedules += '<option value="21">21</option>';
+                schedules += '<option value="22">22</option>';
+                schedules += '<option value="23">23</option>';
+            schedules += '</select>';
+            schedules += '<div class="input-group-prepend">';
+                schedules += '<div class="input-group-text">:</div>';
+            schedules += '</div>';
+            schedules += '<select class="form-control" id="initialScheduleMinute" onChange="calculateDates()">';
+                schedules += '<option value="00">00</option>';
+                schedules += '<option value="15">15</option>';
+                schedules += '<option value="30">30</option>';
+                schedules += '<option value="45">45</option>';
+            schedules += '</select>';
+            schedules += '<div class="input-group-prepend">';
+                schedules += '<div class="input-group-text bold">a: </div>';
+            schedules += '</div>';
+            schedules += '<select class="form-control" id="finalScheduleHour" onChange="calculateDates()">';
+                schedules += '<option value="00">00</option>';
+                schedules += '<option value="01">01</option>';
+                schedules += '<option value="02">02</option>';
+                schedules += '<option value="03">03</option>';
+                schedules += '<option value="04">04</option>';
+                schedules += '<option value="05">05</option>';
+                schedules += '<option value="06">06</option>';
+                schedules += '<option value="07">07</option>';
+                schedules += '<option value="08">08</option>';
+                schedules += '<option value="09">09</option>';
+                schedules += '<option value="10">10</option>';
+                schedules += '<option value="11">11</option>';
+                schedules += '<option value="12">12</option>';
+                schedules += '<option value="13">13</option>';
+                schedules += '<option value="14">14</option>';
+                schedules += '<option value="15">15</option>';
+                schedules += '<option value="16">16</option>';
+                schedules += '<option value="17">17</option>';
+                schedules += '<option value="18">18</option>';
+                schedules += '<option value="19">19</option>';
+                schedules += '<option value="20">20</option>';
+                schedules += '<option value="21">21</option>';
+                schedules += '<option value="22">22</option>';
+                schedules += '<option value="23">23</option>';
+            schedules += '</select>';
+            schedules += '<div class="input-group-prepend">';
+                schedules += '<div class="input-group-text">:</div>';
+            schedules += '</div>';
+            schedules += '<select class="form-control" id="finalScheduleMinute" onChange="calculateDates()">';
+                schedules += '<option value="00">00</option>';
+                schedules += '<option value="15">15</option>';
+                schedules += '<option value="30">30</option>';
+                schedules += '<option value="45">45</option>';
+            schedules += '</select>';
+        schedules += '</div>';
+        schedules += '<span class="text-red hidden" id="incorrectSchedules">La hora inicial debe ser menor que la final</span>';
+        $('#divSchedules').append(schedules);
+    } else {
+        $('#contentSchedules').remove();
+        calculateDates();
+    }
 });
 
 $('#searchEvents').keyup(()=> {
@@ -81,114 +178,263 @@ $('#searchEvents').keyup(()=> {
     });
 });
 
-function createDates(quantity) {
-    var options = '';
-    for (var i = 0; i < quantity; i++) {
-        options += '<label>Día '+(i+1)+':</label>';
-        options += '<div class="input-group mb-2">';
-            options += '<input class="form-control inputs-dates-create-event" type="date" id="date_'+i+'" required>';
-            options += '<div class="input-group-prepend">';
-                options += '<div class="input-group-text bold"> De:</div>';
-            options += '</div>';
-            options += '<select class="form-control" id="initial_hour_'+i+'">';
-                for (var j = 0; j < 24; j++) {
-                    if (j < 10) {
-                        options += '<option value="0'+j+'">0'+j+'</option>';
-                    } else {
-                        options += '<option value="'+j+'">'+j+'</option>';
-                    }
-                }
-            options += '</select>';
-            options += '<div class="input-group-prepend">';
-                options += '<div class="input-group-text">:</div>';
-            options += '</div>';
-            options += '<select class="form-control" id="initial_minute_'+i+'">';
-                options += '<option value="00">00</option>';
-                options += '<option value="15">15</option>';
-                options += '<option value="30">30</option>';
-                options += '<option value="45">45</option>';
-            options += '</select>';
-            options += '<div class="input-group-prepend">';
-                options += '<div class="input-group-text bold">a: </div>';
-            options += '</div>';
-            options += '<select class="form-control" id="final_hour_'+i+'">';
-                for (var j = 0; j < 24; j++) {
-                    if (j < 10) {
-                        options += '<option value="0'+j+'">0'+j+'</option>';
-                    } else {
-                        options += '<option value="'+j+'">'+j+'</option>';
-                    }
-                }
-            options += '</select>';
-            options += '<div class="input-group-prepend">';
-                options += '<div class="input-group-text">:</div>';
-            options += '</div>';
-            options += '<select class="form-control" id="final_minute_'+i+'">';
-                options += '<option value="00">00</option>';
-                options += '<option value="15">15</option>';
-                options += '<option value="30">30</option>';
-                options += '<option value="45">45</option>';
-            options += '</select>';
-        options += '</div>';
+$('#statusEvent').change(function() {
+    var status = 0;
+    if ($('#statusEvent').prop('checked')) {
+        status = 1;
+        var txt = 'activo';
+        var action = 'inicara';
+    } else {
+        status = 0;
+        var txt = 'desactivo';
+        var action = 'detendra';
     }
-    $('#modalCreateEvent #dates').html(options);
+    // Swal.fire({
+    //     icon: 'warning',
+    //     title: 'Atención',
+    //     html: '<span>Esta acción '+action+' la venta de boletos para su evento</span><br><span>¿Desea continuar?</span>',
+    //     showCancelButton: true,
+    //     confirmButtonColor: '#3085d6',
+    //     cancelButtonColor: '#d33',
+    //     confirmButtonText: 'Aceptar',
+    //     cancelButtonText: 'Cancelar',
+    //     reverseButtons: true
+    // }).then((result) => {
+    //     if (result.isConfirmed) {
+            $.ajax({
+                url: $('#URL').val()+'changeStatusEvent',
+                method: 'post',
+                data: {
+                    "_token": $("meta[name='csrf-token']").attr("content"),
+                    eventId: $(this).attr('data-eventId'),
+                    status: status
+                },
+                success: (res)=> {
+                    if (res.status == true) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Correcto',
+                            text: 'Su evento se '+txt+' con éxito'
+                        });
+                    }
+                },
+                error: ()=> {
+                    console.log('ERROR');
+                }
+            });
+    //     } else {
+    //         $('#statusEvent').bootstrapToggle('off');
+    //     }
+    // });
+});
+
+var daysEvent = 0;
+function calculateDates() {
+    var initial_date = $("#initial_date").val();
+    var final_date = $("#final_date").val();
+    var validateSchedules = true;
+    if (initial_date != '' && final_date != '') {
+        if (initial_date <= final_date) {
+            $('#incorrectDates').addClass('hidden');
+            if ($('#indicatorSchedule').is(':checked') == true) {
+                var scheduleStart = $('#initialScheduleHour').val()+':'+$('#initialScheduleMinute').val();
+                var scheduleEnd = $('#finalScheduleHour').val()+':'+$('#finalScheduleMinute').val();
+                if (scheduleStart > scheduleEnd) {
+                    validateSchedules = false;
+                }
+            }
+            if (validateSchedules == true) {
+                $('#submitCreateEvent').attr('disabled', false);
+                $('#incorrectSchedules').addClass('hidden');
+                var dateStart = new Date(initial_date);
+                var dateEnd    = new Date(final_date);
+                var finalId = 0;
+                $('#modalCreateEvent #divDates').html('');
+                while(dateEnd.getTime() >= dateStart.getTime()) {
+                    dateStart.setDate(dateStart.getDate() + 1);
+                    var month = dateStart.getMonth() + 1;
+                    var day = dateStart.getDate();
+                    if (month < 10) {
+                        month = '0' + month;
+                    }
+                    if (day < 10) {
+                        day = '0' + day;
+                    }
+                    var dateParse = dateStart.getFullYear() + '-' + month + '-' + day;
+                    createDates(finalId, dateParse, $('#indicatorSchedule').is(':checked'));
+                    finalId++;
+                    daysEvent++;
+                }
+            } else {
+                $('#incorrectSchedules').removeClass('hidden');
+                $('#submitCreateEvent').attr('disabled', true);
+            }
+        } else {
+            $('#incorrectDates').removeClass('hidden');
+            $('#submitCreateEvent').attr('disabled', true);
+        }
+    }
+}
+
+function createDates(finalId, dateValue, indicatorSchedule) {
+    var options = '';
+    options += '<label id="infoDay-'+finalId+'">Día '+(parseInt(finalId)+1)+':</label>';
+    options += '<div class="input-group mb-2" id="groupDate-'+finalId+'">';
+        options += '<input class="form-control inputs-dates-create-event bg-white" type="date" id="date_'+finalId+'" value="'+dateValue+'" required disabled>';
+        options += '<div class="input-group-prepend">';
+            options += '<div class="input-group-text bold"> De:</div>';
+        options += '</div>';
+        options += '<select class="form-control" id="initial_hour_'+finalId+'" onchange="checkSchedules()">';
+            for (var j = 0; j < 24; j++) {
+                if (j < 10) {
+                    options += '<option value="0'+j+'">0'+j+'</option>';
+                } else {
+                    options += '<option value="'+j+'">'+j+'</option>';
+                }
+            }
+        options += '</select>';
+        options += '<div class="input-group-prepend">';
+            options += '<div class="input-group-text">:</div>';
+        options += '</div>';
+        options += '<select class="form-control" id="initial_minute_'+finalId+'" onchange="checkSchedules()">';
+            options += '<option value="00">00</option>';
+            options += '<option value="15">15</option>';
+            options += '<option value="30">30</option>';
+            options += '<option value="45">45</option>';
+        options += '</select>';
+        options += '<div class="input-group-prepend">';
+            options += '<div class="input-group-text bold">a: </div>';
+        options += '</div>';
+        options += '<select class="form-control" id="final_hour_'+finalId+'" onchange="checkSchedules()">';
+            for (var j = 0; j < 24; j++) {
+                if (j < 10) {
+                    options += '<option value="0'+j+'">0'+j+'</option>';
+                } else {
+                    options += '<option value="'+j+'">'+j+'</option>';
+                }
+            }
+        options += '</select>';
+        options += '<div class="input-group-prepend">';
+            options += '<div class="input-group-text">:</div>';
+        options += '</div>';
+        options += '<select class="form-control" id="final_minute_'+finalId+'" onchange="checkSchedules()">';
+            options += '<option value="00">00</option>';
+            options += '<option value="15">15</option>';
+            options += '<option value="30">30</option>';
+            options += '<option value="45">45</option>';
+        options += '</select>';
+        // options += '<span class="btn btn-danger ml-3" onclick="deleteDate('+finalId+')"><i class="fas fa-trash-alt"></i></span>';
+    options += '</div>';
+    $('#modalCreateEvent #divDates').append(options);
+    if (indicatorSchedule == true) {
+        $('#initial_hour_'+finalId).val($('#initialScheduleHour').val());
+        $('#initial_minute_'+finalId).val($('#initialScheduleMinute').val());
+        $('#final_hour_'+finalId).val($('#finalScheduleHour').val());
+        $('#final_minute_'+finalId).val($('#finalScheduleMinute').val());
+    }
+    // var cont = 0;
+    // $("#modalCreateEvent .inputs-dates-create-event").each(function (e) {
+    //     cont++;
+    // });
+    // $('#modalCreateEvent #moreDays').attr('data-finalId', cont);
+}
+
+function deleteDate(id) {
+    if ((id + 1) >= $('#modalCreateEvent #moreDays').attr('data-finalId')) {
+        $('#groupDate-'+id).remove();
+        $('#infoDay-'+id).remove();
+        var cont = 0;
+        $("#modalCreateEvent .inputs-dates-create-event").each(function (e) {
+            cont++;
+        });
+        $('#modalCreateEvent #moreDays').attr('data-finalId', cont);
+    } else {
+        Swal.fire({
+            icon: 'error',
+            text: 'Debe eliminar en orden las fechas de su evento'
+        });
+    }
 }
 
 function createEvent() {
+    $('#submitCreateEvent').attr('disabled', true);
     var dates = [];
     var initial_times = [];
     var final_times = [];
-    for (var i = 0; i < $('#daysEvent').val(); i++) {
+    var ban = true;
+    for (var i = 0; i < daysEvent; i++) {
         dates[i] = $('#date_'+i).val();
         initial_times[i] = $('#initial_hour_'+i).val()+':'+$('#initial_minute_'+i).val();
         final_times[i] = $('#final_hour_'+i).val()+':'+$('#final_minute_'+i).val();
-    }
-    $.ajax({
-        method: 'POST',
-        url: $('#URL').val()+'createEvent',
-        dataType: 'json',
-        data: {
-            "_token": $("meta[name='csrf-token']").attr("content"),
-            name: $('#nameEvent').val(),
-            website: $('#website').val(),
-            quantity: $('#quantity').val(),
-            dates: dates,
-            initial_times: initial_times,
-            final_times: final_times,
-            description: $('#description').val(),
-            location: $('#location').val(),
-        },
-        success: (response)=> {
-            if(response.status == true) {
-                // createEventDom(response.event);
-                // $('#modalCreateEvent').modal('hide');
-                // $('#modalCreateEvent .form-control').val('');
-                // $('#modalCreateEvent #daysEvent').val(1);
-                // $('#modalCreateEvent #txt_name_success').css('display', 'none');
-                // $('#modalCreateEvent #txt_website_success').css('display', 'none');
-                // createDates(1);
-                location.href = $('#URL').val()+'admin/edit/'+response.event.id;
-                // Swal.fire({
-                //     position: 'bottom-end',
-                //     icon: 'success',
-                //     text: 'El evento se creo correctamente',
-                //     showConfirmButton: false,
-                //     timer: 1500
-                // });
-            } else {
-                Swal.fire({
-                    position: 'bottom-end',
-                    icon: 'error',
-                    text: 'Lo sentimos ocurrio un error',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
-        },
-        error: ()=> {
-            console.log('ERROR');
+        if (parseInt($('#initial_hour_'+i).val()) > parseInt($('#final_hour_'+i).val())) {
+            $('#initial_hour_'+i).addClass('border border-danger');
+            $('#initial_minute_'+i).addClass('border border-danger');
+            $('#final_hour_'+i).addClass('border border-danger');
+            $('#final_minute_'+i).addClass('border border-danger');
+            ban = false;
         }
-    });
+    }
+    if (ban == true) {
+        $.ajax({
+            method: 'POST',
+            url: $('#URL').val()+'createEvent',
+            dataType: 'json',
+            data: {
+                "_token": $("meta[name='csrf-token']").attr("content"),
+                name: $('#nameEvent').val(),
+                website: $('#website').val(),
+                quantity: $('#quantity').val(),
+                dates: dates,
+                initial_times: initial_times,
+                final_times: final_times,
+                description: $('#description').val(),
+                location: $('#location').val(),
+            },
+            success: (response)=> {
+                if(response.status == true) {
+                    location.href = $('#URL').val()+'customer/edit/'+response.event.id;
+                } else {
+                    Swal.fire({
+                        position: 'bottom-end',
+                        icon: 'error',
+                        text: 'Lo sentimos ocurrio un error',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            },
+            error: ()=> {
+                console.log('ERROR');
+            }
+        });
+    }
+}
+
+function checkSchedules() {
+    var ban = true;
+    for (var i = 0; i < daysEvent; i++) {
+        if (parseInt($('#initial_hour_'+i).val()) > parseInt($('#final_hour_'+i).val())) {
+            $('#initial_hour_'+i).addClass('border border-danger');
+            $('#initial_minute_'+i).addClass('border border-danger');
+            $('#final_hour_'+i).addClass('border border-danger');
+            $('#final_minute_'+i).addClass('border border-danger');
+            ban = false;
+        } else {
+            $('#initial_hour_'+i).removeClass('border border-danger');
+            $('#initial_minute_'+i).removeClass('border border-danger');
+            $('#final_hour_'+i).removeClass('border border-danger');
+            $('#final_minute_'+i).removeClass('border border-danger');
+            $('#initial_hour_'+i).addClass('border border-success');
+            $('#initial_minute_'+i).addClass('border border-success');
+            $('#final_hour_'+i).addClass('border border-success');
+            $('#final_minute_'+i).addClass('border border-success');
+        }
+    }
+    if (ban == true) {
+        $('#submitCreateEvent').attr('disabled', false);
+    } else {
+        $('#submitCreateEvent').attr('disabled', true);
+    }
 }
 
 function createEventDom(events) {
@@ -225,11 +471,11 @@ function createEventDom(events) {
 
 function checkEventAvailable() {
     if($('#nameEvent').val().length > 3) {
+        $('#submitCreateEvent').attr('disabled', true);
         $.ajax({
             method: 'POST',
             url: $('#URL').val()+'checkEvent',
             dataType: 'json',
-            async: false,
             data: {
                 "_token": $("meta[name='csrf-token']").attr("content"),
                 name_event: $('#nameEvent').val(),
@@ -270,47 +516,6 @@ function checkEventAvailable() {
     }
 }
 
-// function editEventDom(event) {
-//     $('#cardEvent-'+event.id+' .card-body .card-title').text(event.name);
-//     $('#cardEvent-'+event.id+' .card-body .card-initial-date').text(event.initial_date+' ('+event.initial_time.substring(0, 5)+' a '+event.initial_time.substring(6, 12)+')');
-//     $('#cardEvent-'+event.id+' .card-body .card-final-date').text(event.final_date+' ('+event.final_time.substring(0, 5)+' a '+event.final_time.substring(6, 12)+')');
-//     $('#cardEvent-'+event.id+' .card-body .card-text').text(event.description);
-//     $('#options'+event.id).slideToggle('slow');
-// }
-
-// function editEvent(event_id) {
-//     $.ajax({
-//         method: 'POST',
-//         url: $('#URL').val()+'extractEvent',
-//         dataType: 'json',
-//         data: {
-//             "_token": $("meta[name='csrf-token']").attr("content"),
-//             event_id: event_id
-//         },
-//         success: (response)=> {
-//             $('#modalCreateEvent #nameEvent').val(response.event.name);
-//             $('#modalCreateEvent #website').val(response.event.url);
-//             $('#modalCreateEvent #quantity').val(response.event.quantity);
-//             $('#modalCreateEvent #price').val(response.event.price);
-//             $('#modalCreateEvent #initial_date').val(response.event.initial_date);
-//             $('#modalCreateEvent #final_date').val(response.event.final_date);
-//             $('#modalCreateEvent #initial_time_start').val(response.event.initial_time.substring(0, 5));
-//             $('#modalCreateEvent #final_time_start').val(response.event.initial_time.substring(6, 12));
-//             $('#modalCreateEvent #initial_time_end').val(response.event.final_time.substring(0, 5));
-//             $('#modalCreateEvent #final_time_end').val(response.event.final_time.substring(6, 12));
-//             // $('#modalCreateEvent #location').val(response.event.final_time.substring(6, 12));
-//             $('#modalCreateEvent #description').val(response.event.description);
-//             $('#modalCreateEvent #event_id').val(response.event.id);
-//             $('#modalCreateEvent #modalCreateEventLabel').text('Editar evento');
-//             $('#modalCreateEvent #submitCreateEvent').text('Editar evento');
-//             $('#modalCreateEvent').modal('show');
-//         },
-//         error: ()=> {
-//             console.log('ERROR');
-//         }
-//     });
-// }
-
 function deleteEvent(id) {
     Swal.fire({
         title: '¿Seguro que que desea eliminar este evento?',
@@ -345,9 +550,3 @@ function filterNonAphaNumeric(str) {
     }
     return result;
 }
-
-// google.maps.event.addDomListener(window, 'load', function() {
-//     var autocomplete = document.getElementById('location');
-//     const search = new google.maps.places.Autocomplete(autocomplete);
-//     // search.bindTo('bounds', )
-// });

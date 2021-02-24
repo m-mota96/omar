@@ -1,24 +1,79 @@
 $(document).ready(()=> {
-    $('.input-daterange input').each(function() {
-        $(this).datepicker({
-            language: 'es'
-        });
-    });
+    var date = new Date(), year = date.getFullYear(), month = date.getMonth() + 1;
+    if (month < 10) {
+        month = '0'+month;
+    }
+    var firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDate();
+    var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    if (firstDay < 10) {
+        firstDay = '0'+firstDay;
+    }
+    if (lastDay < 10) {
+        lastDay = '0'+lastDay;
+    }
+    firstDay = year+'-'+month+'-'+firstDay;
+    lastDay = year+'-'+month+'-'+lastDay;
+    $('#start_date').val(firstDay);
+    $('#end_date').val(lastDay);
+    chargingGraphic();
 });
+
+$('#start_date').change(()=> {
+    chargingGraphic();
+});
+
+$('#end_date').change(()=> {
+    chargingGraphic();
+});
+
+function chargingGraphic() {
+    $.ajax({
+        url: $('#URL').val()+'chargingGraphic',
+        method: 'post',
+        data: {
+            "_token": $("meta[name='csrf-token']").attr("content"),
+            event_id: $('#event_id').val(),
+            initial_date: $('#start_date').val(),
+            final_date: $('#end_date').val()
+        },
+        success: (res)=> {
+            chart(31, res.sales, res.pending);
+        },
+        error: ()=> {
+            console.log('ERROR');
+        }
+    });
+}
 
 function chart(final_day, sales, pending) {
     final_day = parseInt(final_day);
-    var month = [];
-    for (var i = 1; i <= final_day; i++) {
-        month[i-1] = i;
+    var dateStart = new Date($('#start_date').val());
+    var dateEnd    = new Date($('#end_date').val());
+    var dates = [];
+    var cont = 0;
+    while(dateEnd.getTime() >= dateStart.getTime()) {
+        dateStart.setDate(dateStart.getDate() + 1);
+        var month = dateStart.getMonth() + 1;
+        var day = dateStart.getDate();
+        if (month < 10) {
+            month = '0' + month;
+        }
+        if (day < 10) {
+            day = '0' + day;
+        }
+        var dateParse = day+'/'+month+'/'+dateStart.getFullYear();
+        dates[cont] = dateParse;
+        cont++;
     }
+    // console.log(sales);
     Highcharts.chart('graphic', {
 
         title: {
             text: 'Historial de venta'
         },
         xAxis: {
-            categories: month,
+            type: 'date',
+            categories: dates,
             title: {
                 text: 'Día del mes'
             },
@@ -57,84 +112,3 @@ function chart(final_day, sales, pending) {
 
     });
 }
-
-// function chart() {
-//     var options={
-//         chart: {
-//                renderTo: 'div_grafica_barras',
-//                //type: 'column'
-//            },
-//            title: {
-//                text: 'Historial de boletos'
-//            },
-//            xAxis: {
-//                categories: [],
-//                 title: {
-//                    text: 'Días del mes'
-//                },
-//                crosshair: true
-//            },
-//            yAxis: {
-//                min: 0,
-//                title: {
-//                    text: 'Boletos vendidos por día'
-//                }
-//            },
-//            tooltip: {
-//                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-//                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-//                    '<td style="padding:0"><b>{point.y} </b></td></tr>',
-//                footerFormat: '</table>',
-//                shared: true,
-//                useHTML: true
-//            },
-//            plotOptions: {
-//                column: {
-//                    pointPadding: 0.2,
-//                    borderWidth: 0
-//                }
-//            },
-//            series: [
-//                {
-//                    name: 'Boletos pagados',
-//                    data: []
-//                },
-//                {
-//                    name: 'Boletos pendientes',
-//                    data: []
-//                }
-//            ]
-//    }
-
-   
-//    // console.log(f.getDate() + "/" + (f.getMonth() +1) + "/" + f.getFullYear());
-
-//    $.ajax({
-//        dataType: 'json',
-//        url: URLactual+'grafica',
-//        method: 'post',
-//        data: {
-//            "_token": $("meta[name='csrf-token']").attr("content"),
-//            year: year,
-//            month: month
-//        },
-//        success: function(response) {
-//            var datos= response;
-//            var totaldias=datos.totaldias;
-//            var i=0;
-//            for(i=1;i<=totaldias;i++) {
-//                options.series[0].data.push( response.registrosdias[i] );
-//                options.xAxis.categories.push(i);
-//            }
-//            for(i=1;i<=totaldias;i++) {
-//                options.series[1].data.push( response.pendientes[i] );
-//                options.xAxis.categories.push(i);
-//            }
-//            //options.title.text="aqui se podria cambiar el titulo dinamicamente";
-//            chart = new Highcharts.Chart(options);
-//        },
-//        error: function() {
-//            console.log('error');
-//        },
-//    });
-// }

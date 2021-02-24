@@ -117,7 +117,7 @@ body {
     position: relative !important;
     height: 300px;
 }
-#content-map {
+.content-map {
     height: 150px;
 }
 .hidden {
@@ -125,4 +125,18 @@ body {
 }
 .btn-sm {
     width: 31px !important;
+}
+.to-uppercase{
+    text-transform: uppercase;
+}
+#WindowLoad
+{
+    position:fixed;
+    top:0px;
+    left:0px;
+    z-index:3200;
+    filter:alpha(opacity=65);
+    -moz-opacity:65;
+    opacity:0.9;
+    background:#999;
 }

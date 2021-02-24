@@ -45,7 +45,7 @@ class WebhookController extends Controller
                 }
                 $aux = $payment->accesses[$i]->ticket_id;
             }
-            Mail::to($payment->email)->send(new SendTickets($payment->event, $folios, $tickets, 'Miguel Angel', $quantities, $total));
+            Mail::to($payment->email)->send(new SendTickets($payment->event, $folios, $tickets, $payment->name, $quantities, $total));
         }
         // return return response()->json($data, 200, $headers);
         http_response_code(200); // Return 200 OK

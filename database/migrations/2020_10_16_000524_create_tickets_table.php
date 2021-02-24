@@ -22,6 +22,9 @@ class CreateTicketsTable extends Migration
             $table->integer('price')->nullable();
             $table->integer('quantity');
             $table->integer('sales')->default(0);
+            $table->integer('valid')->nullable();
+            $table->integer('promotion')->nullable();
+            $table->date('date_promotion')->nullable();
             $table->date('start_sale');
             $table->date('stop_sale');
             $table->integer('min_reservation')->default(1);
