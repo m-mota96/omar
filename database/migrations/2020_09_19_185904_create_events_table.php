@@ -29,6 +29,7 @@ class CreateEventsTable extends Migration
             $table->text('website')->nullable();
             $table->date('final_date')->nullable();
             $table->string('authorization', 255)->nullable();
+            $table->string('model_payment', 15)->default('separated');
             $table->integer('status')->default(0)->comment('0=inactivo, 1=activo, 2=finalizado');
             $table->timestamps();
         });

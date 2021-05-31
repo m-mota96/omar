@@ -32,18 +32,23 @@ function tableSales() {
             },
             {
                 "render": (data, type, row, meta) => {
+                    return '<span>$'+row.amount+'</span>';
+                }
+            },
+            {
+                "render": (data, type, row, meta) => {
                     if (row.status == 'payed') {
                         return '<span class="text-green bold">Pagado</span>';
                     } else if (row.status == 'pending') {
                         return '<span class="text-orange bold">Pendiente</span>';
+                    } else if (row.status == 'expired') {
+                        return '<span class="text-red bold">Expirado</span>';
                     }
                 }
             },
             {
                 "render": (data, type, row, meta) => {
-                    var date = row.created_at.substr(0, 10);
-                    var date_parse = date.split('-').reverse().join('/');
-                    return '<span>'+date_parse+'</span>';
+                    return '<span>'+row.created_at.display+'</span>';
                 }
             },
             {

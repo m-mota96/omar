@@ -20,6 +20,7 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <!-- Fontawesome -->
     <link rel="stylesheet" href="{{asset('fontawesome5.12.1/css/all.css')}}">
+    <link rel="shortcut icon" href="{{asset('media/general/ticketland.png')}}" type="image/x-icon">
 </head>
 <body>
     <div id="app">

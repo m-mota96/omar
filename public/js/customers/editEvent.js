@@ -208,6 +208,9 @@ $('#formEditNameWebsite').submit((e)=> {
         success: (response)=> {
             if(response.status == true) {
                 $('#titleEvent').text($('#nameEvent').val());
+                $('#viewWebsite').attr('href', $('#URL').val()+response.website);
+                $('#topbarWebsite').attr('href', $('#URL').val()+response.website);
+                $('#topbarWebsite').html('<span class="mr-2 d-none d-lg-inline text-white"><i class="fas fa-link"></i> '+$('#URL').val()+response.website+'</span>');
                 $('#modalEditNameWebsite #txt_name_success').css('display', 'none');
                 $('#modalEditNameWebsite #txt_website_success').css('display', 'none');
                 $('#modalEditNameWebsite').modal('hide');

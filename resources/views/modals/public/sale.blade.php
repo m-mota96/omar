@@ -20,6 +20,9 @@
                         <tbody id="body-sale">
 
                         </tbody>
+                        <tbody id="body-comisions">
+
+                        </tbody>
                         <tbody>
                             <tr class="table-info">
                                 <td class="bold text-right" colspan="3">TOTAL</td>
@@ -31,7 +34,7 @@
                     <select class="form-control mb-3" id="payment-method" required>
                         <option value="" selected disabled>Seleccione un método de pago</option>
                         <option value="card">Tarjeta de Crédito/Débito</option>
-                        <option value="oxxo">Pago en OXXO</option>
+                        {{-- <option value="oxxo">Pago en OXXO</option> --}}
                     </select>
                     <div class="row" id="divContentPayment">
 

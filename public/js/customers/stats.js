@@ -37,7 +37,10 @@ function chargingGraphic() {
             final_date: $('#end_date').val()
         },
         success: (res)=> {
-            chart(31, res.sales, res.pending);
+            $('#totalSales').text(res.totalSales);
+            $('#totalPending').text(res.totalPending);
+            $('#totalExpired').text(res.totalExpired);
+            chart(31, res.sales, res.pending, res.expired);
         },
         error: ()=> {
             console.log('ERROR');
@@ -45,7 +48,7 @@ function chargingGraphic() {
     });
 }
 
-function chart(final_day, sales, pending) {
+function chart(final_day, sales, pending, expired) {
     final_day = parseInt(final_day);
     var dateStart = new Date($('#start_date').val());
     var dateEnd    = new Date($('#end_date').val());
@@ -102,11 +105,21 @@ function chart(final_day, sales, pending) {
         series: [
             {
                 name: 'Boletos pagados',
-                data: Object.values(sales)
+                data: Object.values(sales),
+                colorByPoint: false,
+                color: '#22c7bf'
             },
             {
                 name: 'Boletos pendientes',
-                data: Object.values(pending)
+                data: Object.values(pending),
+                colorByPoint: false,
+                color: '#ffa800'
+            },
+            {
+                name: 'Boletos expirados',
+                data: Object.values(expired),
+                colorByPoint: false,
+                color: '#f64e60'
             }
         ]
 

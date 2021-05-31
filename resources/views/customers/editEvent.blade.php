@@ -14,7 +14,7 @@
             @endif
             <span class="p-a div-modal-image bg-gray-dark-900 text-white pointer p-1" id="btnEditImage"><i class="fas fa-pen"></i> Cambiar Imagen de Fondo</span>
             <div class="col-xl-12 w-100 pt-4 pb-3 back-title-edit">
-                <h1 class="bold text-white-300" id="titleEvent">{{$event->name}}</h1>
+                <h1 class="bold text-white-300" id="titleEvent">{{$event->name}} <h5><a class="text-white-300" id="viewWebsite" href="{{URL::asset('').$event_url}}" target="_blank">Ver sitio web</a></h5></h1>
                 <div class="row mr-1 bg-gray-dark-900 p-a div-modal-edit">
                     <span class="text-white pointer" id="btnNameAndSite"><i class="fas fa-pen"></i> Editar nombre y sitio de ventas</span>
                 </div>
@@ -113,7 +113,7 @@
 @endsection
 @section('scripts')
     <script src="{{asset('js/dropzone.js')}}"></script>
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOmdO7d-Hf7ZA7sVJpwICf1fWx-aQYzo4&libraries=places"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmxWjrQMl9hyuxzaoCm0_Ma03a92eu2b4&libraries=places"></script>
     {{-- <script src="{{asset('js/jquery.imgareaselect.js')}}"></script> --}}
     <script src="{{asset('js/customers/editEvent.js')}}"></script>
     <script>

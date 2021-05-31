@@ -4,6 +4,18 @@
 .buttons-small {
     width: 35px !important;
 }
+.buttons-medium {
+    width: 173px !important;
+}
 table.dataTable tbody td {
     vertical-align: middle;
+}
+.bold {
+    font-weight: bold;
+}
+.upload {
+    background: white !important;
+    border: gray dashed;
+    text-align: center !important;
+    cursor: pointer;
 }

@@ -18,33 +18,11 @@
     <link rel="stylesheet" href="{{asset('fontawesome5.12.1/css/all.css')}}">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/public.css') }}" rel="stylesheet">
+    <link rel="shortcut icon" href="{{asset('media/general/ticketland.png')}}" type="image/x-icon">
 </head>
-<body >
-    {{-- <nav class="navbar navbar-expand navbar-light topbar static-top shadow bg-white">
-        <div class="container">
-            <ul class="navbar-nav pt-1 pb-1">
-                <li class="mr-4">
-                    <span class="text-white pointer"><i class="fas fa-chart-line"></i> Estadísticas</span>
-                </li>
-                <li class="mr-4">
-                    <a class="text-white pointer" href=""><i class="fas fa-cog"></i> Configuración</a>
-                </li>
-                <li class="mr-4">
-                    <a class="text-white pointer" href=""><i class="fas fa-tag"></i> Boletos</a>
-                </li>
-                <li class="mr-4">
-                    <span class="text-white pointer"><i class="fas fa-shopping-cart"></i> Reservaciones</span>
-                </li>
-                <li class="mr-4">
-                    <span class="text-white pointer"><i class="fas fa-list-ul"></i> Registro</span>
-                </li>
-                <li class="mr-4">
-                    <span class="text-white pointer"><i class="fas fa-star"></i> Promociones</span>
-                </li>
-            </ul>
-        </div>
-    </nav> --}}
+<body>
     <div class="row content-head p-r">
+        <input type="hidden" id="model_payment" value="{{$event->model_payment}}">
         <div class="col-xl-12 p-a opacy">
             @if (isset($event->profile->name))
                 <img class="h-100 w-100 img-transparent" src="{{asset('media/events/'.$event->id.'/'.$event->profile->name.'')}}" alt="{{$event->name}}">
@@ -94,13 +72,13 @@
                         <h2 class="bold w-100">Selecciona tus boletos</h2>
                         <h4 class="text-gray-600 w-100 mb-5">Máximo 10 boletos por orden</h4>
                     </div>
-                    @foreach ($event->tickets as $t)
+                    @foreach ($event->tickets as $key => $t)
                         @if ($t->name == $ticket)
                         <div class="row mb-3 card-tickets p-2">  
                         @else
                         <div class="row mb-3 p-2">
                         @endif
-                            <div class="col-xl-9 pl-0">
+                            <div class="col-xl-4 pl-0">
                                 <h4>{{$t->name}} @if(!empty($t->promotion) && date('Y-m-d') <= $t->date_promotion) <sup class="badge badge-danger"> -{{$t->promotion}}% Descuento</sup> @endif</h4>
                                 @if (!empty($t->promotion) && date('Y-m-d') <= $t->date_promotion)
                                     <h6 class="text-gray line">${{number_format($t->price, 2)}} MXN</h6>
@@ -109,6 +87,26 @@
                                 @else
                                     <h5 class="text-blue">${{number_format($t->price, 2)}} MXN</h5>
                                     <input class="prices" type="hidden" value="{{$t->price}}" data-name="{{$t->name}}" data-idTicket="{{$t->id}}" id="price-{{$t->id}}">
+                                @endif
+                            </div>
+                            <div class="col-xl-5 pl-0">
+                                <input type="hidden" id="turns" value="{{$t->use_turns}}">
+                                @if ($t->use_turns == 1)
+                                    <h6><b>Seleccione un turno para cada día del evento</b></h6>
+                                    @for ($i = 0; $i < sizeof($event->eventDates); $i++)
+                                        <h6>
+                                            <b>Día {{$i+1}}: </b>
+                                            <span class="text-primary bold">{{date_format(new DateTime($event->eventDates[$i]->date), "d-M-Y")}}</span>
+                                            <select class="custom-select custom-select-sm w-75 selectTurn{{$key}}" id="turno{{$key.'-'.$i}}">
+                                                <option value="" selected disabled>Seleccione un turno</option>
+                                                @foreach ($event->eventDates[$i]->turns as $turn)
+                                                    @if ($turn->used < $turn->quantity)
+                                                        <option value="{{$turn->id}}">{{$turn->name.": (".substr($turn->initial_hour, 0, 5)."hrs - ".substr($turn->final_hour, 0, 5)."hrs.)"}}</option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                        </h6>
+                                    @endfor
                                 @endif
                             </div>
                             <div class="col-10 col-xl-3 pl-0">
@@ -205,7 +203,7 @@
 <script src="{{asset('js/bootstrap.bundle.min.js')}}"></script>
 <script src="{{asset('js/sweetalert2.js')}}"></script>
 <script type="text/javascript" src="https://cdn.conekta.io/js/latest/conekta.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOmdO7d-Hf7ZA7sVJpwICf1fWx-aQYzo4" type="text/javascript"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmxWjrQMl9hyuxzaoCm0_Ma03a92eu2b4" type="text/javascript"></script>
 <script src="{{asset('js/charging.js')}}"></script>
 <script src="{{asset('js/public.js')}}"></script>
 <script>

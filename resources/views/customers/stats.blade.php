@@ -31,7 +31,25 @@
                 </div>
             </div>
             <div class="row pl-5 pr-5">
-                <div class="col-xl-12 text-center">
+                <div class="col-xl-2 text-center offset-xl-3">
+                    <div class="col-xl-12 pt-3 pb-2 w-100 btn-totalSales">
+                        <h1 class="bold mt-2 text-btn-totalSales" id="totalSales"></h1>
+                        <p class="text-btn-totalSales">Pagados</p>
+                    </div>
+                </div>
+                <div class="col-xl-2 text-center">
+                    <div class="col-xl-12 pt-3 pb-2 w-100 btn-totalPending">
+                        <h1 class="bold mt-2 text-btn-totalPending" id="totalPending"></h1>
+                        <p class="text-btn-totalPending">Pendientes</p>
+                    </div>
+                </div>
+                <div class="col-xl-2 text-center">
+                    <div class="col-xl-12 pt-3 pb-2 w-100 btn-totalExpired">
+                        <h1 class="bold mt-2 text-btn-totalExpired" id="totalExpired"></h1>
+                        <p class="text-btn-totalExpired">Expirados</p>
+                    </div>
+                </div>
+                <div class="col-xl-12 text-center mt-5">
                     <h4 class="bold">Ingresos totales</h4>
                 </div>
                 <div class="col-xl-12">
@@ -92,7 +110,6 @@
         </div>
     </div>
 </div>
-@include('modals.customers.tickets')
 @endsection
 @section('scripts')
     <script src="{{asset('js/highcharts.js')}}"></script>

@@ -74,6 +74,19 @@
                                     <input class="form-control col-xl-5" type="number" id="quantity" min="1" required>
                                 </div>
                             </div>
+                            <label class="bold">Desea utilizar turnos para este boleto:</label><br>
+                            @if ($indicatorTurns == true)
+                                <div class="form-check form-check-inline mb-2">
+                                    <input class="form-check-input pointer inputs-radio" type="radio" name="turns" value="0" id="turnInactive" checked>
+                                    <label class="form-check-label pointer inputs-radio" for="turnInactive">No</label>
+                                </div>
+                                <div class="form-check form-check-inline ml-5">
+                                    <input class="form-check-input pointer inputs-radio" type="radio" name="turns" value="1"  id="turnActive">
+                                    <label class="form-check-label pointer inputs-radio" for="turnActive">Si</label>
+                                </div>
+                            @else
+                                <label>Aun no ha registrado turnos, para crealos haga <a href="{{route('customer.turns', $event_id)}}">click aquí</a></label>
+                            @endif
                         </div>
                     </div>
                 </div>

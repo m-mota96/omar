@@ -65,7 +65,7 @@ body {
 }
 .back-title-edit {
     background: rgba(0,0,0,0.6);
-    padding-left: 20vh;
+    padding-left: 22vh;
     position: absolute;
     bottom: 0;
 }
@@ -139,4 +139,45 @@ body {
     -moz-opacity:65;
     opacity:0.9;
     background:#999;
+}
+.btn-br {
+    border-radius: 5px 0px 0px 5px;
+}
+.btn-bl {
+    border-radius: 0px 5px 5px 0px;
+}
+.btn-outline-primary:hover {
+    background: #f1f0f0;
+    color: blue;
+}
+.btn-totalSales {
+    border-radius: 1.25rem !important;
+    background-color: #C9F7F5 !important;
+}
+.text-btn-totalSales {
+    color: #22c7bf;
+}
+.btn-totalPending {
+    border-radius: 1.25rem !important;
+    background-color: #FFF4DE !important;
+}
+.text-btn-totalPending {
+    color: #ffa800;
+}
+.btn-totalExpired {
+    border-radius: 1.25rem !important;
+    background-color: #FFE2E5 !important;
+}
+.text-btn-totalExpired {
+    color: #f64e60;
+}
+@media only screen and (max-width: 2500px) and (min-width: 1000px) {
+    .hidden-xl {
+        display: none;
+    }
+}
+@media only screen and (max-width: 500px) and (min-width: 200px) {
+    .hidden-sm {
+        display: none;
+    }
 }

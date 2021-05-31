@@ -1,5 +1,18 @@
 $(document).ready(()=> {
     $('[data-toggle="tooltip"]').tooltip();
+    if ($('#model_payment').val() != 'separated') {
+        typeModel = 1;
+        $('#separated').removeClass('btn-primary');
+        $('#separated').addClass('btn-outline-primary');
+        $('#included').addClass('btn-primary');
+        $('#included').removeClass('btn-outline-primary');
+    } else {
+        typeModel = 0;
+        $('#separated').addClass('btn-primary');
+        $('#separated').removeClass('btn-outline-primary');
+        $('#included').removeClass('btn-primary');
+        $('#included').addClass('btn-outline-primary');
+    }
 });
 
 $('input:radio[name=price]').click(()=> {	 
@@ -35,7 +48,7 @@ $('#promotion').click(()=> {
     }
 });
 
-function saveTicket(id = null, name = null, description = '', min_reservation = null, max_reservation = null, quantity = null, start_sale = null, stop_sale = null, price = null, status = null, access, promotion = null, date_promotion = null) {
+function saveTicket(id = null, name = null, description = '', min_reservation = null, max_reservation = null, quantity = null, start_sale = null, stop_sale = null, price = null, status = null, access, promotion = null, date_promotion = null, turns) {
     $('#divSlider').append('<div class="col-xl-12" id="slider-step"></div>');
     var days = parseInt($('#days_event').val());
     if (id != null) {
@@ -58,6 +71,13 @@ function saveTicket(id = null, name = null, description = '', min_reservation = 
         $('#quantity').val(quantity);
         $('#start_sale').val(start_sale);
         $('#stop_sale').val(stop_sale);
+        if (turns == 0) {
+            $("#turnActive").prop("checked", false);
+            $("#turnInactive").prop("checked", true);
+        } else {
+            $("#turnInactive").prop("checked", false);
+            $("#turnActive").prop("checked", true);
+        }
         if(price != null) {
             $('#cover').prop('checked', true);
             $('#free').prop('checked', false);
@@ -170,7 +190,7 @@ function chargingDom(tickets) {
                     content += '<h4 class="bold text-gray-600 mb-2 price">$'+tickets[i].price+'.00 MXN</h4>';
                     content += '<span class="mb-2 pointer text-blue" onclick="copyToClipboard(\'#linkTicket'+i+'\')" data-toggle="tooltip" data-placement="right" title="Copiar enlace"><i class="fas fa-link"></i> <span class="linkTicket" id="linkTicket'+i+'">'+$('#URL').val()+''+tickets[i].event.url+'/'+tickets[i].name+'</span></span>';
                     content += '<p></p>';
-                    content += '<span class="font-small mr-4 pointer edit" onclick="saveTicket('+tickets[i].id+', \''+tickets[i].name+'\', \''+tickets[i].description+'\', '+tickets[i].min_reservation+', '+tickets[i].max_reservation+', '+tickets[i].quantity+', \''+tickets[i].start_sale+'\', \''+tickets[i].stop_sale+'\', '+tickets[i].price+', '+tickets[i].status+', '+tickets[i].valid+', '+tickets[i].promotion+', \''+tickets[i].date_promotion+'\',)"><i class="fas fa-pen"></i> EDITAR</span>';
+                    content += '<span class="font-small mr-4 pointer edit" onclick="saveTicket('+tickets[i].id+', \''+tickets[i].name+'\', \''+tickets[i].description+'\', '+tickets[i].min_reservation+', '+tickets[i].max_reservation+', '+tickets[i].quantity+', \''+tickets[i].start_sale+'\', \''+tickets[i].stop_sale+'\', '+tickets[i].price+', '+tickets[i].status+', '+tickets[i].valid+', '+tickets[i].promotion+', \''+tickets[i].date_promotion+'\', '+tickets[i].use_turns+')"><i class="fas fa-pen"></i> EDITAR</span>';
                     content += '<span class="font-small mr-4 pointer delete" onclick="deleteTicket('+tickets[i].id+')"><i class="fas fa-trash-alt"></i> ELIMINAR</span>';
                 content += '</div>';
                 content += '<div class="col-xl-4 text-right">';
@@ -212,6 +232,7 @@ $('#formTickets').submit((e)=> {
                 start_sale: $('#start_sale').val(),
                 stop_sale: $('#stop_sale').val(),
                 price: $('#priceTicket').val(),
+                turns: $('input:radio[name=turns]:checked').val(),
                 daysValid: daysValid
             },
             success: (response)=> {
@@ -222,7 +243,7 @@ $('#formTickets').submit((e)=> {
                     } else {
                         $('#card-ticket-'+response.ticket.id+' .name').text(response.ticket.name);
                         $('#card-ticket-'+response.ticket.id+' .price').text('$'+response.ticket.price+'.00 MXN');
-                        $('#card-ticket-'+response.ticket.id+' .edit').attr('onclick', 'saveTicket('+response.ticket.id+', \''+response.ticket.name+'\', \''+response.ticket.description+'\', '+response.ticket.min_reservation+', '+response.ticket.max_reservation+', '+response.ticket.quantity+', \''+response.ticket.start_sale+'\', \''+response.ticket.stop_sale+'\', '+response.ticket.price+', '+response.ticket.status+', '+response.ticket.valid+', '+response.ticket.promotion+', \''+response.ticket.date_promotion+'\')');
+                        $('#card-ticket-'+response.ticket.id+' .edit').attr('onclick', 'saveTicket('+response.ticket.id+', \''+response.ticket.name+'\', \''+response.ticket.description+'\', '+response.ticket.min_reservation+', '+response.ticket.max_reservation+', '+response.ticket.quantity+', \''+response.ticket.start_sale+'\', \''+response.ticket.stop_sale+'\', '+response.ticket.price+', '+response.ticket.status+', '+response.ticket.valid+', '+response.ticket.promotion+', \''+response.ticket.date_promotion+'\', '+response.ticket.use_turns+')');
                         $('#card-ticket-'+response.ticket.id+' .quantity').text(response.ticket.quantity);
                         $('#card-ticket-'+response.ticket.id+' .linkTicket').text($('#URL').val()+''+$('#url_event').val()+'/'+response.ticket.name);
                         var msj = 'El boleto se modifico correctamente';
@@ -256,6 +277,76 @@ $('#formTickets').submit((e)=> {
         });
     }
 });
+
+var typeModel = 0;
+function modelPayment(val) {
+    if (typeModel != val) {
+        if ($('#quantity_payments').val() == 0) {
+            Swal.fire({
+                title: 'Atención',
+                html: "<span>¿Seguro que deseas continuar? <br> Una vez hecha la primera reservación, <br>ya no se podrá cambiar el modelo de cobro.</span>",
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Aceptar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        url: $('#URL').val()+'model_payment',
+                        type: 'post',
+                        data: {
+                            "_token": $("meta[name='csrf-token']").attr("content"),
+                            event_id: $('#event_id').val(),
+                            model_payment: (val == 1) ? 'included' : 'separated',
+                        },
+                        success: (res)=> {
+                            if (res.status == true) {
+                                Swal.fire({
+                                    position: 'bottom-end',
+                                    icon: 'success',
+                                    text: 'El modelo de cobro se cambio correctamente',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                });
+                                if (val == 1) {
+                                    typeModel = 1;
+                                    $('#separated').removeClass('btn-primary');
+                                    $('#separated').addClass('btn-outline-primary');
+                                    $('#included').addClass('btn-primary');
+                                    $('#included').removeClass('btn-outline-primary');
+                                } else {
+                                    typeModel = 0;
+                                    $('#separated').addClass('btn-primary');
+                                    $('#separated').removeClass('btn-outline-primary');
+                                    $('#included').removeClass('btn-primary');
+                                    $('#included').addClass('btn-outline-primary');
+                                }
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Acción denegada',
+                                    html: 'Ya no es posible cambiar el modelo de cobro<br>por que ya se efectuo al menos una reservación',
+                                });
+                            }
+                        },
+                        error: ()=> {
+                            console.log('ERROR');
+                        }
+                    });
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Acción denegada',
+                html: 'Ya no es posible cambiar el modelo de cobro<br>por que ya se efectuo al menos una reservación',
+            });
+        }
+    }
+}
 
 function copyToClipboard(elemento) {
     var $temp = $("<input>");

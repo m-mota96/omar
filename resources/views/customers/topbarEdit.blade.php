@@ -1,10 +1,11 @@
 <!-- Topbar -->
 <nav class="navbar navbar-expand navbar-light topbar static-top shadow bg-gray-dark-800">
     <div class="container">
+        <i class="fas fa-bars hidden-xl" onclick="sidebar()"></i>
         <!-- Topbar Navbar -->
         <ul class="navbar-nav">
             <li class="nav-item dropdown no-arrow">
-                <a class="nav-link text-white" href="{{URL::asset('').$event_url}}" target="_blank">
+                <a class="nav-link text-white" href="{{URL::asset('').$event_url}}" target="_blank" id="topbarWebsite">
                     <span class="mr-2 d-none d-lg-inline text-white"><i class="fas fa-link"></i> {{URL::asset('').$event_url}}</span>
                 </a>
             </li>
@@ -51,7 +52,7 @@
         </ul>
     </div>
 </nav>
-<nav class="navbar navbar-expand navbar-light topbar static-top shadow bg-dark">
+<nav class="navbar navbar-expand navbar-light topbar static-top shadow bg-dark hidden-sm">
     <div class="container">
         <!-- Topbar Navbar -->
         <ul class="navbar-nav pt-1 pb-1">
@@ -64,13 +65,19 @@
                 <a class="nav-link text-white" href="{{route('customer.edit', $event_id)}}"><i class="fas fa-cog"></i> Configuración</a>
             </li>
             <li class="mr-4">
+                <a class="nav-link text-white" href="{{route('customer.turns', $event_id)}}"><i class="fas fa-list-ol"></i> Turnos</a>
+            </li>
+            <li class="mr-4">
                 <a class="nav-link text-white" href="{{route('customer.tickets', $event_id)}}"><i class="fas fa-tag"></i> Boletos</a>
             </li>
             <li class="mr-4">
                 <a class="nav-link text-white" href="{{route('customer.reservations', $event_id)}}"><i class="fas fa-shopping-cart"></i> Reservaciones</a>
             </li>
             <li class="mr-4">
-                {{-- <span class="nav-link text-white"><i class="fas fa-list-ul"></i> Registro</span> --}}
+                <a class="nav-link text-white" href="{{route('customer.scan', $event_id)}}"><i class="fas fa-qrcode"></i> Escaner</a>
+            </li>
+            <li class="mr-4">
+                <a class="nav-link text-white" href="{{route('customer.assistance', $event_id)}}"><i class="far fa-calendar-check"></i> Asistencia de evento</a>
             </li>
         </ul>
     </div>

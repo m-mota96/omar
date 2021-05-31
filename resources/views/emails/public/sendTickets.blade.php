@@ -65,6 +65,12 @@
                                                     </tr>
                                                 @endif
                                             @endfor
+                                            @if ($event->model_payment == 'included')
+                                                <tr>
+                                                    <td colspan="3" style="color: black; text-align: left;">Comisiones</td>
+                                                    <td colspan="1" style="color: black; text-align: right;">${{number_format($commission, 2)}} MXN</td>
+                                                </tr>
+                                            @endif
                                             <tr style="padding-top: 5px; padding-bottom: 5px;">
                                                 <td colspan="3" style="color: black; text-align: right; font-weight: bold;">TOTAL</td>
                                                 <td style="color: black; text-align: right; font-weight: bold;">${{number_format($total, 2)}} MXN</td>

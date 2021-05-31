@@ -1,0 +1,46 @@
+.carousel-item {
+    height: 70vh;
+}
+.carousel-indicators {
+    position: unset;
+    background: black;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+}
+.pointer {
+    cursor: pointer;
+}
+.items {
+    padding-top: 2vh;
+    padding-bottom: 3vh;
+    background: #21262B;
+    border-right: 1px solid black;
+}
+.items p {
+    margin-bottom: 3px;
+}
+.active {
+    background: #2233E7 !important;
+}
+.items:hover {
+    border-top: 4px solid #2233E7;
+}
+.row {
+    margin-right: auto !important;
+    margin-left: unset !important;
+}
+.topbar {
+    position: fixed;
+    width: 100%;
+    background-color: black;
+    z-index: 100;
+    /* opacity: .5; */
+    background-color: rgb(0, 0, 0, .45);
+}
+.content-topbar {
+    z-index: 500;
+}
+.carousel-item img {
+    height: 100%;
+}

@@ -15,6 +15,7 @@ use App\EventDate;
 use App\LocationEvent;
 use App\Ticket;
 use App\Payment;
+use App\Turn;
 use DateTime;
 
 class CustomerController extends Controller {
@@ -213,7 +214,9 @@ class CustomerController extends Controller {
         $event->quantity = $request->input('quantity');
         $event->save();
         return response()->json([
-            'status' => true
+            'status' => true,
+            'name' => $request->input('name_event'),
+            'website' => $request->input('website')
         ]);
     }
 
@@ -299,9 +302,23 @@ class CustomerController extends Controller {
                 $query2->where('status', 'payed');
             });
         }])->where('event_id', $id)->get();
-        $event = Event::with(['eventDates'])->where('id', $id)->where('user_id', auth()->user()->id)->first();
+        $event = Event::with(['eventDates.turns'])->where('id', $id)->where('user_id', auth()->user()->id)->first();
+        $indicatorTurn = false;
+        foreach ($event->eventDates as $key => $eventDate) {
+            if (sizeof($eventDate->turns) > 0) {
+                $indicatorTurn = true;
+            }
+        }
         if (!empty($event)) {
-            return view('customers.tickets')->with(['tickets' => $tickets, 'event_id' => $id, 'event' => $event, 'event_url' => $event->url]);
+            $payments = Payment::where('event_id', $id)->get()->count();
+            return view('customers.tickets')->with([
+                'tickets' => $tickets,
+                'event_id' => $id,
+                'event' => $event,
+                'event_url' => $event->url,
+                'quantityPayments' => $payments,
+                'indicatorTurns' => $indicatorTurn
+            ]);
         } else {
             return redirect('/home');
         }
@@ -315,6 +332,7 @@ class CustomerController extends Controller {
             $ticket->price = $request->input('price');
             $ticket->quantity = $request->input('quantity');
             $ticket->valid = $request->input('daysValid');
+            $ticket->use_turns = $request->input('turns');
             $ticket->promotion = $request->input('promotion');
             $ticket->date_promotion = $request->input('date_promotion');
             $ticket->start_sale = $request->input('start_sale');
@@ -331,6 +349,7 @@ class CustomerController extends Controller {
                 'price' => $request->input('price'),
                 'quantity' => $request->input('quantity'),
                 'valid' => $request->input('daysValid'),
+                'use_turns' => $request->input('turns'),
                 'promotion' => $request->input('promotion'),
                 'date_promotion' => $request->input('date_promotion'),
                 'start_sale' => $request->input('start_sale'),
@@ -406,6 +425,17 @@ class CustomerController extends Controller {
         $total = $payment->amount;
         $aux = 0;
         $pos = -1;
+        if ($payment->event->model_payment == 'included') {
+            if ($payment->type == 'card') {
+                $commission = ($total * 0.03) + 2.5;
+                $total = $total + $commission;
+            } elseif ($payment->type == 'card') {
+                $commission = ($total * 0.04);
+                $total = $total + $commission;
+            }
+        } else {
+            $commission = null;
+        }
         for ($i = 0; $i < sizeof($payment->accesses); $i++) {
             $folios[$i]['folio'] = $payment->accesses[$i]->folio;
             $folios[$i]['ticket_id'] = $payment->accesses[$i]->ticket_id;
@@ -419,9 +449,42 @@ class CustomerController extends Controller {
             }
             $aux = $payment->accesses[$i]->ticket_id;
         }
-        Mail::to($request->input('email'))->send(new SendTickets($payment->event, $folios, $tickets, $payment->name, $quantities, $total));
+        Mail::to($request->input('email'))->send(new SendTickets($payment->event, $folios, $tickets, $payment->name, $quantities, $total, $commission));
         return response()->json([
             'status' => true
+        ]);
+    }
+
+    public function saveTurns(Request $request) {
+        for ($i = 0; $i < sizeof($request->input('nameTurn')); $i++) { 
+            Turn::where('event_date_id', $request->input('dateId')[$i])->delete();
+            for ($j = 0; $j < sizeof($request->input('nameTurn')[$i]); $j++) { 
+                Turn::create([
+                    'event_date_id' => $request->input('dateId')[$i],
+                    'name' => $request->input('nameTurn')[$i][$j],
+                    'initial_hour' => $request->input('hourInitial')[$i][$j].':'.$request->input('minuteInitial')[$i][$j],
+                    'final_hour' => $request->input('hourFinal')[$i][$j].':'.$request->input('minuteFinal')[$i][$j],
+                    'quantity' => $request->input('quantity')[$i][$j]
+                ]);
+            }
+        }
+        return response()->json([
+            'status' => true
+        ]);
+    }
+
+    public function model_payment(Request $request) {
+        $payments = Payment::where('event_id', $request->input('event_id'))->get()->count();
+        if ($payments == 0) {
+            $event = Event::where('id', $request->input('event_id'))->first();
+            $event->model_payment = $request->input('model_payment');
+            $event->save();
+            $status = true;
+        } else {
+            $status = false;
+        }
+        return response()->json([
+            'status' => $status
         ]);
     }
 }

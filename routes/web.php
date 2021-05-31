@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('index');
 });
 
 Auth::routes(['verify' => true]);
@@ -41,6 +41,9 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'checkrole:cus
     Route::get('documents', 'DocumentController@documents')->name('documents');
     Route::get('stats/{id}', 'StatisticController@stats')->name('stats');
     Route::get('reservations/{id}', 'StatisticController@reservations')->name('reservations');
+    Route::get('turns/{id}', 'StatisticController@turns')->name('turns');
+    Route::get('scan/{id}', 'StatisticController@scan')->name('scan');
+    Route::get('assistance/{id}', 'StatisticController@assistance')->name('assistance');
 });
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'checkrole:admin'])->group(function() {
@@ -57,8 +60,13 @@ Route::get('payments/paymentMethod/{method}', function($method) {
         return View::make("oxxoPayment")->render();
     }
 });
+Route::get('exit/discount/access', function() {
+    return view('discount');
+});
+
 Route::post('makePayment', 'PublicController@makePayment');
 Route::post('reference_paid', 'WebhookController@reference_paid');
+Route::post('discount', 'StatisticController@discount');
 
 // Routes usage for customers
 Route::post('checkEvent', 'CustomerController@checkEvent');
@@ -84,8 +92,16 @@ Route::post('saveBankData', 'DocumentController@saveBankData');
 Route::post('uploadDocuments', 'DocumentController@uploadDocuments');
 Route::post('changeStatusEvent', 'CustomerController@changeStatusEvent');
 Route::post('resendTickets', 'CustomerController@resendTickets');
+Route::post('saveTurns', 'CustomerController@saveTurns');
+Route::post('model_payment', 'CustomerController@model_payment');
+Route::get('excel/downloadPayments/{id}', 'StatisticController@downloadPayments')->name('excel/downloadPayments');
+Route::post('searchAccess', 'StatisticController@searchAccess');
+Route::post('validateFolio', 'StatisticController@validateFolio');
+Route::post('extractAssistence', 'StatisticController@extractAssistence');
 
 // Routes usage for admin
 Route::post('extractUsersDocuments', 'AdminController@extractUsersDocuments');
 Route::post('statusDocument', 'AdminController@statusDocument');
 Route::post('extractUsersInfo', 'AdminController@extractUsersInfo');
+Route::post('uploadContract', 'AdminController@uploadContract');
+Route::post('deleteContract', 'AdminController@deleteContract');

@@ -8,7 +8,10 @@
     <div class="container">
         <input type="hidden" id="eventId" value="{{$event_id}}">
         <div class="card">
-            <div class="col-xl-12 p-5">
+            <div class="row p-5">
+                <div class="justify-content-end text-right mb-5">
+                    <a class="btn btn-warning" href="{{route('excel/downloadPayments', $event_id)}}">Descargar base de datos</a>
+                </div>
                 <table class="table table-striped w-100" id="sales">
                     <thead>
                         <tr>
@@ -17,15 +20,16 @@
                             <th>Correo</th>
                             <th>Teléfono</th>
                             <th>Método de pago</th>
+                            <th>Monto</th>
                             <th>Estatus</th>
                             <th>Fecha</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                </table>
-                <tbody>
+                    <tbody>
     
-                </tbody>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

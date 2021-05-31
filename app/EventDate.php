@@ -11,4 +11,12 @@ class EventDate extends Model
     ];
 
     public $timestamps = false;
+
+    public function turns() {
+        return $this->hasMany(Turn::class);
+    }
+
+    public function event() {
+        return $this->belongsTo(Event::class);
+    }
 }

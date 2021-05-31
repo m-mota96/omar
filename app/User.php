@@ -58,4 +58,19 @@ class User extends Authenticatable implements MustVerifyEmail
     public function bankData() {
         return $this->hasOne(BankData::class);
     }
+
+    public function documentsValidated() {
+        $user = User::class;
+        dd($user->id);
+        $documents = Document::get();
+        dd($documents);
+        $documents = $this->hasMany(Document::class);
+        dd($documents);
+        if (sizeof($documents) == 4) {
+            $status = true;
+        } else {
+            $status = false;
+        }
+        return $status;
+    }
 }

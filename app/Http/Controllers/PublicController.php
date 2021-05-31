@@ -14,6 +14,7 @@ use App\Event;
 use App\Ticket;
 use App\Payment;
 use App\Access;
+use App\Turn;
 use DateTime;
 use DateInterval;
 use PDF;
@@ -30,14 +31,15 @@ class PublicController extends Controller
     }
 
     public function index($event, $ticket = null) {
-        $data = Event::with(['profile', 'eventDates', 'location', 'tickets'])->where(DB::raw('BINARY url'), $event)->first();
+        $data = Event::with(['profile', 'eventDates.turns', 'location', 'tickets'])->where(DB::raw('BINARY url'), $event)->first();
+        // dd($data);
         if (!empty($data)) {
             $data->initial_date = Carbon::parse($data->eventDates[0]->date)->locale('es')->isoFormat('D MMM Y').' - '.substr($data->eventDates[0]->initial_time, 0, 5);
             $pos = sizeof($data->eventDates) - 1;
             $data->final_date = Carbon::parse($data->eventDates[$pos]->date)->locale('es')->isoFormat('D MMM Y').' - '.substr($data->eventDates[$pos]->final_time, 0, 5);
             return view('public.event')->with(['event' => $data, 'ticket' => $ticket]);
         } else {
-            dd('not found');
+            return redirect('/');
         }
     }
 
@@ -52,9 +54,39 @@ class PublicController extends Controller
         $folios = Array();
         $total = 0;
         $pos = 0;
+        $pos2 = 0;
         if (!file_exists('media/pdf/events/'.$event->id)) {
             mkdir('media/pdf/events/'.$event->id, 0777, true);
         }
+        $msj = null;
+        // for ($i = 0; $i < sizeof($request->input('turns')); $i++) {
+            if (!empty($request->input('turns'))) {
+                for ($j = 0; $j < sizeof($request->input('turns')); $j++) { 
+                    $turn = Turn::with(['eventDate'])->where('id', $request->input('turns')[$j])->first();
+                    $available = $turn->quantity - $turn->used;
+                    if ($request->input('quantities')[$j] <= $available) {
+
+                    } else {
+                        if ($available == 0) {
+                            $text = 'El turno "'.$turn->name.'" se agotó<br>';
+                        } else {
+                            $text = 'Solo quedan '.$available.' espacios en el turno "'.$turn->name.'"<br>';
+                        }
+                        $msj .= '<div class="text-left">
+                                    <b>'.str_replace('.', '', Carbon::parse($turn->eventDate->date)->locale('es')->isoFormat('D-MMM-Y')).'</b><br>
+                                    '.$text.'
+                                </div>';
+                    }
+                }
+            }
+        // }
+        if (!empty($msj)) {
+            return response()->json([
+                'status' => false,
+                'error' => $msj
+            ]);
+        }
+        // dd('STOP');
         for ($i = 0; $i < sizeof($request->input('quantities')); $i++) {
             if ($request->input('quantities')[$i] > 0) {
                 $ticket = Ticket::select('id', 'name', 'description', 'price', 'quantity', 'sales', 'valid', 'promotion', 'date_promotion', 'status')->where('id', $request->input('tickets')[$i])->first();
@@ -85,6 +117,12 @@ class PublicController extends Controller
                 // $tickets[$i]['description'] = $ticket->description;
                 $tickets[$i]['price'] = $ticket->price;
                 $total = $total + ($ticket->price * $request->input('quantities')[$i]);
+                if (isset($request->input('turns')[$i])) {
+                    for ($j = 0; $j < sizeof($request->input('turns')[$i]); $j++) { 
+                        $folios[$pos2]['turn'] = $request->input('turns')[$i];
+                        $pos2++;
+                    }
+                }
                 try {
                     $ticket->img_event = asset('media/events/'.$event->id.'/'.$event->profile->name);
                     for ($j = 0; $j < $request->input('quantities')[$i]; $j++) {
@@ -118,6 +156,10 @@ class PublicController extends Controller
         \Conekta\Conekta::setApiKey($this->ApiKey);
         \Conekta\Conekta::setApiVersion($this->ApiVersion);
         if ($request->input('payment_method') == 'card') {
+            if ($event->model_payment == 'included') {
+                $commission = ($total * 0.03) + 2.5;
+                $total = $total + $commission;
+            }
             $customer = $this->createCustomer($request->input('name'), $request->input('email'), $request->input('conektaTokenId'));
             if ($customer['status'] == true) {
                 $order = $this->createOrder($total, 'Compra de boletos para '.$event->name, 1);
@@ -139,6 +181,10 @@ class PublicController extends Controller
                 ]);
             }
         } else if ($request->input('payment_method') == 'oxxo') {
+            if ($event->model_payment == 'included') {
+                $commission = ($total * 0.04);
+                $total = $total + $commission;
+            }
             $order = $this->createOrderOxxo($total, 'Compra de boletos para '.$event->name, $request->input('name'), $request->input('email'), $request->input('phone'), 1);
             if($order['status'] == true) {
                 $payment = $this->registerPayment($event->id, $request->input('name'), $order['reference'], 'oxxo', $request->input('email'), 'pending', $total, $request->input('phone'));
@@ -167,7 +213,7 @@ class PublicController extends Controller
         }
         switch ($request->input('payment_method')) {
             case 'card':
-                Mail::to($request->input('email'))->send(new SendTickets($event, $folios, $tickets, $request->input('name'), $request->input('quantities'), $total));
+                Mail::to($request->input('email'))->send(new SendTickets($event, $folios, $tickets, $request->input('name'), $request->input('quantities'), $total, $commission));
                 break;
             case 'oxxo':
                 Mail::to($request->input('email'))->send(new SendReference($event, $order['reference'], $request->input('name'), $payment));
@@ -194,12 +240,20 @@ class PublicController extends Controller
 
     public function saveAccesses($payment_id, $folios) {
         for ($i = 0; $i < sizeof($folios); $i++) { 
-            Access::create([
+            $access = Access::create([
                 'payment_id' => $payment_id,
                 'ticket_id' => $folios[$i]['ticket_id'],
                 'folio' => $folios[$i]['folio'],
                 'quantity' => $folios[$i]['valid']
             ]);
+            if (isset($folios[$i]['turn'])) {
+                for ($j = 0; $j < sizeof($folios[$i]['turn']); $j++) { 
+                    $access->turns()->attach($folios[$i]['turn'][$j]);
+                    $turn = Turn::where('id', $folios[$i]['turn'][$j])->first();
+                    $turn->used = $turn->used + 1;
+                    $turn->save();
+                }
+            }
         }
         return true;
     }
