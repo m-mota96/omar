@@ -456,21 +456,67 @@ class CustomerController extends Controller {
     }
 
     public function saveTurns(Request $request) {
-        for ($i = 0; $i < sizeof($request->input('nameTurn')); $i++) { 
-            Turn::where('event_date_id', $request->input('dateId')[$i])->delete();
-            for ($j = 0; $j < sizeof($request->input('nameTurn')[$i]); $j++) { 
-                Turn::create([
-                    'event_date_id' => $request->input('dateId')[$i],
-                    'name' => $request->input('nameTurn')[$i][$j],
-                    'initial_hour' => $request->input('hourInitial')[$i][$j].':'.$request->input('minuteInitial')[$i][$j],
-                    'final_hour' => $request->input('hourFinal')[$i][$j].':'.$request->input('minuteFinal')[$i][$j],
-                    'quantity' => $request->input('quantity')[$i][$j]
-                ]);
+        
+        $idsTurnsNews = json_decode(json_decode(json_encode($request->turnsNews)),true);
+        
+        $contNewTurn=0;
+        
+        if($request->input('nameTurn') == null){
+            
+        }else{
+
+            //dd($request->input());
+            
+            for ($i = 0; $i < sizeof($request->input('nameTurn')); $i++) { 
+                for ($j = 0; $j < sizeof($request->input('nameTurn')[$i]); $j++) { 
+                    if($request->input('turnStatus')[$i][$j]=="edit"){
+                        $turn = Turn::find($request->input('idTurn')[$i][$j]);
+                        $turn->name=$request->input('nameTurn')[$i][$j];
+                        $turn->initial_hour=$request->input('hourInitial')[$i][$j].':'.$request->input('minuteInitial')[$i][$j];
+                        $turn->final_hour=$request->input('hourFinal')[$i][$j].':'.$request->input('minuteFinal')[$i][$j];
+                        $turn->quantity=$request->input('quantity')[$i][$j];
+                        $turn->save();
+    
+                    }elseif($request->input('turnStatus')[$i][$j]=="new"){
+                        $idNewTurn=Turn::create([
+                            'event_date_id' => $request->input('dateId')[$i],
+                            'name' => $request->input('nameTurn')[$i][$j],
+                            'initial_hour' => $request->input('hourInitial')[$i][$j].':'.$request->input('minuteInitial')[$i][$j],
+                            'final_hour' => $request->input('hourFinal')[$i][$j].':'.$request->input('minuteFinal')[$i][$j],
+                            'quantity' => $request->input('quantity')[$i][$j]
+                        ]);
+                        
+                        $idsTurnsNews[$contNewTurn]['idNew']=$idNewTurn->id;
+                        $contNewTurn++;
+                    }
+    
+                }
+            }
+            
+
+            
+            
+        }
+        
+        if(strlen($request->turnsEliminated)>0){
+            //Elimina los turnos que vienen en la variable de turnsEliminated
+            $turnsEliminated=explode(",",$request->turnsEliminated);
+
+            foreach($turnsEliminated as $idTurn){
+                Turn::where('id', $idTurn)->delete();
             }
         }
+
         return response()->json([
-            'status' => true
+            'status' => true,
+            'idsTurnsNews'=>$idsTurnsNews
         ]);
+        
+        
+        
+
+        
+        
     }
 
     public function model_payment(Request $request) {
