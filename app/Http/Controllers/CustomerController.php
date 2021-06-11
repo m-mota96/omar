@@ -465,7 +465,7 @@ class CustomerController extends Controller {
             
         }else{
 
-            //dd($request->input());
+            //dd($request->input());*
             
             for ($i = 0; $i < sizeof($request->input('nameTurn')); $i++) { 
                 for ($j = 0; $j < sizeof($request->input('nameTurn')[$i]); $j++) { 
