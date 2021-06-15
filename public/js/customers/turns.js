@@ -284,11 +284,22 @@ function deleteTurn(idTbody, idElement,idTurn,_complementTr) {
 
    /* Obtiene el id de los turnos registrados y los almacena en ths.turnsEliminated*/
    if(typeof idTurn == 'string'){
-      var idTurn= $('#'+idTurn+''+_complementTr).val();
-      ths.turnsEliminated.push(idTurn);
-      console.log(">> if "+idTurn);
+      console.log("string >"+'#'+idTurn+''+_complementTr);
+
+      if($('#turnId'+idTbody+'_0'+_complementTr).val()=='new'){
+         var auxTurnNews=[];
+         this.turnsNews.forEach(turn => {
+            if(turn.idOld != idTurn+''+_complementTr){
+               auxTurnNews.push(turn);
+            }
+         });
+         this.turnsNews=auxTurnNews;
+      }else{
+         var idTurn= $('#'+idTurn+''+_complementTr).val();
+         ths.turnsEliminated.push(idTurn);
+      }
+
    }else{
-      console.log(">> else"+idTurn);
       if(idTurn == 0){
          var idTurn= $('#idTurnNew'+idTbody+'_'+idElement+''+_complementTr).val();
          ths.turnsEliminated.push(idTurn);
@@ -298,10 +309,13 @@ function deleteTurn(idTbody, idElement,idTurn,_complementTr) {
          if($('#turnId'+idTbody+'_'+idElement+''+_complementTr).val()=='edit' || $('#turnId'+idTbody+'_'+idElement+''+_complementTr).val()=='noEdit'){
             //var auxIdTurn=$('#idTurn'+idTbody+'_'+idElement).val();
             ths.turnsEliminated.push(idTurn);
+         }else{
+            
          }
       } 
    }
-                       
+   
+
 
 
    $('#tbody'+idTbody+" #tr"+idElement+''+_complementTr).remove();

@@ -464,37 +464,49 @@ class CustomerController extends Controller {
         if($request->input('nameTurn') == null){
             
         }else{
+            $pointerStarDate=array_keys($request->input('nameTurn'))[0];
+            $resetRequest=(array_keys($request->input('nameTurn')));
+            $numberDate=end($resetRequest);
 
-            //dd($request->input());*
-            
-            for ($i = 0; $i < sizeof($request->input('nameTurn')); $i++) { 
-                for ($j = 0; $j < sizeof($request->input('nameTurn')[$i]); $j++) { 
-                    if($request->input('turnStatus')[$i][$j]=="edit"){
-                        $turn = Turn::find($request->input('idTurn')[$i][$j]);
-                        $turn->name=$request->input('nameTurn')[$i][$j];
-                        $turn->initial_hour=$request->input('hourInitial')[$i][$j].':'.$request->input('minuteInitial')[$i][$j];
-                        $turn->final_hour=$request->input('hourFinal')[$i][$j].':'.$request->input('minuteFinal')[$i][$j];
-                        $turn->quantity=$request->input('quantity')[$i][$j];
-                        $turn->save();
-    
-                    }elseif($request->input('turnStatus')[$i][$j]=="new"){
-                        $idNewTurn=Turn::create([
-                            'event_date_id' => $request->input('dateId')[$i],
-                            'name' => $request->input('nameTurn')[$i][$j],
-                            'initial_hour' => $request->input('hourInitial')[$i][$j].':'.$request->input('minuteInitial')[$i][$j],
-                            'final_hour' => $request->input('hourFinal')[$i][$j].':'.$request->input('minuteFinal')[$i][$j],
-                            'quantity' => $request->input('quantity')[$i][$j]
-                        ]);
+            $i=$pointerStarDate;
+
+            for ($date =$pointerStarDate; $date <=$numberDate; $date++) {
+                //echo "conta Date > ".$date."\n";
+                if(isset($request->input('nameTurn')[$i])){
+                    for ($j = 0; $j < sizeof($request->input('nameTurn')[$i]); $j++) { 
+                        if($request->input('turnStatus')[$i][$j]=="edit"){
+                            
+                            $turn = Turn::find($request->input('idTurn')[$i][$j]);
+                            $turn->name=$request->input('nameTurn')[$i][$j];
+                            $turn->initial_hour=$request->input('hourInitial')[$i][$j].':'.$request->input('minuteInitial')[$i][$j];
+                            $turn->final_hour=$request->input('hourFinal')[$i][$j].':'.$request->input('minuteFinal')[$i][$j];
+                            $turn->quantity=$request->input('quantity')[$i][$j];
+                            $turn->save();
+                            
+        
+                        }elseif($request->input('turnStatus')[$i][$j]=="new"){
+                            
+                            $idNewTurn=Turn::create([
+                                'event_date_id' => $request->input('dateId')[$i],
+                                'name' => $request->input('nameTurn')[$i][$j],
+                                'initial_hour' => $request->input('hourInitial')[$i][$j].':'.$request->input('minuteInitial')[$i][$j],
+                                'final_hour' => $request->input('hourFinal')[$i][$j].':'.$request->input('minuteFinal')[$i][$j],
+                                'quantity' => $request->input('quantity')[$i][$j]
+                            ]);
+                            
+                            $idsTurnsNews[$contNewTurn]['idNew']=$idNewTurn->id;
+                            $contNewTurn++;
+                            
+                        }
                         
-                        $idsTurnsNews[$contNewTurn]['idNew']=$idNewTurn->id;
-                        $contNewTurn++;
                     }
-    
+                    $i++;
+                }else{
+                    $i++;
                 }
-            }
             
 
-            
+            }
             
         }
         
@@ -511,6 +523,7 @@ class CustomerController extends Controller {
             'status' => true,
             'idsTurnsNews'=>$idsTurnsNews
         ]);
+        
         
         
         

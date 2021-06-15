@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-require_once('bin/conekta-php-master/lib/Conekta.php');
+//require_once('bin/conekta-php-master/lib/Conekta.php');
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +31,7 @@ class PublicController extends Controller
     }
 
     public function index($event, $ticket = null) {
+        
         $data = Event::with(['profile', 'eventDates.turns', 'location', 'tickets'])->where(DB::raw('BINARY url'), $event)->first();
         // dd($data);
         if (!empty($data)) {
@@ -155,15 +156,19 @@ class PublicController extends Controller
         // dd('STOP');
         \Conekta\Conekta::setApiKey($this->ApiKey);
         \Conekta\Conekta::setApiVersion($this->ApiVersion);
+
+        // Registra por metodo de pago los boletos 
         if ($request->input('payment_method') == 'card') {
             if ($event->model_payment == 'included') {
                 $commission = ($total * 0.03) + 2.5;
                 $total = $total + $commission;
             }
+            //Proceso de pago
             $customer = $this->createCustomer($request->input('name'), $request->input('email'), $request->input('conektaTokenId'));
             if ($customer['status'] == true) {
                 $order = $this->createOrder($total, 'Compra de boletos para '.$event->name, 1);
                 if ($order['status'] == true) {
+                    // Se registra en nuestra BDD la información de los pagos
                     $payment = $this->registerPayment($event->id, $request->input('name'), substr($request->input('card'), -4), 'card', $request->input('email'), 'payed', $total, $request->input('phone'));
                     $this->saveAccesses($payment->id, $folios);
                 } else {
@@ -211,6 +216,7 @@ class PublicController extends Controller
                 ]);
             }
         }
+
         switch ($request->input('payment_method')) {
             case 'card':
                 Mail::to($request->input('email'))->send(new SendTickets($event, $folios, $tickets, $request->input('name'), $request->input('quantities'), $total, $commission));
