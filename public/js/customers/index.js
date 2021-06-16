@@ -389,6 +389,7 @@ function createEvent() {
                 final_times: final_times,
                 description: $('#description').val(),
                 location: $('#location').val(),
+                cost_type: $('input:radio[name=cost_type]:checked').val()
             },
             success: (response)=> {
                 if(response.status == true) {

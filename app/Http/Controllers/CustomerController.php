@@ -68,6 +68,10 @@ class CustomerController extends Controller {
     }
 
     public function createEvent(Request $request) {
+
+        dd($request);
+
+        /*
         $name = Exclusivity::where(DB::raw('BINARY name'), $request->input('name'))->where('user_id', auth()->user()->id)->first();
         $website = Exclusivity::where(DB::raw('BINARY name'), $request->input('website'))->where('user_id', auth()->user()->id)->first();
         if(!empty($name)) {
@@ -95,6 +99,7 @@ class CustomerController extends Controller {
             'url' => $request->input('website'),
             'description' => $request->input('description'),
             'quantity' => $request->input('quantity'),
+            'cost_type'=>'paid',
         ]);
 
         $valid = 0;
@@ -128,6 +133,7 @@ class CustomerController extends Controller {
             'status' => true,
             'event' => $event
         ]);
+        */
     }
 
     public function uploadImage(Request $request) {

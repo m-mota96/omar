@@ -33,14 +33,25 @@
                             <label>Asistencia estimada:</label>
                             <input class="form-control" type="number" min="1" id="quantity" required>
                         </div>
-                        {{-- <div class="col-xl-6 mb-3">
-                            <label>Precio de los boletos:</label>
-                            <input class="form-control" type="number" min="1" id="price" required>
-                        </div> --}}
-                        {{-- <div class="col-xl-6 mb-3">
-                            <label>Lugar del evento:</label>
-                            <input class="form-control" type="text" id="location" required>
-                        </div> --}}
+                        <div class="col-xl-6 mb-3">
+                            <label>Tipo de costo:</label><br>
+                            <div class="form-check form-check-inline mr-5">
+                                <input class="form-check-input pointer inputs-radio" type="radio" name="cost_type" id="cover" value="paid" checked >
+                                <label class="form-check-label pointer inputs-radio" for="cover">Con pago</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-2 ml-5">
+                                <input class="form-check-input pointer inputs-radio" type="radio" name="cost_type" id="free" value="gratis">
+                                <label class="form-check-label pointer inputs-radio" for="free">Gratis</label>
+                            </div>
+                        </div>
+                         <div class="col-xl-6 mb-3">
+                         <select class="form-control" aria-label="Default select example" required>
+                            <option selected>Seleccione una categoría</option>
+                            <option value="1">Autos</option>
+                            <option value="2">Mascotas</option>
+                            <option value="3">Deportes</option>
+                        </select>
+                        </div>
                         <div class="col-xl-6">
                             <label>Fechas del evento (<b>Inicial - Final</b>):</label><br>
                             {{-- <p class="btn btn-primary" data-finalId="1" id="moreDays">Añadir 1 día</p> --}}
@@ -53,6 +64,7 @@
                             </div>
                             <span class="text-red hidden" id="incorrectDates">La fecha inicial debe ser menor o igual que la fecha final</span>
                         </div>
+
                         <div class="col-xl-8 mb-4" id="divSchedules">
                             <div class="form-check form-check-inline mt-1 pb-1">
                                 <input class="form-check-input pointer" type="checkbox" id="indicatorSchedule" value="option1">
