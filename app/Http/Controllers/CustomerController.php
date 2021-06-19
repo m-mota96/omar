@@ -16,6 +16,7 @@ use App\LocationEvent;
 use App\Ticket;
 use App\Payment;
 use App\Turn;
+use App\Category;
 use DateTime;
 
 class CustomerController extends Controller {
@@ -69,9 +70,9 @@ class CustomerController extends Controller {
 
     public function createEvent(Request $request) {
 
-        dd($request);
+        //dd($request);
 
-        /*
+        
         $name = Exclusivity::where(DB::raw('BINARY name'), $request->input('name'))->where('user_id', auth()->user()->id)->first();
         $website = Exclusivity::where(DB::raw('BINARY name'), $request->input('website'))->where('user_id', auth()->user()->id)->first();
         if(!empty($name)) {
@@ -99,7 +100,8 @@ class CustomerController extends Controller {
             'url' => $request->input('website'),
             'description' => $request->input('description'),
             'quantity' => $request->input('quantity'),
-            'cost_type'=>'paid',
+            'cost_type' => $request->input('cost_type'),
+            'category_id' => $request->input('category_id'),
         ]);
 
         $valid = 0;
@@ -133,7 +135,7 @@ class CustomerController extends Controller {
             'status' => true,
             'event' => $event
         ]);
-        */
+        
     }
 
     public function uploadImage(Request $request) {
@@ -182,14 +184,17 @@ class CustomerController extends Controller {
             'event' => $event
         ]);
     }
-
+    
     public function editEvent($id) {
-        $event = Event::with(['profile', 'logo', 'eventDates', 'location'])->where('id', $id)->first();
+        $event = Event::with(['profile', 'logo', 'eventDates', 'location','category'])->where('id', $id)->first();
         $event->original_initial_date = $event->eventDates[0]->date;
         $event->initial_date = Carbon::parse($event->eventDates[0]->date)->locale('es')->isoFormat('D MMM Y').' - '.substr($event->eventDates[0]->initial_time, 0, 5);
         $pos = sizeof($event->eventDates) - 1;
         $event->original_final_date = $event->eventDates[$pos]->date;
         $event->final_date = Carbon::parse($event->eventDates[$pos]->date)->locale('es')->isoFormat('D MMM Y').' - '.substr($event->eventDates[$pos]->final_time, 0, 5);
+        
+        //dd($event);
+        
         return view('customers.editEvent')->with(['event' => $event, 'event_id' => $event->id, 'event_url' => $event->url]);
     }
 
@@ -240,6 +245,15 @@ class CustomerController extends Controller {
     public function editDescription(Request $request) {
         $event = Event::where('id', $request->input('event_id'))->first();
         $event->description = $request->input('description');
+        $event->save();
+        return response()->json([
+            'status' => true
+        ]);
+    }
+
+    public function editCategory(Request $request) {
+        $event = Event::where('id', $request->input('event_id'))->first();
+        $event->category_id = $request->input('category_id');
         $event->save();
         return response()->json([
             'status' => true
@@ -551,5 +565,10 @@ class CustomerController extends Controller {
         return response()->json([
             'status' => $status
         ]);
+    }
+
+    public function getCategories(){
+        $categories = Category::all();
+        return ['categories'=>$categories];
     }
 }

@@ -2,6 +2,9 @@ $(document).ready(()=> {
     addEvent();
 });
 
+var ths = this;
+var categories=[];
+
 function addEvent() {
     $('.show').unbind();
     $('.card-reveal .close').unbind();
@@ -16,6 +19,28 @@ function addEvent() {
 }
 
 $('#createEvent').on('click', ()=> {
+    if(ths.categories.length == 0){
+        $.ajax({
+            url:$('#URL').val()+'getCategories',
+            method:"POST",
+            async: false,
+            data:{
+                "_token": $("meta[name='csrf-token']").attr("content"),
+            },
+            dataType: 'json',
+            success:(response)=>{
+                ths.categories=response.categories;
+                console.log(ths.categories);
+                ths.categories.forEach( category =>{
+                    $('#categorySelect').append('<option value="'+category.id+'" >'+category.name+'</option>');
+                });
+            },
+            error:()=>{
+                console.log("ERROR");
+            }
+        });
+    }
+
     $('#modalCreateEvent #modalCreateEventLabel').text('Crear evento');
     $('#modalCreateEvent #submitCreateEvent').text('Crear evento');
     $('#modalCreateEvent').modal('show');
@@ -367,14 +392,24 @@ function createEvent() {
         initial_times[i] = $('#initial_hour_'+i).val()+':'+$('#initial_minute_'+i).val();
         final_times[i] = $('#final_hour_'+i).val()+':'+$('#final_minute_'+i).val();
         if (parseInt($('#initial_hour_'+i).val()) > parseInt($('#final_hour_'+i).val())) {
-            $('#initial_hour_'+i).addClass('border border-danger');
+            $('#initial_hour_'+i).removeClass('border border-danger');
             $('#initial_minute_'+i).addClass('border border-danger');
             $('#final_hour_'+i).addClass('border border-danger');
             $('#final_minute_'+i).addClass('border border-danger');
             ban = false;
         }
     }
-    if (ban == true) {
+
+    banCategory = false;
+    if($('#categorySelect option:selected').val() > 0){
+        banCategory = true;
+        $('#categorySelect').removeClass('border border-danger');
+    }else{
+        banCategory = false;
+        $('#categorySelect').addClass('border border-danger');
+    }
+
+    if (ban == true && banCategory == true) {
         $.ajax({
             method: 'POST',
             url: $('#URL').val()+'createEvent',
@@ -389,7 +424,8 @@ function createEvent() {
                 final_times: final_times,
                 description: $('#description').val(),
                 location: $('#location').val(),
-                cost_type: $('input:radio[name=cost_type]:checked').val()
+                cost_type: $('input:radio[name=cost_type]:checked').val(),
+                category_id:$("#categorySelect option:selected").val()
             },
             success: (response)=> {
                 if(response.status == true) {

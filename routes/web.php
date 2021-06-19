@@ -71,11 +71,13 @@ Route::post('discount', 'StatisticController@discount');
 // Routes usage for customers
 Route::post('checkEvent', 'CustomerController@checkEvent');
 Route::post('createEvent', 'CustomerController@createEvent');
+Route::post('getCategories','CustomerController@getCategories')->name('getCategories');
 Route::post('uploadImage', 'CustomerController@uploadImage');
 Route::post('extractEvent', 'CustomerController@extractEvent');
 Route::post('updateNameWebsite', 'CustomerController@updateNameWebsite');
 Route::post('deleteLogo', 'CustomerController@deleteLogo');
 Route::post('editDescription', 'CustomerController@editDescription');
+Route::post('editCategory', 'CustomerController@editCategory');
 Route::post('editDates', 'CustomerController@editDates');
 Route::post('addContact', 'CustomerController@addContact');
 Route::post('addLocation', 'CustomerController@addLocation');

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Event extends Model
 {
     protected $fillable = [
-        'user_id', 'name', 'url', 'description', 'quantity', 'email', 'phone', 'twitter', 'facebook', 'instagram', 'website', 'final_date', 'authorization', 'cost_type','model_payment', 'status', 
+        'user_id', 'name', 'url', 'description', 'quantity', 'email', 'phone', 'twitter', 'facebook', 'instagram', 'website', 'final_date', 'authorization', 'cost_type','model_payment', 'status','category_id', 
     ];
 
     public function profile() {
@@ -32,5 +32,9 @@ class Event extends Model
 
     public function payments() {
         return $this->hasMany(Payment::class)->where('status', 'payed');
+    }
+
+    public function category(){
+        return $this->belongsTo(Category::class);
     }
 }

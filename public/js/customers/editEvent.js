@@ -260,6 +260,37 @@ $('#website').keyup(function() {
 $('#btnEditDescription').click(function() {
     $('#modalEditDescription').modal('show');
 });
+
+var ths = this;
+var categories=[];
+$('#btnEditCategory').click(function() {
+    if(ths.categories.length == 0){
+        $.ajax({
+            url:$('#URL').val()+'getCategories',
+            method:"POST",
+            async: false,
+            data:{
+                "_token": $("meta[name='csrf-token']").attr("content"),
+            },
+            dataType: 'json',
+            success:(response)=>{
+                ths.categories=response.categories;
+                console.log(ths.categories);
+                ths.categories.forEach( category =>{
+                    $('#categorySelect').append('<option value="'+category.id+'" >'+category.name+'</option>');
+                });
+                
+            },
+            error:()=>{
+                console.log("ERROR");
+            }
+        });
+    }
+    $('#modalEditCategory').modal('show');
+    
+
+});
+
 $('#btnEditDates').click(function() {
     $('#modalEditDates').modal('show');
 });
@@ -368,6 +399,50 @@ $('#formEditDescription').submit((e)=> {
             console.log('ERROR');
         }
     });
+});
+
+$('#formEditCategory').submit((e)=> {
+    e.preventDefault();
+
+    if($('#categorySelect option:selected').val() > 0){
+        $.ajax({
+            method: 'POST',
+            url: $('#URL').val()+'editCategory',
+            dataType: 'json',
+            async: false,
+            data: {
+                "_token": $("meta[name='csrf-token']").attr("content"),
+                event_id: $("#eventId").val(),
+                category_id: $('#categorySelect').val()
+            },
+            success: (response)=> {
+                if(response.status == true) {
+                    $('#modalEditCategory').modal('hide');
+                    $('#content-category').text($('#categorySelect option:selected').text());
+                    Swal.fire({
+                        position: 'bottom-end',
+                        icon: 'success',
+                        text: 'La categoría se modifico correctamente',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        position: 'bottom-end',
+                        icon: 'error',
+                        text: 'Lo sentimos ocurrio un error',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            },
+            error: ()=> {
+                console.log('ERROR');
+            }
+        });
+    }
+
+    
 });
 
 $('#formEditDates').submit((e)=> {

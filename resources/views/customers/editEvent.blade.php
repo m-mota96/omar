@@ -86,6 +86,16 @@
                                         </div>
                                     </div>
                                     <div class="dropdown-divider mt-3 mb-3"></div>
+                                    <h6><b><i class="fas fa-list"></i> CATEGORÍA</b> &nbsp;&nbsp;&nbsp;<span class="font-small pointer" id="btnEditCategory"><i class="fas fa-pen"></i> Editar</span></h6>
+                                    <h6 style="text-transform:uppercase" id="content-category">{{ $event->category->name }}</h6>
+                                    <div class="dropdown-divider mt-3 mb-3"></div>
+                                    <h6><b><i class="fas fa-donate"></i> TIPO DE COSTO</b> &nbsp;&nbsp;&nbsp;</h6>
+                                    @if( $event->cost_type === 'paid' )
+                                    <h6 style="text-transform:uppercase" id="content-cost_type">Con pago</h6>
+                                    @elseif($event->cost_type === 'free')
+                                    <h6 style="text-transform:uppercase" id="content-cost_type">Gratis</h6>
+                                    @endif
+                                    <div class="dropdown-divider mt-3 mb-3"></div>
                                     {{-- <h6><b><i class="fas fa-tags"></i> TRACKING</b> &nbsp;&nbsp;&nbsp;<span class="font-small pointer"><i class="fas fa-pen"></i> Editar</span></h6>
                                     <div class="row">
                                         <div class="col xl-12">
@@ -110,6 +120,7 @@
     @include('modals.customers.editDates')
     @include('modals.customers.addContact')
     @include('modals.customers.editLocation')
+    @include('modals.customers.editCategory')
 @endsection
 @section('scripts')
     <script src="{{asset('js/dropzone.js')}}"></script>
