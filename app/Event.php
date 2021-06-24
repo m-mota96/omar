@@ -3,11 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Event extends Model
 {
     protected $fillable = [
-        'user_id', 'name', 'url', 'description', 'quantity', 'email', 'phone', 'twitter', 'facebook', 'instagram', 'website', 'final_date', 'authorization', 'model_payment', 'status', 
+        'user_id', 'name', 'url', 'description', 'quantity', 'email', 'phone', 'twitter', 'facebook', 'instagram', 'website', 'final_date', 'authorization', 'model_payment', 'cost_type', 'status', 
     ];
 
     public function profile() {
@@ -32,5 +33,13 @@ class Event extends Model
 
     public function payments() {
         return $this->hasMany(Payment::class)->where('status', 'payed');
+    }
+
+    public function paymentsAgruped() {
+        return $this->hasOne(Payment::class)->selectRaw('payments.event_id, SUM(payments.amount) as total')->groupBy('payments.event_id')->where('status', 'payed');
+    }
+
+    public function assistance() {
+        return $this->hasOne(Verified::class)->selectRaw('verifieds.event_id, SUM(verifieds.quantity) as assistance')->groupBy('verifieds.event_id')->where('verifieds.access_id', '!=', null);
     }
 }

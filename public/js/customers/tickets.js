@@ -232,7 +232,7 @@ $('#formTickets').submit((e)=> {
                 start_sale: $('#start_sale').val(),
                 stop_sale: $('#stop_sale').val(),
                 price: $('#priceTicket').val(),
-                turns: $('input:radio[name=turns]:checked').val(),
+                turns: ($('input:radio[name=turns]:checked').val() == undefined) ? 0: $('input:radio[name=turns]:checked').val(),
                 daysValid: daysValid
             },
             success: (response)=> {

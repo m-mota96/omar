@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\GallerySlider;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,7 +15,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('index');
+    $slider = GallerySlider::get();
+    return view('index')->with(['slider' => $slider]);
 });
 
 Auth::routes(['verify' => true]);
@@ -50,6 +52,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'checkrole:admin'])-
     // Route::get('/purchases', 'CustomerController@purchases')->name('purchases');
     Route::get('documents', 'AdminController@documents')->name('documents');
     Route::get('contracts', 'AdminController@contracts')->name('contracts');
+    Route::get('events/{type}', 'AdminController@events')->name('events');
+    Route::get('payments/{status}', 'AdminController@payments')->name('payments');
+    Route::get('slider', 'AdminController@slider')->name('slider');
+    Route::get('categories', 'AdminController@categories')->name('categories');
 });
 
 Route::get('/{event}/{ticket?}', 'PublicController@index')->name('/');
@@ -105,3 +111,8 @@ Route::post('statusDocument', 'AdminController@statusDocument');
 Route::post('extractUsersInfo', 'AdminController@extractUsersInfo');
 Route::post('uploadContract', 'AdminController@uploadContract');
 Route::post('deleteContract', 'AdminController@deleteContract');
+Route::post('extractEvents', 'AdminController@extractEvents');
+Route::post('extractPayments', 'AdminController@extractPayments');
+Route::post('changeStatusAdminPayment', 'AdminController@changeStatusAdminPayment');
+Route::post('saveInfoSlider', 'AdminController@saveInfoSlider');
+Route::post('deleteInfoSlider', 'AdminController@deleteInfoSlider');

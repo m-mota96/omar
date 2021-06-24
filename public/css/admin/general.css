@@ -19,3 +19,11 @@ table.dataTable tbody td {
     text-align: center !important;
     cursor: pointer;
 }
+.bg-gray {
+    background-color: #eeeceb;
+}
+.height-image-card {
+    height: 180px !important;
+    object-fit: cover;
+    object-position: top;
+}

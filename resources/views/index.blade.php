@@ -32,7 +32,16 @@
     <div class="row">
             <div id="carouselExampleCaptions" class="carousel slide w-100" data-ride="carousel">
             <div class="carousel-inner">
-                <div class="carousel-item active">
+                @foreach ($slider as $key => $s)
+                    <div class="carousel-item @if($key==0) active @endif">
+                        <img src="{{asset('media/sliderIndex/'.$s->image)}}" class="d-block w-100" alt="{{$s->title}}">
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>First slide label</h5>
+                            <p>Some representative placeholder content for the first slide.</p>
+                        </div>
+                    </div>
+                @endforeach
+                {{-- <div class="carousel-item active">
                     <img src="{{asset('media/sliderIndex/prueba1.jpg')}}" class="d-block w-100" alt="...">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>First slide label</h5>
@@ -59,10 +68,15 @@
                         <h5>Third slide label</h5>
                         <p>Some representative placeholder content for the third slide.</p>
                     </div>
-                </div>
+                </div> --}}
             </div>
-            <ol class="carousel-indicators">
-                <div class="col-xl-3 bg-gray-dark-700 active pointer items" data-slide-to="0" data-target="#carouselExampleCaptions">
+            <ol class="carousel-indicators justify-content-start">
+                @foreach ($slider as $key => $s)
+                    <div class="@if(sizeof($slider) < 5) col-xl-3 @else col-xl-2 @endif bg-gray-dark-700 @if($key==0) active @endif pointer items" data-slide-to="{{$key}}" data-target="#carouselExampleCaptions">
+                        <p>{{$s->title}}</p><span>{{$s->date}}</span>
+                    </div>
+                @endforeach
+                {{-- <div class="col-xl-3 bg-gray-dark-700 active pointer items" data-slide-to="0" data-target="#carouselExampleCaptions">
                     <p>PRUEBA</p><span>Fechas del evento</span>
                 </div>
                 <div class="col-xl-3 bg-gray-dark-700 pointer items" data-slide-to="1" data-target="#carouselExampleCaptions">
@@ -73,7 +87,7 @@
                 </div>
                 <div class="col-xl-3 bg-gray-dark-700 pointer items" data-slide-to="3" data-target="#carouselExampleCaptions">
                     <p>PRUEBA</p><span>Fechas del evento</span>
-                </div>
+                </div> --}}
             </ol>
             <a class="carousel-control-prev" href="#carouselExampleCaptions" role="button" data-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>

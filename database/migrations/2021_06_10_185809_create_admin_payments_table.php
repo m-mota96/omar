@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVerifiedsTable extends Migration
+class CreateAdminPaymentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,16 @@ class CreateVerifiedsTable extends Migration
      */
     public function up()
     {
-        Schema::create('verifieds', function (Blueprint $table) {
+        Schema::create('admin_payments', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedBigInteger('event_id');
             $table->foreign('event_id')->references('id')->on('events');
-            $table->unsignedBigInteger('access_id')->nullable();
-            $table->integer('quantity')->default(1);
-            $table->date('date');
-            $table->integer('time');
+            $table->integer('amount');
+            $table->integer('commission');
+            $table->string('status', 20);
+            $table->timestamps();
         });
     }
 
@@ -31,6 +33,6 @@ class CreateVerifiedsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('verifieds');
+        Schema::dropIfExists('admin_payments');
     }
 }
