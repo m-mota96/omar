@@ -574,8 +574,18 @@ class CustomerController extends Controller {
         ]);
     }
 
-    public function getCategories(){
+    public function getCategories() {
         $categories = Category::all();
         return ['categories'=>$categories];
+    }
+
+    public function form_ticket($id) {
+        $event = Event::where('id', $id)->where('user_id', auth()->user()->id)->first();
+        if (!empty($event)) {
+            $tickets = Ticket::where('event_id', $id)->get();
+            return view('customers.form_ticket')->with(['event' => $event, 'event_id' => $event->id, 'event_url' => $event->url, 'tickets' => $tickets]);
+        } else {
+            return redirect('/home');
+        }
     }
 }
