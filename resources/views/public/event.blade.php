@@ -23,6 +23,7 @@
 <body>
     <div class="row content-head p-r">
         <input type="hidden" id="model_payment" value="{{$event->model_payment}}">
+        <input type="hidden" id="cost_type" value="{{$event->cost_type}}">
         <div class="col-xl-12 p-a opacy">
             @if (isset($event->profile->name))
                 <img class="h-100 w-100 img-transparent" src="{{asset('media/events/'.$event->id.'/'.$event->profile->name.'')}}" alt="{{$event->name}}">

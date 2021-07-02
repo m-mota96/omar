@@ -16,6 +16,7 @@ use App\LocationEvent;
 use App\Ticket;
 use App\Payment;
 use App\Turn;
+use App\Category;
 use DateTime;
 
 class CustomerController extends Controller {
@@ -68,6 +69,10 @@ class CustomerController extends Controller {
     }
 
     public function createEvent(Request $request) {
+
+        //dd($request);
+
+        
         $name = Exclusivity::where(DB::raw('BINARY name'), $request->input('name'))->where('user_id', auth()->user()->id)->first();
         $website = Exclusivity::where(DB::raw('BINARY name'), $request->input('website'))->where('user_id', auth()->user()->id)->first();
         if(!empty($name)) {
@@ -95,6 +100,8 @@ class CustomerController extends Controller {
             'url' => $request->input('website'),
             'description' => $request->input('description'),
             'quantity' => $request->input('quantity'),
+            'cost_type' => $request->input('cost_type'),
+            'category_id' => $request->input('category_id'),
         ]);
 
         $valid = 0;
@@ -108,10 +115,17 @@ class CustomerController extends Controller {
             $valid++;
         }
 
+        $aux_price=0;
+        if($request->input('cost_type') == 'paid'){
+            $aux_price=100;
+        }else{
+            $aux_price=0;
+        }
+
         Ticket::create([
             'event_id' => $event->id,
             'name' => 'Boleto 1',
-            'price' => 100,
+            'price' => $aux_price,
             'quantity' => 50,
             'valid' => $valid,
             'start_sale' => date('Y-m-d'),
@@ -128,6 +142,7 @@ class CustomerController extends Controller {
             'status' => true,
             'event' => $event
         ]);
+        
     }
 
     public function uploadImage(Request $request) {
@@ -176,14 +191,17 @@ class CustomerController extends Controller {
             'event' => $event
         ]);
     }
-
+    
     public function editEvent($id) {
-        $event = Event::with(['profile', 'logo', 'eventDates', 'location'])->where('id', $id)->first();
+        $event = Event::with(['profile', 'logo', 'eventDates', 'location','category'])->where('id', $id)->first();
         $event->original_initial_date = $event->eventDates[0]->date;
         $event->initial_date = Carbon::parse($event->eventDates[0]->date)->locale('es')->isoFormat('D MMM Y').' - '.substr($event->eventDates[0]->initial_time, 0, 5);
         $pos = sizeof($event->eventDates) - 1;
         $event->original_final_date = $event->eventDates[$pos]->date;
         $event->final_date = Carbon::parse($event->eventDates[$pos]->date)->locale('es')->isoFormat('D MMM Y').' - '.substr($event->eventDates[$pos]->final_time, 0, 5);
+        
+        //dd($event);
+        
         return view('customers.editEvent')->with(['event' => $event, 'event_id' => $event->id, 'event_url' => $event->url]);
     }
 
@@ -234,6 +252,15 @@ class CustomerController extends Controller {
     public function editDescription(Request $request) {
         $event = Event::where('id', $request->input('event_id'))->first();
         $event->description = $request->input('description');
+        $event->save();
+        return response()->json([
+            'status' => true
+        ]);
+    }
+
+    public function editCategory(Request $request) {
+        $event = Event::where('id', $request->input('event_id'))->first();
+        $event->category_id = $request->input('category_id');
         $event->save();
         return response()->json([
             'status' => true
@@ -456,21 +483,80 @@ class CustomerController extends Controller {
     }
 
     public function saveTurns(Request $request) {
-        for ($i = 0; $i < sizeof($request->input('nameTurn')); $i++) { 
-            Turn::where('event_date_id', $request->input('dateId')[$i])->delete();
-            for ($j = 0; $j < sizeof($request->input('nameTurn')[$i]); $j++) { 
-                Turn::create([
-                    'event_date_id' => $request->input('dateId')[$i],
-                    'name' => $request->input('nameTurn')[$i][$j],
-                    'initial_hour' => $request->input('hourInitial')[$i][$j].':'.$request->input('minuteInitial')[$i][$j],
-                    'final_hour' => $request->input('hourFinal')[$i][$j].':'.$request->input('minuteFinal')[$i][$j],
-                    'quantity' => $request->input('quantity')[$i][$j]
-                ]);
+        
+        $idsTurnsNews = json_decode(json_decode(json_encode($request->turnsNews)),true);
+        
+        $contNewTurn=0;
+        
+        if($request->input('nameTurn') == null){
+            
+        }else{
+            $pointerStarDate=array_keys($request->input('nameTurn'))[0];
+            $resetRequest=(array_keys($request->input('nameTurn')));
+            $numberDate=end($resetRequest);
+
+            $i=$pointerStarDate;
+
+            for ($date =$pointerStarDate; $date <=$numberDate; $date++) {
+                //echo "conta Date > ".$date."\n";
+                if(isset($request->input('nameTurn')[$i])){
+                    for ($j = 0; $j < sizeof($request->input('nameTurn')[$i]); $j++) { 
+                        if($request->input('turnStatus')[$i][$j]=="edit"){
+                            
+                            $turn = Turn::find($request->input('idTurn')[$i][$j]);
+                            $turn->name=$request->input('nameTurn')[$i][$j];
+                            $turn->initial_hour=$request->input('hourInitial')[$i][$j].':'.$request->input('minuteInitial')[$i][$j];
+                            $turn->final_hour=$request->input('hourFinal')[$i][$j].':'.$request->input('minuteFinal')[$i][$j];
+                            $turn->quantity=$request->input('quantity')[$i][$j];
+                            $turn->save();
+                            
+        
+                        }elseif($request->input('turnStatus')[$i][$j]=="new"){
+                            
+                            $idNewTurn=Turn::create([
+                                'event_date_id' => $request->input('dateId')[$i],
+                                'name' => $request->input('nameTurn')[$i][$j],
+                                'initial_hour' => $request->input('hourInitial')[$i][$j].':'.$request->input('minuteInitial')[$i][$j],
+                                'final_hour' => $request->input('hourFinal')[$i][$j].':'.$request->input('minuteFinal')[$i][$j],
+                                'quantity' => $request->input('quantity')[$i][$j]
+                            ]);
+                            
+                            $idsTurnsNews[$contNewTurn]['idNew']=$idNewTurn->id;
+                            $contNewTurn++;
+                            
+                        }
+                        
+                    }
+                    $i++;
+                }else{
+                    $i++;
+                }
+            
+
+            }
+            
+        }
+        
+        if(strlen($request->turnsEliminated)>0){
+            //Elimina los turnos que vienen en la variable de turnsEliminated
+            $turnsEliminated=explode(",",$request->turnsEliminated);
+
+            foreach($turnsEliminated as $idTurn){
+                Turn::where('id', $idTurn)->delete();
             }
         }
+
         return response()->json([
-            'status' => true
+            'status' => true,
+            'idsTurnsNews'=>$idsTurnsNews
         ]);
+        
+        
+        
+        
+
+        
+        
     }
 
     public function model_payment(Request $request) {
@@ -486,5 +572,10 @@ class CustomerController extends Controller {
         return response()->json([
             'status' => $status
         ]);
+    }
+
+    public function getCategories(){
+        $categories = Category::all();
+        return ['categories'=>$categories];
     }
 }

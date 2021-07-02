@@ -47,16 +47,23 @@
                             </div>
                         </div>
                         <div class="col-xl-6 mb-3">
-                            <label class="bold">Costo</label><br>
+                            <label class="bold">Costo </label><br>
+                            @if($event->cost_type === 'paid')
                             <div class="form-check form-check-inline mr-5">
                                 <input class="form-check-input pointer inputs-radio" type="radio" name="price" id="cover" value="1" checked>
                                 <label class="form-check-label pointer inputs-radio" for="cover">Con pago</label>
                             </div>
-                            <div class="form-check form-check-inline mb-2 ml-5">
+                            <div class="form-check form-check-inline mb-2">
                                 <input class="form-check-input pointer inputs-radio" type="radio" name="price" id="free" value="0">
                                 <label class="form-check-label pointer inputs-radio" for="free">Gratis</label>
                             </div>
                             <input class="form-control col-xl-3 mb-2" type="number" id="priceTicket" min="50" required>
+                            @elseif ($event->cost_type === 'free')
+                            <div class="form-check form-check-inline mb-2">
+                                <input class="form-check-input pointer inputs-radio" type="radio" name="price" id="free" value="0" checked>
+                                <label class="form-check-label pointer inputs-radio" for="free">Gratis</label>
+                            </div>
+                            @endif
                             <p><i>* Las comisiones se cobran aparte del precio de tu boleto</i></p>
                             <div class="row mb-3 pt-3">
                                 <div class="col-xl-6">

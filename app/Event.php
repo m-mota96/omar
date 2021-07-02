@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class Event extends Model
 {
     protected $fillable = [
-        'user_id', 'name', 'url', 'description', 'quantity', 'email', 'phone', 'twitter', 'facebook', 'instagram', 'website', 'final_date', 'authorization', 'model_payment', 'cost_type', 'status', 
+        'user_id', 'name', 'url', 'description', 'quantity', 'email', 'phone', 'twitter', 'facebook', 'instagram', 'website', 'final_date', 'authorization', 'cost_type','model_payment', 'status','category_id', 
     ];
 
     public function profile() {
@@ -41,5 +41,8 @@ class Event extends Model
 
     public function assistance() {
         return $this->hasOne(Verified::class)->selectRaw('verifieds.event_id, SUM(verifieds.quantity) as assistance')->groupBy('verifieds.event_id')->where('verifieds.access_id', '!=', null);
+    }
+        public function category(){
+        return $this->belongsTo(Category::class);
     }
 }
