@@ -46,6 +46,7 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'checkrole:cus
     Route::get('turns/{id}', 'StatisticController@turns')->name('turns');
     Route::get('scan/{id}', 'StatisticController@scan')->name('scan');
     Route::get('assistance/{id}', 'StatisticController@assistance')->name('assistance');
+    Route::get('form_ticket/{id}', 'CustomerController@form_ticket')->name('form_ticket');
 });
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'checkrole:admin'])->group(function() {

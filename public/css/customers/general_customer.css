@@ -1,6 +1,10 @@
 body {
     background: #f2f3f4;
 }
+.navbar-sub .dropdown:hover>.dropdown-menu {
+    display: block;
+    top: 30px;
+}
 .alerts {
     color: #e81123;
     font-size: 0.85rem;
@@ -83,6 +87,9 @@ body {
     right: 5vh;
 }
 .div-modal-image:hover {
+    text-decoration: underline;
+}
+.subrayed:hover {
     text-decoration: underline;
 }
 .logotype {
@@ -170,6 +177,28 @@ body {
 }
 .text-btn-totalExpired {
     color: #f64e60;
+}
+.font-super-large {
+    font-size: 10rem;
+}
+.bg-info-form-ticket {
+    background: rgba(0,160,212,0.05);
+    border-left: 5px solid #00a0d4;
+}
+.bg-info-form-ticket-questions:hover {
+    background: rgba(0,160,212,0.05);
+}
+.inputs-questions {
+    display: unset !important;
+}
+.multiselect-native-select .btn-group {
+    width: 100%;
+}
+.multiselect-native-select .multiselect {
+    text-align: left !important;
+}
+.multiselect-native-select .multiselect-container {
+    width: 100%;;
 }
 @media only screen and (max-width: 2500px) and (min-width: 1000px) {
     .hidden-xl {

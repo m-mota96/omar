@@ -52,7 +52,7 @@
         </ul>
     </div>
 </nav>
-<nav class="navbar navbar-expand navbar-light topbar static-top shadow bg-dark hidden-sm">
+<nav class="navbar navbar-expand navbar-light topbar static-top shadow bg-dark hidden-sm navbar-sub">
     <div class="container">
         <!-- Topbar Navbar -->
         <ul class="navbar-nav pt-1 pb-1">
@@ -61,8 +61,20 @@
             <li class="mr-4">
                 <a class="nav-link text-white" href="{{route('customer.stats', $event_id)}}"><i class="fas fa-chart-line"></i> Estadísticas</a>
             </li>
-            <li class="mr-4">
-                <a class="nav-link text-white" href="{{route('customer.edit', $event_id)}}"><i class="fas fa-cog"></i> Configuración</a>
+            <li class="nav-item dropdown no-arrow mr-4">
+                {{-- <a class="nav-link text-white" href="{{route('customer.edit', $event_id)}}"><i class="fas fa-cog"></i> Configuración</a> --}}
+                <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="mr-2 d-none d-lg-inline text-white"><i class="fas fa-cog"></i> Configuración</span>
+                </a>
+                <!-- Dropdown - User Information -->
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="{{route('customer.edit', $event_id)}}">
+                        <i class="far fa-eye"></i> Apariencia
+                    </a>
+                    <a class="dropdown-item" href="{{route('customer.form_ticket', $event_id)}}">
+                        <i class="far fa-map"></i> Forma por boleto
+                    </a>
+                </div>
             </li>
             <li class="mr-4">
                 <a class="nav-link text-white" href="{{route('customer.turns', $event_id)}}"><i class="fas fa-list-ol"></i> Turnos</a>
