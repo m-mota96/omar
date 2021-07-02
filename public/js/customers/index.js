@@ -30,7 +30,6 @@ $('#createEvent').on('click', ()=> {
             dataType: 'json',
             success:(response)=>{
                 ths.categories=response.categories;
-                console.log(ths.categories);
                 ths.categories.forEach( category =>{
                     $('#categorySelect').append('<option value="'+category.id+'" >'+category.name+'</option>');
                 });
@@ -78,6 +77,7 @@ $("#modalCreateEvent").on("hidden.bs.modal", function () {
     $('#modalCreateEvent #txt_name_success').css('display', 'none');
     $('#modalCreateEvent #txt_website_success').css('display', 'none');
     $('#modalCreateEvent #divDates').html('');
+    $('#modalCreateEvent #categorySelect').val('0');
 });
 
 $('#moreDays').click(function() {

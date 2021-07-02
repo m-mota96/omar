@@ -58,6 +58,8 @@ Route::get('payments/paymentMethod/{method}', function($method) {
         return View::make("cardPayment")->render();
     } else if ($method == 'oxxo') {
         return View::make("oxxoPayment")->render();
+    }else if($method == 'free'){
+        return View::make('freePayment')->render();
     }
 });
 Route::get('exit/discount/access', function() {

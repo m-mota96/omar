@@ -35,12 +35,13 @@
                         <option value="" selected disabled>Seleccione un método de pago</option>
                         <option value="card">Tarjeta de Crédito/Débito</option>
                         {{-- <option value="oxxo">Pago en OXXO</option> --}}
+                        <option id="optionFree" value="free">Gratis</option>
                     </select>
                     <div class="row" id="divContentPayment">
 
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer"> 
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                     <button type="submit" class="btn btn-primary">Realizar pago</button>
                 </div>

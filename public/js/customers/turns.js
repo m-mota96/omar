@@ -7,9 +7,6 @@ this.complementTr=0;
 
 function createTurnsContent(dates) {
 
-   console.log(dates);
-   
-
    var indicator = false;
 
    for (var i = 0; i < dates.length; i++) {
@@ -180,7 +177,12 @@ function createTurnsContent(dates) {
                         contentTurns += '</div>';
                      contentTurns += '</td>';
                      contentTurns += '<td class="pl-1 pr-1"><label>No. de accesos: </label><input onchange="detectarCambio('+i+','+k+''+this.complementTr+')" class="form-control mb-3 quantity" type="number" name="quantity['+i+']['+k+']"" value="'+dates[i].turns[k].quantity+'" min="0" required></td>';
-                     contentTurns += '<td class="pl-1 pr-1 pt-2"><span class="btn btn-danger mt-2" onClick="deleteTurn('+i+', '+k+','+dates[i].turns[k]['id']+','+this.complementTr+')"><i class="fas fa-trash-alt"></i></span></td>';
+                     if( dates[i].turns[k]['access'].length == 0){
+                        contentTurns += '<td class="pl-1 pr-1 pt-2"><span class="btn btn-danger mt-2" onClick="deleteTurn('+i+', '+k+','+dates[i].turns[k]['id']+','+this.complementTr+')"><i class="fas fa-trash-alt"></i></span></td>';
+                     }else{
+                        contentTurns += '<td class="pl-1 pr-1 pt-2"><span type="button" class="btn btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Este turno ya cuenta con accesos asignados"><i class="fas fa-info-circle"></i></span></td>';
+                     }
+                     
                   contentTurns += '</tr>';
                }
             contentTurns += '</tbody>';
@@ -284,7 +286,7 @@ function deleteTurn(idTbody, idElement,idTurn,_complementTr) {
 
    /* Obtiene el id de los turnos registrados y los almacena en ths.turnsEliminated*/
    if(typeof idTurn == 'string'){
-      console.log("string >"+'#'+idTurn+''+_complementTr);
+      
 
       if($('#turnId'+idTbody+'_0'+_complementTr).val()=='new'){
          var auxTurnNews=[];
@@ -305,9 +307,7 @@ function deleteTurn(idTbody, idElement,idTurn,_complementTr) {
          ths.turnsEliminated.push(idTurn);
 
       }else{
-         //console.log(">> turnId"+idTbody+'_'+idElement);
          if($('#turnId'+idTbody+'_'+idElement+''+_complementTr).val()=='edit' || $('#turnId'+idTbody+'_'+idElement+''+_complementTr).val()=='noEdit'){
-            //var auxIdTurn=$('#idTurn'+idTbody+'_'+idElement).val();
             ths.turnsEliminated.push(idTurn);
          }else{
             

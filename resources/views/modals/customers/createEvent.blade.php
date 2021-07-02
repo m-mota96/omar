@@ -46,7 +46,7 @@
                         </div>
                          <div class="col-xl-6 mb-3">
                         <select class="form-control" id="categorySelect" aria-label="Default select example" required>
-                            <option value="0" selected>Seleccione una categoría</option>
+                            <option value="0" selected disabled>Seleccione una categoría</option>
                         </select>
                         </div>
                         <div class="col-xl-6">

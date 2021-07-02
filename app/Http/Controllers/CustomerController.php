@@ -115,10 +115,17 @@ class CustomerController extends Controller {
             $valid++;
         }
 
+        $aux_price=0;
+        if($request->input('cost_type') == 'paid'){
+            $aux_price=100;
+        }else{
+            $aux_price=0;
+        }
+
         Ticket::create([
             'event_id' => $event->id,
             'name' => 'Boleto 1',
-            'price' => 100,
+            'price' => $aux_price,
             'quantity' => 50,
             'valid' => $valid,
             'start_sale' => date('Y-m-d'),

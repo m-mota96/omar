@@ -123,7 +123,8 @@ class StatisticController extends Controller
     }
 
     public function turns($id) {
-        $event = Event::with(['eventDates.turns'])->where('id', $id)->first();
+        
+        $event = Event::with(['eventDates.turns.access'])->where('id', $id)->first();
         // dd($event);
         return view('customers.turns')->with(['event_url' => $event->url, 'event_id' => $id, 'event' => $event]);
     }

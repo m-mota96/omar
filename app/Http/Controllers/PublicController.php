@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-//require_once('bin/conekta-php-master/lib/Conekta.php');
+require_once('bin/conekta-php-master/lib/Conekta.php');
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -45,12 +45,14 @@ class PublicController extends Controller
     }
 
     public function makePayment(Request $request) {
+        
         // dd($request->input());
         $event = Event::with(['profile', 'eventDates', 'location'])->where('id', $request->input('event_id'))->first();
         $initial_date = Carbon::parse($event->eventDates[0]->date)->locale('es')->isoFormat('D-MM-Y');
         $pos = sizeof($event->eventDates) - 1;
         $final_date = Carbon::parse($event->eventDates[$pos]->date)->locale('es')->isoFormat('D-MM-Y');
         $address = $event->location->name;
+
         $tickets = Array();
         $folios = Array();
         $total = 0;
@@ -88,9 +90,11 @@ class PublicController extends Controller
             ]);
         }
         // dd('STOP');
+        
         for ($i = 0; $i < sizeof($request->input('quantities')); $i++) {
             if ($request->input('quantities')[$i] > 0) {
                 $ticket = Ticket::select('id', 'name', 'description', 'price', 'quantity', 'sales', 'valid', 'promotion', 'date_promotion', 'status')->where('id', $request->input('tickets')[$i])->first();
+                
                 if ($ticket->quantity == $ticket->sales) {
                     return response()->json([
                         'status' => false,
@@ -114,7 +118,9 @@ class PublicController extends Controller
                         $ticket->price = $ticket->price - ($ticket->price * ($ticket->promotion / 100));
                     }
                 }
+                
                 $tickets[$i]['name'] = $ticket->name;
+                
                 // $tickets[$i]['description'] = $ticket->description;
                 $tickets[$i]['price'] = $ticket->price;
                 $total = $total + ($ticket->price * $request->input('quantities')[$i]);
@@ -124,8 +130,11 @@ class PublicController extends Controller
                         $pos2++;
                     }
                 }
+                
                 try {
+                    
                     $ticket->img_event = asset('media/events/'.$event->id.'/'.$event->profile->name);
+                    
                     for ($j = 0; $j < $request->input('quantities')[$i]; $j++) {
                         $folio = strtoupper(uniqid());
                         $code_QR = QrCode::backgroundColor(255, 125, 0, 0.5)->size(550)->format('svg')->generate($folio);
@@ -154,13 +163,20 @@ class PublicController extends Controller
             }
         }
         // dd('STOP');
+        
         \Conekta\Conekta::setApiKey($this->ApiKey);
         \Conekta\Conekta::setApiVersion($this->ApiVersion);
+        
 
         // Registra por metodo de pago los boletos 
+        $commission=0;
+        
         if ($request->input('payment_method') == 'card') {
             if ($event->model_payment == 'included') {
                 $commission = ($total * 0.03) + 2.5;
+                $total = $total + $commission;
+            }else{
+                $commission=0;
                 $total = $total + $commission;
             }
             //Proceso de pago
@@ -189,6 +205,9 @@ class PublicController extends Controller
             if ($event->model_payment == 'included') {
                 $commission = ($total * 0.04);
                 $total = $total + $commission;
+            }else{
+                $commission=0;
+                $total = $total + $commission;
             }
             $order = $this->createOrderOxxo($total, 'Compra de boletos para '.$event->name, $request->input('name'), $request->input('email'), $request->input('phone'), 1);
             if($order['status'] == true) {
@@ -215,6 +234,10 @@ class PublicController extends Controller
                     // 'error' => $e->getMessage()
                 ]);
             }
+        }else if($request->input('payment_method') == 'free'){
+            $payment = $this->registerPayment($event->id, $request->input('name'),'Gratis', 'free', $request->input('email'), 'payed', $total, $request->input('phone'));
+            $this->saveAccesses($payment->id, $folios);
+            
         }
 
         switch ($request->input('payment_method')) {
@@ -224,10 +247,17 @@ class PublicController extends Controller
             case 'oxxo':
                 Mail::to($request->input('email'))->send(new SendReference($event, $order['reference'], $request->input('name'), $payment));
                 break;
+            case 'free':
+                Mail::to($request->input('email'))->send(new SendTickets($event, $folios, $tickets, $request->input('name'), $request->input('quantities'), $total, $commission));
+                break;
+            
         }
         return response()->json([
             'status' => true
         ]);
+        
+        
+        
     }
 
     public function registerPayment($event_id, $name, $reference, $type, $email, $status, $total, $phone) {

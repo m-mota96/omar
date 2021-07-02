@@ -18,6 +18,8 @@ var map;
 var marker;
 var center;
 var latitud = 0, longitud = 0;
+var ths=this;
+var cost_type="free";
 
 function initMap(lat = null, long = null) {
     var elem = document.getElementById("map");
@@ -82,6 +84,20 @@ $('.btn-more').click(function(e) {
 
 $('#btnSale').click(function() {
     calculateTotals('sale');
+    console.log(ths.cost_type+" > "+$('#cost_type').val());
+    if($('#cost_type').val() == 'free' || (ths.cost_type === 'free')){
+        $('#optionFree').show();
+        $("#payment-method option[value=free]").attr("selected",true);
+        $('#payment-method').prop('disabled', 'disabled');
+        
+        getFormCorreo();
+    }else{
+        $("#payment-method").val("");
+        $("#divContentPayment").html("");
+        $('#payment-method').removeAttr('disabled');
+        $('#optionFree').hide();
+
+    }
     $('#modalSale').modal('show');
 });
 
@@ -112,7 +128,7 @@ $('#payment-method').change(()=> {
         $('#body-comisions').html(tbody);
         $('#total-sale').html('$'+formatMoney(totalAux)+' MXN');
     }
-    $.get(
+    $.get( 
         $('#URL').val()+"payments/paymentMethod/"+$('#payment-method').val(),
         function (data) {
             $("#divContentPayment").html(data);
@@ -122,6 +138,18 @@ $('#payment-method').change(()=> {
         }
     );
 });
+
+function getFormCorreo(){
+    $.get( 
+        $('#URL').val()+"payments/paymentMethod/"+$('#payment-method').val(),
+        function (data) {
+            $("#divContentPayment").html(data);
+            $("#confirmEmail").on('paste', function(e){
+                e.preventDefault();
+            });
+        }
+    );
+}
 
 $('#formSale').submit((e)=> {
     e.preventDefault();
@@ -153,6 +181,23 @@ $('#formSale').submit((e)=> {
                         if (result.value) {
                             var msgAlert = 'Creando referencia de pago, no cierre ni actualice esta página. Por favor espere!!';
                             var msgSuccess = 'Su referencia se genero con éxito, en breve la recibira en su correo electrónico';
+                            jsPay(msgAlert, msgSuccess);
+                        }
+                    });
+                }else if($('#payment-method').val() == 'free'){
+                    Swal.fire({
+                        title: "¡Atención!",
+                        html: "<span>Sus boletos seran enviados al correo: </span><br><b>"+$('#email').val()+"</b><br><span>¿Es correcta esta información?</span>",
+                        showCancelButton: true,
+                        cancelButtonColor: '#3085d6',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Aceptar',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.value) {
+                            var msgAlert = 'Procesando pago, no cierre ni actualice esta página. Por favor espere!!';
+                            var msgSuccess = '<span>Su pago se realizo con éxito </span><br><span>Recibira sus boletos por correo electrónico</span>';
                             jsPay(msgAlert, msgSuccess);
                         }
                     });
@@ -214,7 +259,7 @@ var indicatorTurns = new Array();
 function calculateTotals(indicator = null) {
     var prices = [], names = [];
     var pos = 0, quantitytTickets = 0;
-    var tbody = '';
+    var tbody = ''; 
     total = 0;
     $('#body-comisions').html('');
     $(".quantities").each(function (e) {
@@ -264,7 +309,13 @@ function calculateTotals(indicator = null) {
     }
     if (indicator == null) {
         $('#quantityTickets').text(quantitytTickets);
-        $('#total').text('$'+formatMoney(total)+' MXN'); 
+        $('#total').text('$'+formatMoney(total)+' MXN');
+        if(total>0){
+            ths.cost_type="paid";
+        }else{
+            ths.cost_type="free";
+        }
+        
     } else {
         $('#body-sale').html(tbody);
         $('#total-sale').html('$'+formatMoney(total)+' MXN');

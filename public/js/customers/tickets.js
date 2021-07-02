@@ -18,16 +18,17 @@ $(document).ready(()=> {
 $('input:radio[name=price]').click(()=> {	 
     if ($('input:radio[name=price]:checked').val() == 1) {
         $('#priceTicket').css('display', 'block');
-    } else {
+        $('#priceTicket').prop("required", true);
         $('#priceTicket').val('');
+    } else {
+        $('#priceTicket').val('50');
         $('#priceTicket').css('display', 'none');
+        $('#priceTicket').removeAttr("required");
     }
 });
 
 $("#modalTickets").on("hidden.bs.modal", function () {
     $('#modalTickets .form-control').val('');
-    $('#cover').prop('checked', true);
-    $('#free').prop('checked', false);
     $('#priceTicket').css('display', 'block');
     $('#slider-step').remove();
     $('#divPromotions').addClass('hidden');
@@ -78,14 +79,14 @@ function saveTicket(id = null, name = null, description = '', min_reservation = 
             $("#turnInactive").prop("checked", false);
             $("#turnActive").prop("checked", true);
         }
-        if(price != null) {
+        if(price != null && price > 0) {
             $('#cover').prop('checked', true);
             $('#free').prop('checked', false);
             $('#priceTicket').val(price);
         } else {
             $('#free').prop('checked', true);
-            $('#cover').prop('checked', false);
-            $('#priceTicket').val('');
+            $('#priceTicket').css('display', 'none');
+            $('#priceTicket').val('50');
         }
         $('#submitTickets').text('Guardar cambios');
         var msj = 'El boleto se modifico correctamente';
@@ -106,6 +107,7 @@ function saveTicket(id = null, name = null, description = '', min_reservation = 
             }
         });
     } else {
+        console.log("Else");
         var stepSlider = document.getElementById('slider-step');
 
         noUiSlider.create(stepSlider, {
@@ -122,9 +124,14 @@ function saveTicket(id = null, name = null, description = '', min_reservation = 
                 density: 100,
             }
         });
+        
+        
+
         $('#modalTicketsLabel').text('Agrega un tipo de boleto');
         $('#submitTickets').text('Guardar boleto');
         var msj = 'El tipo de boleto se guardo correctamente';
+
+        
     }
     $('#modalTickets').modal('show');
 }
@@ -204,6 +211,7 @@ function chargingDom(tickets) {
 }
 
 $('#formTickets').submit((e)=> {
+    console.log("event");
     e.preventDefault();
     var slider = document.getElementById('slider-step');
     var daysValid = parseInt(slider.noUiSlider.get());
@@ -214,6 +222,21 @@ $('#formTickets').submit((e)=> {
         }
     }
     if (ban == true) {
+        var auxTurns=0;
+        var price=0;
+        if(!$('input:radio[name=turns]:checked').val()){
+            auxTurns=0;
+        }else{
+            auxTurns=$('input:radio[name=turns]:checked').val();
+        }
+        
+
+        if($('input:radio[name=price]:checked').val() == 0){
+            price=0;
+        }else{
+            price=$('#priceTicket').val();
+        }
+        
         $.ajax({
             method: 'POST',
             url: $('#URL').val()+'saveTicket',
@@ -231,8 +254,8 @@ $('#formTickets').submit((e)=> {
                 date_promotion: $('#date_promotion').val(),
                 start_sale: $('#start_sale').val(),
                 stop_sale: $('#stop_sale').val(),
-                price: $('#priceTicket').val(),
-                turns: $('input:radio[name=turns]:checked').val(),
+                price: price,
+                turns:auxTurns,
                 daysValid: daysValid
             },
             success: (response)=> {
