@@ -200,6 +200,16 @@ body {
 .multiselect-native-select .multiselect-container {
     width: 100%;;
 }
+.detectChanges {
+    background: rgba(241,196,15,0.1);
+    border: 1px solid rgba(241,196,15,0.6);
+}
+.btn-questions {
+    background: #f77636;;
+}
+.btn-questions:hover {
+    background: #f77636;;
+}
 @media only screen and (max-width: 2500px) and (min-width: 1000px) {
     .hidden-xl {
         display: none;

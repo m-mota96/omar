@@ -19,4 +19,8 @@ class Ticket extends Model
     public function access() {
         return $this->hasMany(Access::class);
     }
+    
+    public function questions() {
+        return $this->belongsToMany(Question::class);
+    }
 }

@@ -109,6 +109,7 @@ Route::get('excel/downloadPayments/{id}', 'StatisticController@downloadPayments'
 Route::post('searchAccess', 'StatisticController@searchAccess');
 Route::post('validateFolio', 'StatisticController@validateFolio');
 Route::post('extractAssistence', 'StatisticController@extractAssistence');
+Route::post('saveChangesQuesntions', 'CustomerController@saveChangesQuesntions');
 
 // Routes usage for admin
 Route::post('extractUsersDocuments', 'AdminController@extractUsersDocuments');
