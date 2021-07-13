@@ -230,11 +230,12 @@ class CustomerController extends Controller {
         $event->name = $request->input('name_event');
         $event->url = $request->input('website');
         $event->quantity = $request->input('quantity');
+        $event->category_id = $request->input('category_id');
         $event->save();
         return response()->json([
             'status' => true,
             'name' => $request->input('name_event'),
-            'website' => $request->input('website')
+            'website' => $request->input('website'),
         ]);
     }
 

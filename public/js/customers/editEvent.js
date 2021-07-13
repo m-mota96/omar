@@ -203,13 +203,15 @@ $('#formEditNameWebsite').submit((e)=> {
             event_id: $("#eventId").val(),
             name_event: $('#nameEvent').val(),
             website: $('#website').val(),
-            quantity: $('#quantity').val()
+            quantity: $('#quantity').val(),
+            category_id:$('#categorySelect').val()
         },
         success: (response)=> {
             if(response.status == true) {
-                $('#titleEvent').text($('#nameEvent').val());
+                $('#titleEvent').text($('#nameEvent').val()); 
                 $('#viewWebsite').attr('href', $('#URL').val()+response.website);
                 $('#topbarWebsite').attr('href', $('#URL').val()+response.website);
+                $('#content-category').text("Categoría: "+$('#categorySelect option:selected').text());
                 $('#topbarWebsite').html('<span class="mr-2 d-none d-lg-inline text-white"><i class="fas fa-link"></i> '+$('#URL').val()+response.website+'</span>');
                 $('#modalEditNameWebsite #txt_name_success').css('display', 'none');
                 $('#modalEditNameWebsite #txt_website_success').css('display', 'none');
@@ -242,7 +244,33 @@ $("#modalEditImage").on("hidden.bs.modal", function () {
     myDropzone.removeAllFiles();
 });
 
+
+/*Obtiene las categorias para editarlas */
+var ths = this;
+var categories=[];
 $('#btnNameAndSite').click(()=> {
+    
+    if(ths.categories.length == 0){
+        $.ajax({
+            url:$('#URL').val()+'getCategories',
+            method:"POST",
+            async: false,
+            data:{
+                "_token": $("meta[name='csrf-token']").attr("content"),
+            },
+            dataType: 'json',
+            success:(response)=>{
+                ths.categories=response.categories;
+                ths.categories.forEach( category =>{
+                    $('#categorySelect').append('<option value="'+category.id+'" >'+category.name+'</option>');
+                });
+                
+            },
+            error:()=>{
+                console.log("ERROR");
+            }
+        });
+    }
     $('#modalEditNameWebsite').modal('show');
 });
 $('#nameEvent').keyup(function() {
@@ -261,35 +289,7 @@ $('#btnEditDescription').click(function() {
     $('#modalEditDescription').modal('show');
 });
 
-var ths = this;
-var categories=[];
-$('#btnEditCategory').click(function() {
-    if(ths.categories.length == 0){
-        $.ajax({
-            url:$('#URL').val()+'getCategories',
-            method:"POST",
-            async: false,
-            data:{
-                "_token": $("meta[name='csrf-token']").attr("content"),
-            },
-            dataType: 'json',
-            success:(response)=>{
-                ths.categories=response.categories;
-                console.log(ths.categories);
-                ths.categories.forEach( category =>{
-                    $('#categorySelect').append('<option value="'+category.id+'" >'+category.name+'</option>');
-                });
-                
-            },
-            error:()=>{
-                console.log("ERROR");
-            }
-        });
-    }
-    $('#modalEditCategory').modal('show');
-    
 
-});
 
 $('#btnEditDates').click(function() {
     $('#modalEditDates').modal('show');
@@ -401,49 +401,6 @@ $('#formEditDescription').submit((e)=> {
     });
 });
 
-$('#formEditCategory').submit((e)=> {
-    e.preventDefault();
-
-    if($('#categorySelect option:selected').val() > 0){
-        $.ajax({
-            method: 'POST',
-            url: $('#URL').val()+'editCategory',
-            dataType: 'json',
-            async: false,
-            data: {
-                "_token": $("meta[name='csrf-token']").attr("content"),
-                event_id: $("#eventId").val(),
-                category_id: $('#categorySelect').val()
-            },
-            success: (response)=> {
-                if(response.status == true) {
-                    $('#modalEditCategory').modal('hide');
-                    $('#content-category').text($('#categorySelect option:selected').text());
-                    Swal.fire({
-                        position: 'bottom-end',
-                        icon: 'success',
-                        text: 'La categoría se modifico correctamente',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else {
-                    Swal.fire({
-                        position: 'bottom-end',
-                        icon: 'error',
-                        text: 'Lo sentimos ocurrio un error',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                }
-            },
-            error: ()=> {
-                console.log('ERROR');
-            }
-        });
-    }
-
-    
-});
 
 $('#formEditDates').submit((e)=> {
     e.preventDefault();

@@ -14,7 +14,7 @@
             @endif
             <span class="p-a div-modal-image bg-gray-dark-900 text-white pointer p-1" id="btnEditImage"><i class="fas fa-pen"></i> Cambiar Imagen de Fondo</span>
             <div class="col-xl-12 w-100 pt-4 pb-3 back-title-edit">
-                <h1 class="bold text-white-300" id="titleEvent">{{$event->name}} <h5><a class="text-white-300" id="viewWebsite" href="{{URL::asset('').$event_url}}" target="_blank">Ver sitio web</a></h5></h1>
+                <h1 class="bold text-white-300" id="titleEvent">{{$event->name}} <h5 class="text-white-300" id="content-category">Categoría: {{ $event->category->name }}</h5> <h5><a class="text-white-300" id="viewWebsite" href="{{URL::asset('').$event_url}}" target="_blank">Ver sitio web</a></h5></h1>
                 <div class="row mr-1 bg-gray-dark-900 p-a div-modal-edit">
                     <span class="text-white pointer" id="btnNameAndSite"><i class="fas fa-pen"></i> Editar nombre y sitio de ventas</span>
                 </div>
@@ -84,16 +84,13 @@
                                                 <a class="text-dark font-small" href="{{$event->website}}" target="_blank"><i class="fas fa-link"></i> {{$event->website}}</a>
                                             @endif
                                         </div>
-                                    </div>
+                                    </div> 
                                     <div class="dropdown-divider mt-3 mb-3"></div>
-                                    <h6><b><i class="fas fa-list"></i> CATEGORÍA</b> &nbsp;&nbsp;&nbsp;<span class="font-small pointer" id="btnEditCategory"><i class="fas fa-pen"></i> Editar</span></h6>
-                                    <h6 style="text-transform:uppercase" id="content-category">{{ $event->category->name }}</h6>
-                                    <div class="dropdown-divider mt-3 mb-3"></div>
-                                    <h6><b><i class="fas fa-donate"></i> TIPO DE COSTO</b> &nbsp;&nbsp;&nbsp;</h6>
+                                    <h6><b><i class="fas fa-donate"></i> TIPO DE EVENTO</b> &nbsp;&nbsp;&nbsp;</h6>
                                     @if( $event->cost_type === 'paid' )
-                                    <h6 style="text-transform:uppercase" id="content-cost_type">Con pago</h6>
+                                    <h6 style="text-transform:uppercase" id="content-cost_type">De consumo</h6>
                                     @elseif($event->cost_type === 'free')
-                                    <h6 style="text-transform:uppercase" id="content-cost_type">Gratis</h6>
+                                    <h6 style="text-transform:uppercase" id="content-cost_type">De registro</h6>
                                     @endif
                                     <div class="dropdown-divider mt-3 mb-3"></div>
                                     {{-- <h6><b><i class="fas fa-tags"></i> TRACKING</b> &nbsp;&nbsp;&nbsp;<span class="font-small pointer"><i class="fas fa-pen"></i> Editar</span></h6>
@@ -127,6 +124,9 @@
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmxWjrQMl9hyuxzaoCm0_Ma03a92eu2b4&libraries=places"></script>
     {{-- <script src="{{asset('js/jquery.imgareaselect.js')}}"></script> --}}
     <script src="{{asset('js/customers/editEvent.js')}}"></script>
+    <script src="{{asset('css/styleSlider.css')}}"></script>
+
+
     <script>
         // processingDates('<?= $event->eventDates; ?>');
         $('#initial_date').val(@json($event->original_initial_date));

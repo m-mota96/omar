@@ -37,11 +37,11 @@
                             <label>Tipo de costo:</label><br>
                             <div class="form-check form-check-inline mr-5">
                                 <input class="form-check-input pointer inputs-radio" type="radio" name="cost_type" id="paid" value="paid" checked >
-                                <label class="form-check-label pointer inputs-radio" for="paid">Con pago</label>
+                                <label class="form-check-label pointer inputs-radio" for="paid">De consumo</label>
                             </div>
                             <div class="form-check form-check-inline mb-2 ml-5">
                                 <input class="form-check-input pointer inputs-radio" type="radio" name="cost_type" id="free" value="free">
-                                <label class="form-check-label pointer inputs-radio" for="free">Gratis</label>
+                                <label class="form-check-label pointer inputs-radio" for="free">De registro</label>
                             </div>
                         </div>
                          <div class="col-xl-6 mb-3">

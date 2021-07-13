@@ -133,13 +133,18 @@
         <div class="container">
             <div class="row">
                 <div class="col-xl-10 offset-xl-1 pt-4 pb-4">
-                    <div class="row">
+                    <div class="row"> 
                         <div class="col-xl-7 pl-0 pr-5 mb-4">
                             <h4 class="w-100">Tienes <b id="quantityTickets">0</b> boletos seleccionados</h4>
                             <h4 class="bold text-blue d-i" id="total">$0.00 MXN</h4><span class="text-gray-600">&nbsp;+ CARGOS</span>
                         </div>
                         <div class="col-xl-5">
-                            <span class="btn bg-orange text-white bold btn-lg pt-3 pb-3 w-100" id="btnSale">Comprar Boletos</span>
+                            @if($event->cost_type == 'free')
+                                <span class="btn bg-orange text-white bold btn-lg pt-3 pb-3 w-100" id="btnSale">Registrar Boletos</span>
+                            @else
+                                <span class="btn bg-orange text-white bold btn-lg pt-3 pb-3 w-100" id="btnSale">Comprar Boletos</span>
+                            @endif
+                            
                         </div>
                     </div>
                 </div>
@@ -207,6 +212,7 @@
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmxWjrQMl9hyuxzaoCm0_Ma03a92eu2b4" type="text/javascript"></script>
 <script src="{{asset('js/charging.js')}}"></script>
 <script src="{{asset('js/public.js')}}"></script>
+<script src="{{asset('js/formslider.js')}}"></script>
 <script>
     var lat = @json(isset($event->location->latitude) ? $event->location->latitude : null);
     var lon = @json(isset($event->location->longitude) ? $event->location->longitude : null);

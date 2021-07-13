@@ -33,6 +33,12 @@
                             <label>Asistencia estimada</label>
                             <input class="form-control" type="number" id="quantity" required value="{{$event->quantity}}" autocomplete="off">
                         </div>
+                        <div class="col-xl-12 mb-3">
+                            <label>Categoría del evento</label>
+                            <select class="form-control" id="categorySelect" aria-label="Default select example" required>
+                                <option value="0" selected>Seleccione una categoría</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

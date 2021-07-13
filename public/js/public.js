@@ -83,8 +83,8 @@ $('.btn-more').click(function(e) {
 });
 
 $('#btnSale').click(function() {
+    
     calculateTotals('sale');
-    console.log(ths.cost_type+" > "+$('#cost_type').val());
     if($('#cost_type').val() == 'free' || (ths.cost_type === 'free')){
         $('#optionFree').show();
         $("#payment-method option[value=free]").attr("selected",true);
@@ -98,8 +98,76 @@ $('#btnSale').click(function() {
         $('#optionFree').hide();
 
     }
+    
+    ticketsGeneratedHtml();
+
     $('#modalSale').modal('show');
+    
 });
+
+/* Inicio -- Relacionado a los pasos de modal Para realizar el pago*/
+function ticketsGeneratedHtml(){
+    var container_tickets="";
+    $("#container-tickets").html("");
+    var cont=1;
+    var posTickets=0;
+    ths.ticketsGenerated.forEach(ticket => {
+
+        for (let index = 0; index < ticket.quanties; index++) {
+            container_tickets+= `
+                <div class="container rounded border" id="container_${cont}">
+                    <div class="row p-2 border-bottom">
+                        <h5 class="bold w-10">Boleto ${cont} - ${ticket.name}</h5>
+                    </div>
+                    <div class="row p-2">
+                        <div class="form-check">
+                            <input class="form-check-input" onchange="completeOrderData(${posTickets},${cont})" type="checkbox" value="" id="autocompleted_${cont}">
+                            <label class="form-check-label" for="defaultCheck1">
+                                Autocompletar este boleto con datos de la orden.
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row p-2">
+                        <div class="col-sm-3">
+                            <label for="name">Nombre *</label>
+                            <input type="text" class="form-control" id="name_${posTickets}_${cont}" name="name[${posTickets}][${cont}]" required placeholder="Nombre">
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="name">Correo *</label>
+                            <input type="email" class="form-control" id="email_${posTickets}_${cont}" name="email[${posTickets}][${cont}]" required placeholder="Correo">
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="name">Confirmar correo *</label>
+                            <input type="email" class="form-control" id="confirmEmail_${posTickets}_${cont}" required name="confirmEmail[${posTickets}][${cont}]" placeholder="Confirmar correo">
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="name">Teléfono *</label>
+                            <input type="text" class="form-control" id="phone_${posTickets}_${cont}" required name="phone[${posTickets}][${cont}]" placeholder="Teléfono">
+                        </div>
+                    </div>
+
+                </div>
+                <br>
+                `;
+
+            cont++;
+        }
+        posTickets++;
+    });
+    
+    $("#container-tickets").html(container_tickets);
+
+
+}
+
+function completeOrderData(_posTickets,_cont){
+    console.log("posTickets> "+_posTickets+"  - cont> "+_cont);
+    console.log("value> "+$("#autocompleted_"+_cont).val());
+}   
+
+/** Fin */
+
 
 $('.btn-minus').click(function() {
     var id = $(this).attr('data-id');
@@ -256,10 +324,12 @@ var idTickets = [], quantities = [];
 var total = 0, totalTickets = 0;
 var turns = new Array();
 var indicatorTurns = new Array();
+var ticketsGenerated=[];
 function calculateTotals(indicator = null) {
     var prices = [], names = [];
     var pos = 0, quantitytTickets = 0;
     var tbody = ''; 
+    ths.ticketsGenerated=[];
     total = 0;
     $('#body-comisions').html('');
     $(".quantities").each(function (e) {
@@ -291,6 +361,10 @@ function calculateTotals(indicator = null) {
         total = total + quantities[i] * prices[i];
         if (quantities[i] > 0) {
             sales = true;
+            ths.ticketsGenerated.push({
+                name:names[i],
+                quanties:quantities[i]
+            });
             tbody += '<tr><td>'+names[i]+'</td><td class="text-right">'+quantities[i]+'</td><td class="text-right">$'+formatMoney(prices[i])+' MXN</td><td class="text-right">$'+formatMoney(quantities[i] * prices[i])+' MXN</td></tr>';
         }
     }
@@ -395,3 +469,4 @@ function jsPay(msgAlert, msgSuccess) {
         },
     });
 }
+

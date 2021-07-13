@@ -202,7 +202,12 @@ function chargingDom(tickets) {
                 content += '</div>';
                 content += '<div class="col-xl-4 text-right">';
                     content += '<h3 class="mb-0"><span class="text-blue-400">'+tickets[i].access.length+'/</span><span class="text-blue-300 quantity">'+tickets[i].quantity+'</span></h3>';
-                    content += '<span class="font-small mt-0">BOLETOS RESERVADOS</span>';
+                    if( (tickets[i].event.cost_type == 'free') || tickets[i].price == 0){
+                        content += '<span class="font-small mt-0">BOLETOS REGISTRADOS</span>';
+                    }else{
+                        content += '<span class="font-small mt-0">BOLETOS RESERVADOS</span>';
+                    }
+                    
                 content += '</div>';
             content += '</div>';
         content += '</div>';
