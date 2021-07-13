@@ -17,6 +17,7 @@ use App\Ticket;
 use App\Payment;
 use App\Turn;
 use App\Category;
+use App\Question;
 use DateTime;
 
 class CustomerController extends Controller {
@@ -575,8 +576,95 @@ class CustomerController extends Controller {
         ]);
     }
 
-    public function getCategories(){
+    public function getCategories() {
         $categories = Category::all();
         return ['categories'=>$categories];
+    }
+
+    public function form_ticket($id) {
+        $event = Event::where('id', $id)->where('user_id', auth()->user()->id)->first();
+        if (!empty($event)) {
+            $tickets = Ticket::where('event_id', $id)->get();
+            $questions = Question::with(['tickets'])->where('event_id', $id)->get();
+            foreach ($questions as $key => $value) {
+                $value->status = 'existing';
+                $value->type = strval($value->type);
+                $value->info = (!empty($value->information)) ? $value->information : '';
+                $value->required = ($value->required == 1) ? true : false;
+                foreach ($value->tickets as $key2 => $ticket) {
+                    $arrayTickets[$key2] = $ticket->id;
+                }
+                unset($value->tickets);
+                $value->tickets = $arrayTickets;
+                if ($value->type == 2) {
+                    $value->options = explode(',', $value->options);
+                } else {
+                    $value->options = null;
+                }
+            }
+            return view('customers.form_ticket')->with(['event' => $event, 'event_id' => $event->id, 'event_url' => $event->url, 'tickets' => $tickets, 'questions' => $questions]);
+        } else {
+            return redirect('/home');
+        }
+    }
+
+    public function saveChangesQuesntions(Request $request) {
+        // dd($request->input());
+        if (!empty($request->input('dataDeleted'))) {
+            for ($i = 0; $i < sizeof($request->input('dataDeleted')); $i++) { 
+                $question = Question::findOrFail($request->input('dataDeleted')[$i]);
+                $question->tickets()->detach();
+                $question->delete();
+            }
+        }
+        if(!empty($request->input('data'))) {
+            for ($i = 0; $i < sizeof($request->input('data')); $i++) { 
+                $options = null;
+                if (intval($request->input('data')[$i]['type']) == 2) {
+                    $options = implode(",", $request->input('data')[$i]['options']);
+                }
+                if ($request->input('data')[$i]['status'] == 'new') {
+                    $question = Question::create([
+                        'event_id' => $request->input('event_id'),
+                        'title' => $request->input('data')[$i]['title'],
+                        'required' => ($request->input('data')[$i]['required'] == 'true') ? true : false,
+                        'type' => $request->input('data')[$i]['type'],
+                        'information' => $request->input('data')[$i]['info'],
+                        'options' => $options,
+                    ]);
+                    $question->tickets()->sync($request->input('data')[$i]['tickets']);
+                } else {
+                    $question = Question::with(['tickets'])->where('id', $request->input('data')[$i]['id'])->first();
+                    $question->title = $request->input('data')[$i]['title'];
+                    $question->required = ($request->input('data')[$i]['required'] == 'true') ? true : false;
+                    $question->type = $request->input('data')[$i]['type'];
+                    $question->information = $request->input('data')[$i]['info'];
+                    $question->options = $options;
+                    $question->tickets()->sync($request->input('data')[$i]['tickets']);
+                    $question->save();
+                }
+            }
+        }
+        $questions = Question::with(['tickets'])->where('event_id', $request->input('event_id'))->get();
+        foreach ($questions as $key => $value) {
+            $value->status = 'existing';
+            $value->type = strval($value->type);
+            $value->info = (!empty($value->information)) ? $value->information : '';
+            $value->required = ($value->required == 1) ? true : false;
+            foreach ($value->tickets as $key2 => $ticket) {
+                $arrayTickets[$key2] = $ticket->id;
+            }
+            unset($value->tickets);
+            $value->tickets = $arrayTickets;
+            if ($value->type == 2) {
+                $value->options = explode(',', $value->options);
+            } else {
+                $value->options = null;
+            }
+        }
+        return response()->json([
+            'status' => true,
+            'questions' => $questions
+        ]);
     }
 }
