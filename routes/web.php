@@ -57,6 +57,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'checkrole:admin'])-
     Route::get('payments/{status}', 'AdminController@payments')->name('payments');
     Route::get('slider', 'AdminController@slider')->name('slider');
     Route::get('categories', 'AdminController@categories')->name('categories');
+    Route::get('content', 'AdminController@content')->name('content');
 });
 
 Route::get('/{event}/{ticket?}', 'PublicController@index')->name('/');
@@ -76,6 +77,7 @@ Route::get('exit/discount/access', function() {
 Route::post('makePayment', 'PublicController@makePayment');
 Route::post('reference_paid', 'WebhookController@reference_paid');
 Route::post('discount', 'StatisticController@discount');
+Route::post('sendEmailContact', 'PublicController@sendEmailContact');
 
 // Routes usage for customers
 Route::post('checkEvent', 'CustomerController@checkEvent');
@@ -122,3 +124,6 @@ Route::post('extractPayments', 'AdminController@extractPayments');
 Route::post('changeStatusAdminPayment', 'AdminController@changeStatusAdminPayment');
 Route::post('saveInfoSlider', 'AdminController@saveInfoSlider');
 Route::post('deleteInfoSlider', 'AdminController@deleteInfoSlider');
+Route::post('actionsCategories', 'AdminController@actionsCategories');
+Route::post('extractCategories', 'AdminController@extractCategories');
+Route::post('uploadImagesIndex', 'AdminController@uploadImagesIndex');

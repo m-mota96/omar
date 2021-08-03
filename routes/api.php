@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Event;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,3 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('assistence/addAssistence', 'StatisticController@addAssistenceExternal');
+Route::get('eventos', function() {
+    $events = Event::all();
+    return response()->json($events);
+});

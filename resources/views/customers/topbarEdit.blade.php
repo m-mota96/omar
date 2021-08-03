@@ -1,7 +1,7 @@
 <!-- Topbar -->
 <nav class="navbar navbar-expand navbar-light topbar static-top shadow bg-gray-dark-800">
     <div class="container">
-        <i class="fas fa-bars hidden-xl" onclick="sidebar()"></i>
+        <i class="fas fa-bars hidden-xl" onclick="openSidebar()"></i>
         <!-- Topbar Navbar -->
         <ul class="navbar-nav">
             <li class="nav-item dropdown no-arrow">
@@ -95,3 +95,38 @@
     </div>
 </nav>
 <!-- End of Topbar -->
+<!-- Sidebar movile -->
+<div class="d-block d-sm-block d-md-none w-50 sidebar-movile animate__animated" id="sidebar-movile" style="display: none !important;">
+    <div class="col-12 pt-3 pb-3">
+        <h4 class="mb-0"><a class="text-dark" href="{{route('home')}}"><i class="fas fa-home"></i> Dashboard</a></h4><span class="btn-close-side" onclick="closeSidebar()"><i class="fas fa-times"></i></span>
+    </div>
+    <hr class="sidebar-divider mt-0 mb-0">
+    <div class="col-12 pt-2 pb-2">
+        <a href="{{route('customer.stats', $event_id)}}" class="m-0 text-dark"><i class="fas fa-chart-line"></i> Estadísticas</a>
+    </div>
+    <hr class="sidebar-divider mt-0 mb-0">
+    <div class="col-12 pt-2 pb-2">
+        <a href="{{route('customer.edit', $event_id)}}" class="m-0 text-dark"><i class="fas fa-cog"></i> Configuración</a>
+    </div>
+    <hr class="sidebar-divider mt-0 mb-0">
+    <div class="col-12 pt-2 pb-2">
+        <a href="{{route('customer.turns', $event_id)}}" class="m-0 text-dark"><i class="fas fa-list-ol"></i> Turnos</a>
+    </div>
+    <hr class="sidebar-divider mt-0 mb-0">
+    <div class="col-12 pt-2 pb-2">
+        <a href="{{route('customer.tickets', $event_id)}}" class="m-0 text-dark"><i class="fas fa-tag"></i> Boletos</a>
+    </div>
+    <hr class="sidebar-divider mt-0 mb-0">
+    <div class="col-12 pt-2 pb-2">
+        <a href="{{route('customer.reservations', $event_id)}}" class="m-0 text-dark"><i class="fas fa-shopping-cart"></i> Reservaciones</a>
+    </div>
+    <hr class="sidebar-divider mt-0 mb-0">
+    <div class="col-12 pt-2 pb-2">
+        <a href="{{route('customer.scan', $event_id)}}" class="m-0 text-dark"><i class="fas fa-qrcode"></i> Escaner</a>
+    </div>
+    <hr class="sidebar-divider mt-0 mb-0">
+    <div class="col-12 pt-2 pb-2">
+        <a href="{{route('customer.assistance', $event_id)}}" class="m-0 text-dark"><i class="far fa-calendar-check"></i> Asistencia de evento</a>
+    </div>
+    <hr class="sidebar-divider mt-0 mb-0">
+</div>

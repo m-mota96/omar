@@ -1,6 +1,6 @@
 @extends('admin.layout')
 @section('heads')
-    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css">
 @endsection
 @section('contect')
     <div class="container-fluid">
@@ -11,14 +11,21 @@
         <!-- Content Row -->
         <div class="row">
             <div class="col-lg-12 card p-5">
-                {{-- <div class="row mb-5">
-                    <input type="hidden" id="type" value="{{$type}}">
-                    <button type="button" class="col-xl-1 btn btn-dark" data-status="3" onclick="changeStatus.call(this)" id="all">Todos</button>
-                    <button type="button" class="col-xl-1 ml-2 btn btn-outline-success" data-status="1" onclick="changeStatus.call(this)" id="active">Activos</button>
-                    <button type="button" class="col-xl-1 ml-2 btn btn-outline-warning" data-status="0" onclick="changeStatus.call(this)" id="inactive">Inactivos</button>
-                    <button type="button" class="col-xl-1 ml-2 btn btn-outline-danger" data-status="2" onclick="changeStatus.call(this)" id="past">Finalizados</button>
-                </div> --}}
-                <table class="table table-striped" id="categories">
+                <form class="row mb-5" id="formCategory">
+                    {{ csrf_field() }}
+                    <div class="col-xl-12">
+                        <h4 class="bold">Registrar categoría</h4>
+                    </div>
+                    <div class="col-xl-3">
+                        <label>Nombre:</label>
+                        <input type="hidden" name="id_category">
+                        <input class="form-control" type="text" name="name" required>
+                    </div>
+                    <div class="col-xl-3 pt-4">
+                        <button class="btn btn-primary mt-2" type="submit">Guardar</button>
+                    </div>
+                </form>
+                <table class="table table-striped w-100" id="categories">
                     <thead>
                         <th>#</th>
                         <th>Categoría</th>
@@ -31,5 +38,6 @@
     </div>
 @endsection
 @section('scripts')
+    <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
     <script src="{{asset('js/admin/categories.js')}}"></script>
 @endsection
