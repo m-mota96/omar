@@ -1,4 +1,17 @@
+var ths=this;
+const ticketsComplete=[];
 Conekta.setPublicKey("key_BpoqCZd5rqzFZXrxfjjFVQQ");
+
+window.onload = function() {
+    var myInput = document.getElementById('confirmEmail_orderData');
+    myInput.onpaste = function(e) {
+        e.preventDefault();
+    }
+
+    myInput.oncopy = function(e) {
+        e.preventDefault();
+    }
+}
 
 $(document).ready(()=> {
     if($('#ticket-value').val() != '') {
@@ -6,7 +19,37 @@ $(document).ready(()=> {
             scrollTop: $("#div-tickets").offset().top
         }, 1000);
     }
+    
+    ths.ticketsComplete=JSON.parse($("#ticketsComplete").val());
+
+    /*Logisca para funcionamiento de boton siguiente*/
+    $("#content-payment").css('display','none');
+
+    $("#showContentData").click(function(){
+        if(validateGlobalFields()==true){
+            if(getGlobalDataOrder()==true){
+                $("#content-data").animate({left:-800},500,function(){
+                    $("#content-data").hide();
+                    $("#content-payment").show();
+                    });
+            }
+        }
+        
+        
+    })
+
+    $("#showContentPayment").click(function(){
+        $("#content-payment").hide();
+        $("#content-data").show();
+        $("#content-data").animate({left:0},500,function(){
+        });
+        
+    })
+    //Fin de logica
+
 });
+
+
 
 $("#more-info").click(function () {
     $('html,body').animate({
@@ -18,7 +61,6 @@ var map;
 var marker;
 var center;
 var latitud = 0, longitud = 0;
-var ths=this;
 var cost_type="free";
 
 function initMap(lat = null, long = null) {
@@ -83,7 +125,10 @@ $('.btn-more').click(function(e) {
 });
 
 $('#btnSale').click(function() {
-    
+    $("#content-payment").hide();
+        $("#content-data").show();
+        $("#content-data").animate({left:0},500,function(){
+        });
     calculateTotals('sale');
     if($('#cost_type').val() == 'free' || (ths.cost_type === 'free')){
         $('#optionFree').show();
@@ -109,62 +154,361 @@ $('#btnSale').click(function() {
 function ticketsGeneratedHtml(){
     var container_tickets="";
     $("#container-tickets").html("");
-    var cont=1;
+    var contTicket=0;
     var posTickets=0;
     ths.ticketsGenerated.forEach(ticket => {
 
         for (let index = 0; index < ticket.quanties; index++) {
             container_tickets+= `
-                <div class="container rounded border" id="container_${cont}">
+                <div class="container rounded border" id="container_${contTicket}">
                     <div class="row p-2 border-bottom">
-                        <h5 class="bold w-10">Boleto ${cont} - ${ticket.name}</h5>
+                        <h5 class="bold w-10">Boleto ${contTicket+1} - ${ticket.name}</h5>
                     </div>
                     <div class="row p-2">
                         <div class="form-check">
-                            <input class="form-check-input" onchange="completeOrderData(${posTickets},${cont})" type="checkbox" value="" id="autocompleted_${cont}">
-                            <label class="form-check-label" for="defaultCheck1">
+                            <input class="form-check-input" onchange="completeOrderData(${posTickets},${contTicket})" type="checkbox" value="" id="autocompleted_${contTicket}">
+                            <label class="form-check-label pointer" for="autocompleted_${contTicket}">
                                 Autocompletar este boleto con datos de la orden.
                             </label>
                         </div>
                     </div>
 
                     <div class="row p-2">
-                        <div class="col-sm-3">
+                        <div class="col-xl-4">
                             <label for="name">Nombre *</label>
-                            <input type="text" class="form-control" id="name_${posTickets}_${cont}" name="name[${posTickets}][${cont}]" required placeholder="Nombre">
+                            <input type="text" class="form-control" id="name_${contTicket}" name="name[${contTicket}]" required placeholder="Nombre">
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-xl-4">
                             <label for="name">Correo *</label>
-                            <input type="email" class="form-control" id="email_${posTickets}_${cont}" name="email[${posTickets}][${cont}]" required placeholder="Correo">
+                            <input type="email"  class="form-control" id="email_${contTicket}" name="email[${contTicket}]" required placeholder="Correo">
                         </div>
-                        <div class="col-sm-3">
-                            <label for="name">Confirmar correo *</label>
-                            <input type="email" class="form-control" id="confirmEmail_${posTickets}_${cont}" required name="confirmEmail[${posTickets}][${cont}]" placeholder="Confirmar correo">
-                        </div>
-                        <div class="col-sm-3">
+                        <div class="col-xl-4">
                             <label for="name">Teléfono *</label>
-                            <input type="text" class="form-control" id="phone_${posTickets}_${cont}" required name="phone[${posTickets}][${cont}]" placeholder="Teléfono">
+                            <input type="tel" pattern="[0-9]{9}" class="form-control" id="phone_${contTicket}" required name="phone[${contTicket}]" placeholder="Teléfono">
                         </div>
                     </div>
+                    <br>
+                    ${ths.generateQuestionsHtml(ticket.id,contTicket)}
 
                 </div>
                 <br>
                 `;
-
-            cont++;
+                
+                contTicket++;
         }
         posTickets++;
     });
     
     $("#container-tickets").html(container_tickets);
 
+    
 
 }
 
-function completeOrderData(_posTickets,_cont){
-    console.log("posTickets> "+_posTickets+"  - cont> "+_cont);
-    console.log("value> "+$("#autocompleted_"+_cont).val());
-}   
+function generateQuestionsHtml(_idTicket,_contTicket){
+    console.log("generateQuestionsHtml> "+_idTicket+"  > "+_contTicket);
+    var container_questions=``;
+
+    var ticket=ths.ticketsComplete.filter(ticket =>{
+        return ticket.id == _idTicket
+    });
+    
+    console.log(ticket);
+
+    if(ticket[0].questions.length>0){
+        var contQuestion=0;
+        var element=`<div class="row p-2">`;
+        var contElement=1;
+        ticket[0].questions.forEach(question => {
+            if(contElement == 4){
+                element+="</div>";
+                element+=`<div class="row p-2">`;
+                contElement=1;
+            }
+            
+            if(question.type == 0){
+                //Input Text
+                element+=`
+                        <div class="col-xl-4">
+                            <label class="bold mb-0">${question.title}`; question.required==1 ? element+=` (requerido) </label>` : element+= `</label>`;
+                                element+=`<input class="form-control"`; question.required == 1 ? element+="required ": ""; element+=`type="text" value="" id="question_${_contTicket}_${contQuestion}"  name="question[${_contTicket}][${contQuestion}]">
+                                <i>${question.information}</i>
+                        </div>`;
+
+            }else if(question.type == 1){
+                //TextArea
+
+                element+=`
+                        <div class="col-xl-4">
+                            <label class="bold mb-0">${question.title}`; question.required==1 ? element+=` (requerido) </label>` : element+= `</label>`;
+                            element+=`<textarea class="form-control" id="question_${_contTicket}_${contQuestion}" name="question[${_contTicket}][${contQuestion}]" rows="5"`; question.required == 1 ? element+=`required></textarea>`: element+="></textarea>"; 
+                            element+=`<i>${question.information}</i>
+                        </div>`;
+
+            }else if(question.type == 2){
+                //Select
+                
+                var options=question.options.split(",");
+                element+=`
+                        <div class="col-xl-4">
+                            <label class="bold mb-0">${question.title}`; question.required==1 ? element+=` (requerido) </label>` : element+= `</label>`;
+                            element+=`<select class="form-control" id="question_${_contTicket}_${contQuestion}" name="question[${_contTicket}][${contQuestion}]" `; question.required == 1 ? element+="required> ":  element+=">";
+                                element+=`<option value="">Selecciona una opción</option>`;
+                                options.forEach(option=>{
+                                    element+=`<option value="${option}">${option}</option>`;
+                                })
+                            element+=`</select>
+                            <i>${question.information}</i>
+                        </div>
+                `;
+                
+            }else if(question.type == 3){
+                //Input file
+
+                element+=`
+                        <div class="col-xl-4">
+                            <label class="bold mb-0">${question.title}`; question.required==1 ? element+=` (requerido) </label>` : element+= `</label>`;
+                            element+=`<input onchange="validarArchivo(event,'question_${_contTicket}_${contQuestion}')" type="file" id="question_${_contTicket}_${contQuestion}" name="question[${_contTicket}][${contQuestion}]"`; question.required == 1 ? element+="required> ": element+=">";
+                            element+=`<i>${question.information}</i>
+                        </div>`
+
+            }
+
+            contElement++;
+            contQuestion++;
+            
+        });
+
+        if(contElement < 4){
+            element+="</div>";
+        }
+        container_questions+=element;
+    }
+    return container_questions;
+}
+
+function completeOrderData(_posTickets,_contTicket){
+    if($("#autocompleted_"+_contTicket).is(':checked')){
+        $('#name_'+_contTicket).val($('#name_orderData').val());
+        $('#email_'+_contTicket).val($('#email_orderData').val());
+        $('#phone_'+_contTicket).val($('#phone_orderData').val());
+    }else{
+        $('#name_'+_contTicket).val('');
+        $('#email_'+_contTicket).val('');
+        $('#phone_'+_contTicket).val('');
+    }
+
+} 
+
+function completeDataPaymet(){
+    if($("#autocompleted_DataPayment").is(':checked')){
+        $('#name').val($('#name_orderData').val());
+        $('#email').val($('#email_orderData').val());
+        $('#phone').val($('#phone_orderData').val());
+        $('#confirmEmail').val($('#confirmEmail_orderData').val());
+    }else{
+        $('#name').val('');
+        $('#email').val('');
+        $('#phone').val('');
+        $('#confirmEmail').val('');
+    }
+}
+
+function validateGlobalFields(){
+    var cont=0;
+
+    if(document.querySelector(`#name_orderData`).reportValidity()){
+        cont++;
+    }else{
+        return false;
+    }
+    if(document.querySelector(`#email_orderData`).reportValidity()){
+        cont++;
+        if(document.querySelector(`#confirmEmail_orderData`).reportValidity()){
+            if($('#email_orderData').val() == $('#confirmEmail_orderData').val()){
+                $('#txt_confirmeEmail_alert').css('display','none');
+                cont++;
+            }else{
+                $('#txt_confirmeEmail_alert').css('display','block');
+                return false;
+            }
+            
+        }else{
+            return false;
+        }
+        
+    }else{
+        return false;
+    }
+    if(document.querySelector(`#phone_orderData`).reportValidity()){
+        cont++;
+    }else{
+        return false;
+    }
+    
+    if(cont == 4){
+        return true;
+    }
+    
+    
+}
+
+$('#confirmEmail_orderData').change(()=>{
+    if($('#email_orderData').val() == $('#confirmEmail_orderData').val()){
+        $('#txt_confirmeEmail_alert').css('display','none');
+    }else{
+        $('#txt_confirmeEmail_alert').css('display','block');
+    }
+    
+})
+
+function getGlobalDataOrder(){
+    //obtener campos del encabezado (nombre, correo, telefono)
+    ths.globlaDataOrder=[];
+    var banDataComplete=true;
+
+    ths.globlaDataOrder={
+        name:$('#name_orderData').val(),
+        emal:$('#email_orderData').val(),
+        phone:$('#phone_orderData').val(),
+        infoTickets:[]
+    }
+
+    
+    var infoTicket=[];
+    var contTicket=0;
+    var arrayRequest=[];
+
+    ths.ticketsGenerated.forEach(ticketG =>{
+        //Obtener campos de cada boleto (nombre, correo, telefono)
+        infoTicket=[];
+        var ticket=ths.ticketsComplete.filter(item =>{
+            return item.id == ticketG.id
+        });
+        
+        for (let x = 0; x < ticketG.quanties; x++) {
+
+            // Se realiza la validacion del required a los headers(nombre, correo y phone) del boleto
+    
+            if(!document.querySelector(`#name_${contTicket}`).reportValidity()){
+                return banDataComplete=false;
+            }
+            if(!document.querySelector(`#email_${contTicket}`).reportValidity()){
+                return banDataComplete=false;
+            }
+            if(!document.querySelector(`#phone_${contTicket}`).reportValidity()){
+                return banDataComplete=false;
+            }
+
+            if(ticket[0].questions.length > 0){
+    
+                // Se realiza la validacion del required a las questions
+                var typeQuestion="";
+                var valueQuestion="";
+                var contaQuestion=0;
+                
+                for (let i = 0; i < ticket[0].questions.length; i++) {
+                    if(document.querySelector(`#question_${contTicket}_${i}`).reportValidity()){
+                        if(document.getElementById(`question_${contTicket}_${i}`).nodeName == 'INPUT'){
+                            if($(`#question_${contTicket}_${i}`).attr('type') == 'text'){
+                                typeQuestion="text";
+                                valueQuestion=$(`#question_${contTicket}_${i}`).val();
+
+                            }else{
+                                // File
+                                var file= new FormData();
+                                file.append('file',document.querySelector(`#question_${contTicket}_${i}`).files[0]);
+                                typeQuestion="file";
+                                valueQuestion=file;
+
+                            }
+                            
+                        }else if(document.getElementById(`question_${contTicket}_${i}`).nodeName == 'SELECT'){
+                            typeQuestion="select";
+                            valueQuestion=$(`#question_${contTicket}_${i} option:selected`).text();
+
+                        }else if(document.getElementById(`question_${contTicket}_${i}`).nodeName == 'TEXTAREA'){
+                            typeQuestion="textarea";
+                            valueQuestion=$(`#question_${contTicket}_${i}`).val();
+
+                        }
+
+                        arrayRequest[contaQuestion]={
+                            type:typeQuestion,
+                            value:valueQuestion,
+                            question_id:ticket[0].questions[i]['id'],
+                            title:ticket[0].questions[i]['title']
+                        };
+                        contaQuestion++;
+
+                    }else{
+                        return banDataComplete=false;
+                    }
+                }
+            
+                
+                infoTicket={
+                    name:$(`#name_${contTicket}`).val(),
+                    email:$(`#email_${contTicket}`).val(),
+                    phone:$(`#phone_${contTicket}`).val(),
+                    idTicket:ticket[0].id,
+                    event_id:ticket[0].event_id,
+                    requestQuestion:arrayRequest
+                }
+                arrayRequest=[];
+                
+    
+            }else{
+                infoTicket={
+                    name:$(`#name_${contTicket}`).val(),
+                    email:$(`#email_${contTicket}`).val(),
+                    phone:$(`#phone_${contTicket}`).val(),
+                    idTicket:ticket[0].id,
+                    event_id:ticket[0].event_id,
+                    requestQuestion:arrayRequest
+                }
+                arrayRequest=[];
+            }
+    
+            contTicket++;
+            ths.globlaDataOrder.infoTickets.push(infoTicket);
+            infoTicket=[];
+        }
+        
+
+    });
+    
+    if(banDataComplete == true){
+        return banDataComplete;
+    }else{
+        return banDataComplete;
+    }
+    
+
+}
+
+function validarArchivo(_evt,_idFileElement){
+
+    var archivo=_evt.target.files;
+    
+    if(archivo.length == 1){
+        if(archivo[0].type=="image/jpeg" || archivo[0].type=="image/jpg" || archivo[0].type=="application/pdf" || archivo[0].type=="image/png"){
+            if(archivo[0].size < ((1024*1024)*5)){
+                console.log('archivo correcto');
+
+            }else{
+                console.log("El archivo supera los 5 MB");
+                $("#"+_idFileElement).val('');
+            }
+        }else{
+            console.log("El tipo de archivo no es permitido");
+            $("#"+_idFileElement).val('');
+        }
+    }else{
+        console.log("Seleccione un archivo para subir");
+        $("#"+_idFileElement).val('');
+    }
+}
 
 /** Fin */
 
@@ -182,15 +526,10 @@ $('.btn-minus').click(function() {
 });
 
 $('#payment-method').change(()=> {
-    if ($('#model_payment').val() == 'included') {
+    if ($('#model_payment').val() == 'separated') {
         $('#body-comisions').html('');
-        if ($('#payment-method').val() == 'card') {
-            var comision = (totalTickets * (0.03)) + 2.50;
-            var tbody = '<tr><td colspan="3">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
-        } else if ($('#payment-method').val() == 'oxxo') {
-            var comision = totalTickets * (0.04);
-            var tbody = '<tr><td colspan="3">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
-        }
+        var comision = (totalTickets * (0.12));
+        var tbody = '<tr><td colspan="3">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
         var totalAux = totalTickets;
         totalAux = totalAux + comision;
         $('#body-comisions').html(tbody);
@@ -325,6 +664,7 @@ var total = 0, totalTickets = 0;
 var turns = new Array();
 var indicatorTurns = new Array();
 var ticketsGenerated=[];
+
 function calculateTotals(indicator = null) {
     var prices = [], names = [];
     var pos = 0, quantitytTickets = 0;
@@ -363,20 +703,15 @@ function calculateTotals(indicator = null) {
             sales = true;
             ths.ticketsGenerated.push({
                 name:names[i],
-                quanties:quantities[i]
+                quanties:quantities[i],
+                id:idTickets[i]
             });
             tbody += '<tr><td>'+names[i]+'</td><td class="text-right">'+quantities[i]+'</td><td class="text-right">$'+formatMoney(prices[i])+' MXN</td><td class="text-right">$'+formatMoney(quantities[i] * prices[i])+' MXN</td></tr>';
         }
     }
-    if ($('#model_payment').val() == 'included') {
-        var comision = 0;
-        if ($('#payment-method').val() == 'card') {
-            comision = (total * (0.03)) + 2.50;
-            var tbodyComisions = '<tr><td colspan="3">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
-        } else if ($('#payment-method').val() == 'oxxo') {
-            comision = total * (0.04);
-            var tbodyComisions = '<tr><td colspan="3">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
-        }
+    if ($('#model_payment').val() == 'separated') {
+        var comision = (total * (0.12));
+        var tbodyComisions = '<tr><td colspan="3">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
         totalTickets = total;
         total = total + comision;
         $('#body-comisions').html(tbodyComisions);
@@ -412,11 +747,32 @@ function formatMoney(number, decPlaces, decSep, thouSep) {
 
 function jsPay(msgAlert, msgSuccess) {
     jsShowWindowLoad(msgAlert);
+    console.log("jsPay");
+    
+    var formDataComplete= new FormData();
+    
+    formDataComplete.append("_token",$("meta[name='csrf-token']").attr("content"));
+    formDataComplete.append("conektaTokenId",$('#conektaTokenId').val());
+    formDataComplete.append("name",$('#name').val());
+    formDataComplete.append("email",$('#email').val());
+    formDataComplete.append("phone",$('#phone').val());
+    formDataComplete.append("card",$('#card').val());
+    formDataComplete.append("quantities",JSON.stringify(quantities));
+    formDataComplete.append("tickets",JSON.stringify(idTickets));
+    formDataComplete.append("payment_method",$('#payment-method').val());
+    formDataComplete.append("event_id",$('#idEvent').val());
+    formDataComplete.append("turns",JSON.stringify(turns));
+    formDataComplete.append("indicatorTurns",indicatorTurns);
+    formDataComplete.append("globlaDataOrder",ths.globlaDataOrder);
+   
+   //console.log(turns);
     $.ajax({
         dataType: 'json',
         url: $('#URL').val()+'makePayment',
         method: 'post',
-        data: {
+        processData: false,
+        contentType: false, 
+        /* data: {
             "_token": $("meta[name='csrf-token']").attr("content"),
             conektaTokenId: $('#conektaTokenId').val(),
             name: $('#name').val(),
@@ -428,8 +784,10 @@ function jsPay(msgAlert, msgSuccess) {
             payment_method: $('#payment-method').val(),
             event_id: $('#idEvent').val(),
             turns : turns,
-            indicatorTurns: indicatorTurns
-        },
+            indicatorTurns: indicatorTurns,
+            globlaDataOrder:ths.globlaDataOrder
+        }, */
+        data:formDataComplete,
         success: function(response) {
             if (response.status == true) {
                 // $('#modalSale').modal('hide');
@@ -468,5 +826,9 @@ function jsPay(msgAlert, msgSuccess) {
             jsRemoveWindowLoad();
         },
     });
+    
+
 }
+
+
 

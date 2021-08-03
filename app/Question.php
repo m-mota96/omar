@@ -13,4 +13,8 @@ class Question extends Model
     public function tickets() {
         return $this->belongsToMany(Ticket::class);
     }
+
+    public function responses() {
+        return $this->belongsToMany(Response::class);
+    }
 }

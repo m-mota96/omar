@@ -587,6 +587,7 @@ class CustomerController extends Controller {
             $tickets = Ticket::where('event_id', $id)->get();
             $questions = Question::with(['tickets'])->where('event_id', $id)->get();
             foreach ($questions as $key => $value) {
+                $arrayTickets=Array();
                 $value->status = 'existing';
                 $value->type = strval($value->type);
                 $value->info = (!empty($value->information)) ? $value->information : '';
@@ -602,6 +603,7 @@ class CustomerController extends Controller {
                     $value->options = null;
                 }
             }
+            //dd($questions);
             return view('customers.form_ticket')->with(['event' => $event, 'event_id' => $event->id, 'event_url' => $event->url, 'tickets' => $tickets, 'questions' => $questions]);
         } else {
             return redirect('/home');

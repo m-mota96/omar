@@ -73,6 +73,7 @@
                         <h2 class="bold w-100">Selecciona tus boletos</h2>
                         <h4 class="text-gray-600 w-100 mb-5">Máximo 10 boletos por orden</h4>
                     </div>
+                    <input type="hidden" id="ticketsComplete" value="{{$event->tickets}}">
                     @foreach ($event->tickets as $key => $t)
                         @if ($t->name == $ticket)
                         <div class="row mb-3 card-tickets p-2">  
@@ -204,6 +205,7 @@
     </div> --}}
     <input type="hidden" id="URL" value="{{URL::asset('')}}">
     <input type="hidden" id="idEvent" value="{{$event->id}}">
+    
     @include('modals.public.sale')
 <script src="{{asset('js/jquery-3.4.1.js')}}"></script>
 <script src="{{asset('js/bootstrap.bundle.min.js')}}"></script>
@@ -212,7 +214,6 @@
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmxWjrQMl9hyuxzaoCm0_Ma03a92eu2b4" type="text/javascript"></script>
 <script src="{{asset('js/charging.js')}}"></script>
 <script src="{{asset('js/public.js')}}"></script>
-<script src="{{asset('js/formslider.js')}}"></script>
 <script>
     var lat = @json(isset($event->location->latitude) ? $event->location->latitude : null);
     var lon = @json(isset($event->location->longitude) ? $event->location->longitude : null);

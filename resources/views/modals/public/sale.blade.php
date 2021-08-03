@@ -16,23 +16,25 @@
                         <div class="modal-body">
                             
                             <h4 class="modal-title" id="modalSaleLabel"><strong>Datos de la orden</strong></h4>
-                            <hr>
+                            <br>
+                            <form id="formX" action="">
                             <div class="row">
-                                <div class="col-sm-3">
+                                <div class="col-xl-3">
                                     <label for="name">Nombre *</label>
-                                    <input type="text" class="form-control" id="name" name="name[0][0]" required placeholder="Nombre">
+                                    <input type="text" class="form-control order-header-data" id="name_orderData" required placeholder="Nombre">
                                 </div>
-                                <div class="col-sm-3">
-                                    <label for="name">Correo *</label>
-                                    <input type="email" class="form-control" id="email" name="email[0][0]" required placeholder="Correo">
+                                <div class="col-xl-3">
+                                    <label for="correo">Correo *</label>
+                                    <input type="email" class="form-control order-header-data" id="email_orderData" required placeholder="Correo">
                                 </div>
-                                <div class="col-sm-3">
-                                    <label for="name">Confirmar correo *</label>
-                                    <input type="email" class="form-control" id="confirmEmail[0][0]" required name="confirmEmail" placeholder="Confirmar correo">
+                                <div class="col-xl-3">
+                                    <label for="confirmeEmail">Confirmar correo *</label>
+                                    <input type="email" pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" class="form-control order-header-data" id="confirmEmail_orderData" required placeholder="Confirmar correo">
+                                    <span class="alerts" id="txt_confirmeEmail_alert" style="display: none;">Los correos no coinciden</span>
                                 </div>
-                                <div class="col-sm-3">
-                                    <label for="name">Teléfono *</label>
-                                    <input type="text" class="form-control" id="phone[0][0]" required name="phone" placeholder="Teléfono">
+                                <div class="col-xl-3">
+                                    <label for="phone">Teléfono *</label>
+                                    <input type="tel" pattern="[0-9]{9}" class="form-control order-header-data" id="phone_orderData" required placeholder="Teléfono">
                                 </div>
                             </div>
                             <div class="row p-2">
@@ -40,11 +42,13 @@
                                     <span class="mb-3 font-italic"><i class="fas fa-info-circle"></i> Debes de tener acceso al correo ya que a esta dirección se enviarán los boletos.</span>
                                 </div>
                             </div>
+                            </form>
                             <br>
                             <br>
                             <h4 class="modal-title" id="modalSaleLabel"><strong>Datos de los boletos</strong></h4>
                             <br>
-                            <div class="container" id="container-tickets">
+                            <!-- style="display: block;height: 25vw;overflow-y: scroll;scroll-behavior: smooth;" -->
+                            <div class=""  id="container-tickets" >
                                 
                             </div>
                         </div>

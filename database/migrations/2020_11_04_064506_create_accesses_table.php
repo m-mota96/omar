@@ -20,6 +20,9 @@ class CreateAccessesTable extends Migration
             $table->unsignedBigInteger('ticket_id');
             $table->foreign('ticket_id')->references('id')->on('tickets');
             $table->string('folio', 100);
+            $table->string('name',255)->nullable();
+            $table->string('email', 255)->nullable();
+            $table->string('phone', 20)->nullable();
             $table->integer('status')->default(1);
             $table->integer('quantity')->nullable();
             $table->date('date_validation')->nullable();

@@ -15,6 +15,7 @@ use App\Ticket;
 use App\Payment;
 use App\Access;
 use App\Turn;
+use App\Response;
 use DateTime;
 use DateInterval;
 use PDF;
@@ -32,21 +33,26 @@ class PublicController extends Controller
 
     public function index($event, $ticket = null) {
         
-        $data = Event::with(['profile', 'eventDates.turns', 'location', 'tickets'])->where(DB::raw('BINARY url'), $event)->first();
+        $data = Event::with(['profile', 'eventDates.turns', 'location', 'tickets.questions'])->where(DB::raw('BINARY url'), $event)->first();
         // dd($data);
         if (!empty($data)) {
             $data->initial_date = Carbon::parse($data->eventDates[0]->date)->locale('es')->isoFormat('D MMM Y').' - '.substr($data->eventDates[0]->initial_time, 0, 5);
             $pos = sizeof($data->eventDates) - 1;
             $data->final_date = Carbon::parse($data->eventDates[$pos]->date)->locale('es')->isoFormat('D MMM Y').' - '.substr($data->eventDates[$pos]->final_time, 0, 5);
             return view('public.event')->with(['event' => $data, 'ticket' => $ticket]);
+
         } else {
             return redirect('/');
         }
     }
 
     public function makePayment(Request $request) {
-        
-        // dd($request->input());
+
+        //$request->quantities= explode(",",$request->quantities);
+        //dd($request->quantities);
+        //$request->input('turns')=$aux;
+        //dd($request);
+        dd(json_decode($request->input('tickets')));
         $event = Event::with(['profile', 'eventDates', 'location'])->where('id', $request->input('event_id'))->first();
         $initial_date = Carbon::parse($event->eventDates[0]->date)->locale('es')->isoFormat('D-MM-Y');
         $pos = sizeof($event->eventDates) - 1;
@@ -91,10 +97,21 @@ class PublicController extends Controller
         }
         // dd('STOP');
         
+        $globlaDataOrder = $request->input('globlaDataOrder');
+        $infoTickets= $globlaDataOrder['infoTickets'];
+        /*
+         $questions=array_filter($infoTickets, function($ticket,$key) {
+            return $ticket['idTicket'] == 3;
+        }, ARRAY_FILTER_USE_BOTH);
+        
+        dd($questions[0]); 
+        */
+        
+        //dd($infoTickets);
         for ($i = 0; $i < sizeof($request->input('quantities')); $i++) {
             if ($request->input('quantities')[$i] > 0) {
                 $ticket = Ticket::select('id', 'name', 'description', 'price', 'quantity', 'sales', 'valid', 'promotion', 'date_promotion', 'status')->where('id', $request->input('tickets')[$i])->first();
-                
+                                
                 if ($ticket->quantity == $ticket->sales) {
                     return response()->json([
                         'status' => false,
@@ -171,14 +188,16 @@ class PublicController extends Controller
         // Registra por metodo de pago los boletos 
         $commission=0;
         
+        if ($event->model_payment == 'separated') {
+            $commission = ($total * 0.12);
+            $total = $total + $commission;
+        }else{
+            $commission=0;
+            $total = $total + $commission;
+        }
+
         if ($request->input('payment_method') == 'card') {
-            if ($event->model_payment == 'included') {
-                $commission = ($total * 0.03) + 2.5;
-                $total = $total + $commission;
-            }else{
-                $commission=0;
-                $total = $total + $commission;
-            }
+            
             //Proceso de pago
             $customer = $this->createCustomer($request->input('name'), $request->input('email'), $request->input('conektaTokenId'));
             if ($customer['status'] == true) {
@@ -186,7 +205,7 @@ class PublicController extends Controller
                 if ($order['status'] == true) {
                     // Se registra en nuestra BDD la información de los pagos
                     $payment = $this->registerPayment($event->id, $request->input('name'), substr($request->input('card'), -4), 'card', $request->input('email'), 'payed', $total, $request->input('phone'));
-                    $this->saveAccesses($payment->id, $folios);
+                    $this->saveAccesses($payment->id, $folios,$infoTickets);
                 } else {
                     // $this->deleteFiles($folios);
                     return response()->json([
@@ -202,13 +221,7 @@ class PublicController extends Controller
                 ]);
             }
         } else if ($request->input('payment_method') == 'oxxo') {
-            if ($event->model_payment == 'included') {
-                $commission = ($total * 0.04);
-                $total = $total + $commission;
-            }else{
-                $commission=0;
-                $total = $total + $commission;
-            }
+            
             $order = $this->createOrderOxxo($total, 'Compra de boletos para '.$event->name, $request->input('name'), $request->input('email'), $request->input('phone'), 1);
             if($order['status'] == true) {
                 $payment = $this->registerPayment($event->id, $request->input('name'), $order['reference'], 'oxxo', $request->input('email'), 'pending', $total, $request->input('phone'));
@@ -225,18 +238,18 @@ class PublicController extends Controller
                     mkdir('media/pdf/events/'.$event->id, 0777, true);
                 }
                 $pdf->save('media/pdf/events/'.$event->id.'/reference'.$payment->id.'.pdf');
-                $this->saveAccesses($payment->id, $folios);
+                $this->saveAccesses($payment->id, $folios,$infoTickets);
             } else {
                 // $this->deleteFiles($folios);
                 return response()->json([
                     'status' => false,
-                    'error' => $order['msj']
+                    'error' => $order['msj'] 
                     // 'error' => $e->getMessage()
                 ]);
             }
         }else if($request->input('payment_method') == 'free'){
             $payment = $this->registerPayment($event->id, $request->input('name'),'Gratis', 'free', $request->input('email'), 'payed', $total, $request->input('phone'));
-            $this->saveAccesses($payment->id, $folios);
+            $this->saveAccesses($payment->id, $folios,$infoTickets);
             
         }
 
@@ -274,14 +287,46 @@ class PublicController extends Controller
         return $payment;
     }
 
-    public function saveAccesses($payment_id, $folios) {
+    public function saveAccesses($payment_id, $folios,$infoTickets) {
+
+        /* $questions=array_filter($infoTickets, function($ticket,$key) use($request,$i) {
+            echo "| ".$ticket['idTicket']." == ".$request->input('tickets')[$i];
+            return $ticket['idTicket'] == $request->input('tickets')[$i];
+        }, ARRAY_FILTER_USE_BOTH);*/
+
         for ($i = 0; $i < sizeof($folios); $i++) { 
+            //dd($infoTickets[$i]);
             $access = Access::create([
                 'payment_id' => $payment_id,
                 'ticket_id' => $folios[$i]['ticket_id'],
                 'folio' => $folios[$i]['folio'],
-                'quantity' => $folios[$i]['valid']
-            ]);
+                'quantity' => $folios[$i]['valid'],
+                'name' => $infoTickets[$i]['name'],
+                'email' => $infoTickets[$i]['email'],
+                'phone' => $infoTickets[$i]['phone'],
+            ]);            
+            
+            $response='';
+            $responses=$infoTickets[$i]['requestQuestion'];
+            
+            for ($k=0; $k <sizeof($responses); $k++) { 
+                if($responses[$k]['type']== 'file'){
+                    //registrar agregar un archivo a la storage
+                    //$response = 'Name archivo=>'.$responses[$k]['title'];
+                    $file="".$responses[$k]['value'];
+                    echo "".pathinfo($file, PATHINFO_FILENAME);
+                    dd();
+                }else{
+                    $response=$responses[$k]['value'];
+                }
+                $question = Response::create([
+                    'question_id' => $responses[$k]['question_id'],
+                    'access_id' => $access->id,
+                    'response' => $response,
+                ]);
+                $question->save();
+            }
+
             if (isset($folios[$i]['turn'])) {
                 for ($j = 0; $j < sizeof($folios[$i]['turn']); $j++) { 
                     $access->turns()->attach($folios[$i]['turn'][$j]);
