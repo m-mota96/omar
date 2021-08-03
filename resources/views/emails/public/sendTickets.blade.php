@@ -65,7 +65,7 @@
                                                     </tr>
                                                 @endif
                                             @endfor
-                                            @if ($event->model_payment == 'included')
+                                            @if ($event->model_payment == 'separated')
                                                 <tr>
                                                     <td colspan="3" style="color: black; text-align: left;">Comisiones</td>
                                                     <td colspan="1" style="color: black; text-align: right;">${{number_format($commission, 2)}} MXN</td>

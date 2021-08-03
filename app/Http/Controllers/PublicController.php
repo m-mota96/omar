@@ -446,4 +446,31 @@ class PublicController extends Controller
         $data['reference'] = $this->order->charges[0]->payment_method->reference;
         return $data;
     }
+
+    public function sendEmailContact(Request $request) {
+        if (!empty($request->input('g-recaptcha-response'))) {
+            $keySecret = '6Lfb88sbAAAAAIfZ0riQLeAFqnOzMqWypLxPPeRR';
+            $token = $request->input('g-recaptcha-response');
+            $url = 'https://www.google.com/recaptcha/api/siteverify';
+            $response = file_get_contents($url.'?secret='.$keySecret.'&response='.$token);
+            $response = json_decode($response);
+            if ($response->success == true) {
+                
+                return response()->json([
+                    'status' => true,
+                    'msj' => 'Correo enviado correctamente'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'msj' => 'Error al validar casilla de verificación'
+                ]); 
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'msj' => 'Debe marcar la casilla de verificación'
+            ]);
+        }
+    }
 }

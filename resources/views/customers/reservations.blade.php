@@ -9,27 +9,29 @@
         <input type="hidden" id="eventId" value="{{$event_id}}">
         <div class="card">
             <div class="row p-5">
-                <div class="justify-content-end text-right mb-5">
+                <div class="col-xl-12 justify-content-end text-left mb-5">
                     <a class="btn btn-warning" href="{{route('excel/downloadPayments', $event_id)}}">Descargar base de datos</a>
                 </div>
-                <table class="table table-striped w-100" id="sales">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Cliente</th>
-                            <th>Correo</th>
-                            <th>Teléfono</th>
-                            <th>Método de pago</th>
-                            <th>Monto</th>
-                            <th>Estatus</th>
-                            <th>Fecha</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-    
-                    </tbody>
-                </table>
+                <div class="col-xl-12">
+                    <table class="table table-striped w-100" id="sales">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Cliente</th>
+                                <th>Correo</th>
+                                <th>Teléfono</th>
+                                <th>Método de pago</th>
+                                <th>Monto</th>
+                                <th>Estatus</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

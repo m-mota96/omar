@@ -87,31 +87,43 @@ function tableEventsPaid() {
                 "width": "5%",
                 "className": "text-dark",
                 "render": (data, type, row, meta) => {
-                    return '<span>Del: <b>'+row.event_dates[0].date+'</b><br>al: <b>'+row.event_dates[row.event_dates.length-1].date+'</b></span>';
+                    return '<span>Del: <br><b>'+row.event_dates[0].date+'</b><br>al: <br><b>'+row.event_dates[row.event_dates.length-1].date+'</b></span>';
                 }
             },
             {
                 "width": "5%",
                 "className": "text-dark bold",
                 "render": (data, type, row, meta) => {
-                    return '<h5>$'+row.payments_agruped.total+'</h5>';
+                    if (row.payments_agruped != null) {
+                        return '<h5>$'+row.payments_agruped.total.toFixed(2)+'</h5>';
+                    } else {
+                        return '<h5>$0.00</h5>';
+                    }
                 }
             },
             {
                 "width": "5%",
                 "className": "text-dark bold",
                 "render": (data, type, row, meta) => {
-                    var commission = row.payments_agruped.total * .05;
-                    var total = (row.payments_agruped.total - commission).toFixed(3);
-                    return '<h5>$'+total+'</h5>';
+                    if (row.payments_agruped != null) {
+                        var commission = row.payments_agruped.total * .05;
+                        var total = (row.payments_agruped.total - commission).toFixed(2);
+                        return '<h5>$'+total+'</h5>';
+                    } else {
+                        return '<h5>$0.00</h5>';
+                    }
                 }
             },
             {
                 "width": "5%",
                 "className": "text-dark bold",
                 "render": (data, type, row, meta) => {
-                    var commission = row.payments_agruped.total * .05;
-                    return '<h5>$'+commission.toFixed(3)+'</h5>';
+                    if (row.payments_agruped != null) {
+                        var commission = row.payments_agruped.total * .05;
+                        return '<h5>$'+commission.toFixed(2)+'</h5>';
+                    } else {
+                        return '<h5>$0.00</h5>';
+                    }
                 }
             },
             {
@@ -125,7 +137,11 @@ function tableEventsPaid() {
                 "width": "5%",
                 "className": "text-dark bold text-center",
                 "render": (data, type, row, meta) => {
-                    return '<h5>'+row.assistance.assistance+'</h5>';
+                    if (row.assistance != null) {
+                        return '<h5>'+row.assistance.assistance+'</h5>';
+                    } else {
+                        return '<h5>0</h5>';
+                    }
                 }
             },
             {
@@ -176,7 +192,14 @@ function tableEventsFree() {
                 "width": "5%",
                 "className": "text-dark",
                 "render": (data, type, row, meta) => {
-                    return '<span>Del: <b>'+row.event_dates[0].date+'</b><br>al: <b>'+row.event_dates[row.event_dates.length-1].date+'</b></span>';
+                    return '<span>Del: <br><b>'+row.event_dates[0].date+'</b><br>al: <br><b>'+row.event_dates[row.event_dates.length-1].date+'</b></span>';
+                }
+            },
+            {
+                "width": "5%",
+                "className": "text-dark bold text-center",
+                "render": (data, type, row, meta) => {
+                    return '<h5>'+row.sales+'</h5>';
                 }
             },
             {

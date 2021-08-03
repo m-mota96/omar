@@ -10,6 +10,7 @@ use App\Event;
 use App\Access;
 use App\AdminPayment;
 use App\GallerySlider;
+use App\Category;
 
 class AdminController extends Controller {
 
@@ -169,5 +170,45 @@ class AdminController extends Controller {
 
     public function categories() {
         return view('admin.categories');
+    }
+
+    public function actionsCategories(Request $request) {
+        if (empty($request->input('id_category'))) { // Registrar categoría
+            Category::create([
+                'name' => $request->input('name')
+            ]);
+        } else {
+            if (!empty($request->input('name'))) { // Editar categoría
+                $category = Category::where('id', $request->input('id_category'))->first();
+                $category->name = $request->input('name');
+                $category->save();
+            } else { // Eliminar categoría
+                $category = Category::where('id', $request->input('id_category'))->delete();
+            }
+        }
+        return response()->json([
+            'status' => true
+        ]);
+    }
+
+    public function extractCategories() {
+        $categories = Category::get();
+        return datatables()->of($categories)->toJson();
+    }
+
+    public function content() {
+        return view('admin.content');
+    }
+
+    public function uploadImagesIndex(Request $request) {
+        for ($i = 0; $i < sizeof($_FILES['files']['name']); $i++) { 
+            $file = file_get_contents($_FILES['files']['tmp_name'][$i]);
+            $extension = pathinfo($_FILES["files"]["name"][$i])["extension"];
+            $fileName = $_FILES["files"]["name"][$i];
+            file_put_contents('media/index/'.$fileName, $file);
+        }
+        return response()->json([
+            'status' => true
+        ]);
     }
 }

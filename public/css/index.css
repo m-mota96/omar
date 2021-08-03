@@ -44,3 +44,31 @@
 .carousel-item img {
     height: 100%;
 }
+.vertical-align-center {
+    display: flex;
+    align-items: center;
+}
+.vertical-align-end {
+    display: flex;
+    align-items: flex-end;
+}
+.bg-footer {
+    background: #4d317b;
+}
+@media only screen and (max-width: 500px) and (min-width: 200px) {
+    .carousel-item {
+        height: 30vh;
+    }
+    .topbar {
+        position: inherit;
+        padding-left: 1vh !important;
+        padding-right: 1vh !important;
+    }
+    .topbar .content-topbar {
+        text-align: left !important;
+    }
+    .topbar .form-control {
+        width: 75% !important;
+        margin-bottom: 2vh !important;
+    }
+}

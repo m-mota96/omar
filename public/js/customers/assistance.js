@@ -36,9 +36,9 @@ function chargingGraphic() {
 }
 
 function chart(date, assistence, taquilla) {
-    var initial_time = ""+date.initial_time+"";
+    var initial_time = (date != null) ? ""+date.initial_time+"" : "00:00";
     initial_time = initial_time.substr(0, 2);
-    var final_time = ""+date.final_time+"";
+    var final_time = (date != null) ? ""+date.final_time+"" : "23:59";
     final_time = final_time.substr(0, 2);
     var count = parseInt(final_time) - parseInt(initial_time);
     var hours = [], prueba = [];

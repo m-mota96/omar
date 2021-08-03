@@ -286,9 +286,11 @@ class StatisticController extends Controller
             $countSpectators = 0;
         }
         $eventDate = EventDate::where('event_id', $id)->where('date', date('Y-m-d'))->first();
-        $initial_hour = substr($eventDate->initial_time, 0, 2);
-        $final_hour = substr($eventDate->final_time, 0, 2);
+        $initial_hour = (isset($eventDate->initial_time)) ? substr($eventDate->initial_time, 0, 2) : null;
+        $final_hour = (isset($eventDate->final_time)) ? substr($eventDate->final_time, 0, 2) : null;
         $count = intval($final_hour) - intval($initial_hour);
+        $assistence = [];
+        $array_taquilla = [];
         for ($i = 0; $i < $count; $i++) { 
             $verifieds = Verified::select(DB::raw("SUM(quantity) as quantity"), 'time')->where('time', intval($initial_hour))->where('date', date('Y-m-d'))->whereHas('access.ticket', function($query) use($id) {
                 return $query->where('event_id', $id);

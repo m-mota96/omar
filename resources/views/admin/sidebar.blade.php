@@ -18,7 +18,7 @@
         <div id="collapseEvents" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item" href="{{route('admin.events', 'paid')}}">De consumo</a>
-                <a class="collapse-item" href="{{route('admin.events', 'free')}}">Gratuitos</a>
+                <a class="collapse-item" href="{{route('admin.events', 'free')}}">De registro</a>
                 <a class="collapse-item" href="{{route('admin.categories')}}">Categorías</a>
             </div>
         </div>
@@ -61,12 +61,12 @@
     <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSlider" aria-expanded="true" aria-controls="collapseSlider">
             <i class="fas fa-sliders-h"></i>
-            <span>Administrar slider</span>
+            <span>Administrar index</span>
         </a>
         <div id="collapseSlider" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
-                {{-- <h6 class="collapse-header">Custom Utilities:</h6> --}}
-                <a class="collapse-item" href="{{route('admin.slider')}}">Administración</a>
+                <a class="collapse-item" href="{{route('admin.slider')}}">Slider</a>
+                <a class="collapse-item" href="{{route('admin.content')}}">Contenido</a>
             </div>
         </div>
     </li>
