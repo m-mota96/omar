@@ -106,7 +106,7 @@ function tableEventsPaid() {
                 "className": "text-dark bold",
                 "render": (data, type, row, meta) => {
                     if (row.payments_agruped != null) {
-                        var commission = row.payments_agruped.total * .05;
+                        var commission = row.payments_agruped.total * .12;
                         var total = (row.payments_agruped.total - commission).toFixed(2);
                         return '<h5>$'+total+'</h5>';
                     } else {
@@ -119,7 +119,7 @@ function tableEventsPaid() {
                 "className": "text-dark bold",
                 "render": (data, type, row, meta) => {
                     if (row.payments_agruped != null) {
-                        var commission = row.payments_agruped.total * .05;
+                        var commission = row.payments_agruped.total * .12;
                         return '<h5>$'+commission.toFixed(2)+'</h5>';
                     } else {
                         return '<h5>$0.00</h5>';

@@ -112,6 +112,7 @@ Route::post('searchAccess', 'StatisticController@searchAccess');
 Route::post('validateFolio', 'StatisticController@validateFolio');
 Route::post('extractAssistence', 'StatisticController@extractAssistence');
 Route::post('saveChangesQuesntions', 'CustomerController@saveChangesQuesntions');
+Route::post('downloadTickets', 'CustomerController@downloadTickets');
 
 // Routes usage for admin
 Route::post('extractUsersDocuments', 'AdminController@extractUsersDocuments');
@@ -127,3 +128,28 @@ Route::post('deleteInfoSlider', 'AdminController@deleteInfoSlider');
 Route::post('actionsCategories', 'AdminController@actionsCategories');
 Route::post('extractCategories', 'AdminController@extractCategories');
 Route::post('uploadImagesIndex', 'AdminController@uploadImagesIndex');
+
+// use SimpleSoftwareIO\QrCode\Facades\QrCode;
+// use App\Payment;
+// use App\Access;
+// Route::get('/generate/cortesias/omar', function() {
+//     $payment = Payment::create([
+//         'event_id' => 2,
+//         'name' => 'Cortesias',
+//         'email' => 'cortesias@exposport.com',
+//         'reference' => '2021',
+//         'type' => 'card',
+//         'amount' => 0.00,
+//         'status' => 'payed',
+//     ]);
+//     for ($i = 0; $i < 20; $i++) { 
+//         $folio = strtoupper(uniqid());
+//         $code_QR = QrCode::backgroundColor(255, 125, 0, 0.5)->size(550)->format('png')->generate($folio, 'media/qr/'.$folio.'.png');
+//         Access::create([
+//             'payment_id' => $payment->id,
+//             'ticket_id' => 6,
+//             'folio' => $folio,
+//             'quantity' => 1
+//         ]);   
+//     }
+// });

@@ -5,7 +5,7 @@
 @endsection
 @section('content')
     @include('customers.topbarEdit')
-    <div class="container">
+    <div class="col-xl-12">
         <input type="hidden" id="eventId" value="{{$event_id}}">
         <div class="card">
             <div class="row p-5">

@@ -747,32 +747,32 @@ function formatMoney(number, decPlaces, decSep, thouSep) {
 
 function jsPay(msgAlert, msgSuccess) {
     jsShowWindowLoad(msgAlert);
-    console.log("jsPay");
+    // console.log("jsPay");
     
-    var formDataComplete= new FormData();
+    // var formDataComplete= new FormData();
     
-    formDataComplete.append("_token",$("meta[name='csrf-token']").attr("content"));
-    formDataComplete.append("conektaTokenId",$('#conektaTokenId').val());
-    formDataComplete.append("name",$('#name').val());
-    formDataComplete.append("email",$('#email').val());
-    formDataComplete.append("phone",$('#phone').val());
-    formDataComplete.append("card",$('#card').val());
-    formDataComplete.append("quantities",JSON.stringify(quantities));
-    formDataComplete.append("tickets",JSON.stringify(idTickets));
-    formDataComplete.append("payment_method",$('#payment-method').val());
-    formDataComplete.append("event_id",$('#idEvent').val());
-    formDataComplete.append("turns",JSON.stringify(turns));
-    formDataComplete.append("indicatorTurns",indicatorTurns);
-    formDataComplete.append("globlaDataOrder",ths.globlaDataOrder);
+    // formDataComplete.append("_token",$("meta[name='csrf-token']").attr("content"));
+    // formDataComplete.append("conektaTokenId",$('#conektaTokenId').val());
+    // formDataComplete.append("name",$('#name').val());
+    // formDataComplete.append("email",$('#email').val());
+    // formDataComplete.append("phone",$('#phone').val());
+    // formDataComplete.append("card",$('#card').val());
+    // formDataComplete.append("quantities",JSON.stringify(quantities));
+    // formDataComplete.append("tickets",JSON.stringify(idTickets));
+    // formDataComplete.append("payment_method",$('#payment-method').val());
+    // formDataComplete.append("event_id",$('#idEvent').val());
+    // formDataComplete.append("turns",JSON.stringify(turns));
+    // formDataComplete.append("indicatorTurns",indicatorTurns);
+    // formDataComplete.append("globlaDataOrder",ths.globlaDataOrder);
    
    //console.log(turns);
     $.ajax({
         dataType: 'json',
         url: $('#URL').val()+'makePayment',
         method: 'post',
-        processData: false,
-        contentType: false, 
-        /* data: {
+        // processData: false,
+        // contentType: false, 
+        data: {
             "_token": $("meta[name='csrf-token']").attr("content"),
             conektaTokenId: $('#conektaTokenId').val(),
             name: $('#name').val(),
@@ -786,8 +786,8 @@ function jsPay(msgAlert, msgSuccess) {
             turns : turns,
             indicatorTurns: indicatorTurns,
             globlaDataOrder:ths.globlaDataOrder
-        }, */
-        data:formDataComplete,
+        },
+        // data:formDataComplete,
         success: function(response) {
             if (response.status == true) {
                 // $('#modalSale').modal('hide');

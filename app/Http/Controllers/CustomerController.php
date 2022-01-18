@@ -18,7 +18,10 @@ use App\Payment;
 use App\Turn;
 use App\Category;
 use App\Question;
+use App\Access;
 use DateTime;
+use File;
+use ZipArchive;
 
 class CustomerController extends Controller {
 
@@ -668,5 +671,37 @@ class CustomerController extends Controller {
             'status' => true,
             'questions' => $questions
         ]);
+    }
+
+    public function downloadTickets(Request $request) {
+        $tickets = Access::with(['payment'])->where('payment_id', $request->input('payment_id'))->get();
+        // dd(sizeof($tickets));
+        $zip = new ZipArchive();
+        $filename = 'media/zips/'.$tickets[0]->payment->name.'.zip';
+        
+        if($zip->open($filename, ZIPARCHIVE::CREATE) === true) {
+            foreach ($tickets as $key => $value) {
+                $url = 'media/pdf/events/'.$tickets[0]->payment->event_id.'/'.$value->folio.'.pdf';
+                $name = basename($url);
+                $zip->addFile($url, $name);
+            }
+            $resultado = $zip->close();
+            if ($resultado) {
+                return response()->json([
+                    'status' => true,
+                    'nameZip' => $tickets[0]->payment->name.'.zip'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'msj' => 'Error creando pdf'
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'msj' => 'Error creando zip'
+            ]);
+        }
     }
 }

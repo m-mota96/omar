@@ -52,7 +52,7 @@ class PublicController extends Controller
         //dd($request->quantities);
         //$request->input('turns')=$aux;
         //dd($request);
-        dd(json_decode($request->input('tickets')));
+        // dd(json_decode($request->input('tickets')));
         $event = Event::with(['profile', 'eventDates', 'location'])->where('id', $request->input('event_id'))->first();
         $initial_date = Carbon::parse($event->eventDates[0]->date)->locale('es')->isoFormat('D-MM-Y');
         $pos = sizeof($event->eventDates) - 1;

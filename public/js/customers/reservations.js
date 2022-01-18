@@ -52,12 +52,13 @@ function tableSales() {
                 }
             },
             {
-                "width": "5%",
+                "width": "20%",
                 "className": "text-center",
                 "render": (data, type, row, meta) => {
                     var btn = '<button type="button" class="btn btn-success btn-sm mr-2" data-toggle="tooltip" data-placement="right" title="Detalles de la compra" onclick="detailsSale('+row.id+')"><i class="fas fa-info"></i></button>';
                     if (row.status == 'payed') {
-                        btn += '<button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="right" title="Reenviar boletos" onclick="resendTickets('+row.id+', \''+row.email+'\')"><i class="fas fa-envelope"></i></button>';
+                        btn += '<button type="button" class="btn btn-primary btn-sm mr-2" data-toggle="tooltip" data-placement="right" title="Reenviar boletos" onclick="resendTickets('+row.id+', \''+row.email+'\')"><i class="fas fa-envelope"></i></button>';
+                        btn += '<button type="button" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="right" title="Descargar boletos" onclick="downloadFiles('+row.id+')"><i class="fas fa-file-download"></i></button>';
                         $('[data-toggle="tooltip"]').tooltip();
                         return btn;
                     }
@@ -139,6 +140,25 @@ function resendTickets(payment_id, email) {
             })
         }
     })
+}
+
+function downloadFiles(payment_id) {
+    $.ajax({
+        url: $('#URL').val()+'downloadTickets',
+        method: 'post',
+        data: {
+            "_token": $("meta[name='csrf-token']").attr("content"),
+            'payment_id': payment_id
+        },
+        success: (res)=> {
+            if(res.status == true) {
+                window.location.href = $('#URL').val()+'media/zips/'+res.nameZip;
+            }
+        },
+        error: ()=> {
+            console.log('ERROR');
+        }
+    });
 }
 
 function formatMoney(number, decPlaces, decSep, thouSep) {
