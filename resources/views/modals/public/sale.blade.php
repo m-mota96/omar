@@ -34,7 +34,7 @@
                                 </div>
                                 <div class="col-xl-3">
                                     <label for="phone">Teléfono *</label>
-                                    <input type="tel" pattern="[0-9]{9}" class="form-control order-header-data" id="phone_orderData" required placeholder="Teléfono">
+                                    <input type="tel" pattern="[0-9]{10}" class="form-control order-header-data" id="phone_orderData" required placeholder="Teléfono">
                                 </div>
                             </div>
                             <div class="row p-2">

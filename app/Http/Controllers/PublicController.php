@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 require_once('bin/conekta-php-master/lib/Conekta.php');
+require_once('bin/messagebird/autoload.php');
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Mail\SendReference;
 use App\Mail\SendTickets;
 use Carbon\Carbon;
+use Hashids\Hashids;
 use App\Event;
 use App\Ticket;
 use App\Payment;
@@ -255,6 +257,7 @@ class PublicController extends Controller
 
         switch ($request->input('payment_method')) {
             case 'card':
+                $this->sendSmsAndWhatsapp($request, $event, $payment);
                 Mail::to($request->input('email'))->send(new SendTickets($event, $folios, $tickets, $request->input('name'), $request->input('quantities'), $total, $commission));
                 break;
             case 'oxxo':
@@ -306,25 +309,27 @@ class PublicController extends Controller
                 'phone' => $infoTickets[$i]['phone'],
             ]);            
             
-            $response='';
-            $responses=$infoTickets[$i]['requestQuestion'];
-            
-            for ($k=0; $k <sizeof($responses); $k++) { 
-                if($responses[$k]['type']== 'file'){
-                    //registrar agregar un archivo a la storage
-                    //$response = 'Name archivo=>'.$responses[$k]['title'];
-                    $file="".$responses[$k]['value'];
-                    echo "".pathinfo($file, PATHINFO_FILENAME);
-                    dd();
-                }else{
-                    $response=$responses[$k]['value'];
+            if (isset($infoTickets[$i]['requestQuestion'])) {
+                $response = '';
+                $responses = $infoTickets[$i]['requestQuestion'];
+                
+                for ($k=0; $k <sizeof($responses); $k++) { 
+                    if($responses[$k]['type']== 'file'){
+                        //registrar agregar un archivo a la storage
+                        //$response = 'Name archivo=>'.$responses[$k]['title'];
+                        $file="".$responses[$k]['value'];
+                        echo "".pathinfo($file, PATHINFO_FILENAME);
+                        dd();
+                    } else {
+                        $response=$responses[$k]['value'];
+                    }
+                    $question = Response::create([
+                        'question_id' => $responses[$k]['question_id'],
+                        'access_id' => $access->id,
+                        'response' => $response,
+                    ]);
+                    $question->save();
                 }
-                $question = Response::create([
-                    'question_id' => $responses[$k]['question_id'],
-                    'access_id' => $access->id,
-                    'response' => $response,
-                ]);
-                $question->save();
             }
 
             if (isset($folios[$i]['turn'])) {
@@ -472,5 +477,51 @@ class PublicController extends Controller
                 'msj' => 'Debe marcar la casilla de verificación'
             ]);
         }
+    }
+
+    public function sendSmsAndWhatsapp($client, $event, $payment) {
+        $hashids = new Hashids('', 25); // pad to length 10
+        $paymentId = $hashids->encode($payment->id);
+        // print_r($id);
+        // $idDecode = $hashids->decode($id);
+        // dd($idDecode[0]);
+        $messageBird = new \MessageBird\Client('PEEB1YEK2oMAZslARp7EAyxxw'); // Set your own API access key here.
+
+        $hsmParam1 = new \MessageBird\Objects\Conversation\HSM\Params();
+        $hsmParam1->default = $client->name;
+
+        $hsmParam2 = new \MessageBird\Objects\Conversation\HSM\Params();
+        $hsmParam2->default = $event->name;
+
+        $hsmParam3 = new \MessageBird\Objects\Conversation\HSM\Params();
+        $hsmParam3->default = asset('').'download/tickets/'.$paymentId;
+
+        $hsmLanguage = new \MessageBird\Objects\Conversation\HSM\Language();
+        $hsmLanguage->policy = \MessageBird\Objects\Conversation\HSM\Language::DETERMINISTIC_POLICY;
+        $hsmLanguage->code = 'es_MX';
+
+        $hsm = new \MessageBird\Objects\Conversation\HSM\Message();
+        $hsm->templateName = 'prueba_2';
+        $hsm->namespace = '4f323d59_c5fa_478d_8a3f_4eb145ca0b2f';
+        $hsm->params = [$hsmParam1, $hsmParam2, $hsmParam3];
+        $hsm->language = $hsmLanguage;
+
+        $content = new \MessageBird\Objects\Conversation\Content();
+        $content->hsm = $hsm;
+
+        $message = new \MessageBird\Objects\Conversation\Message();
+        $message->channelId = '397492bb-c325-4438-a20d-83fea267d8ac';
+        $message->content = $content;
+        $message->to = '521'.$client->phone;
+        $message->type = 'hsm';
+
+        try {
+            $conversation = $messageBird->conversations->start($message);
+
+            // dd($conversation);
+        } catch (\Exception $e) {
+            dd('error: '.$e->getMessage());
+        }
+        return true;
     }
 }
