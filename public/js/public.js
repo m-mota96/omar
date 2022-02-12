@@ -184,7 +184,7 @@ function ticketsGeneratedHtml(){
                         </div>
                         <div class="col-xl-4">
                             <label for="name">Teléfono *</label>
-                            <input type="tel" pattern="[0-9]{9}" class="form-control" id="phone_${contTicket}" required name="phone[${contTicket}]" placeholder="Teléfono">
+                            <input type="tel" pattern="[0-9]{10}" class="form-control" id="phone_${contTicket}" required name="phone[${contTicket}]" placeholder="Teléfono">
                         </div>
                     </div>
                     <br>
