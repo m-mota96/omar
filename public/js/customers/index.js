@@ -203,9 +203,9 @@ $('#searchEvents').keyup(()=> {
     });
 });
 
-$('#statusEvent').change(function() {
+$('.statusEvent').change(function() {
     var status = 0;
-    if ($('#statusEvent').prop('checked')) {
+    if ($(this).prop('checked')) {
         status = 1;
         var txt = 'activo';
         var action = 'inicara';
@@ -236,11 +236,14 @@ $('#statusEvent').change(function() {
                 },
                 success: (res)=> {
                     if (res.status == true) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Correcto',
-                            text: 'Su evento se '+txt+' con éxito'
-                        });
+                        // Swal.fire({
+                        //     icon: 'success',
+                        //     title: 'Correcto',
+                        //     text: 'Su evento se '+txt+' con éxito'
+                        // });
+                        // setTimeout(()=> {
+                            location.href = $('#URL').val()+"home";
+                        // }, 1000);
                     }
                 },
                 error: ()=> {

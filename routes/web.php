@@ -47,6 +47,7 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'checkrole:cus
     Route::get('scan/{id}', 'StatisticController@scan')->name('scan');
     Route::get('assistance/{id}', 'StatisticController@assistance')->name('assistance');
     Route::get('form_ticket/{id}', 'CustomerController@form_ticket')->name('form_ticket');
+    Route::get('codes/{id}', 'CustomerController@codes')->name('codes');
 });
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'checkrole:admin'])->group(function() {
@@ -113,6 +114,8 @@ Route::post('validateFolio', 'StatisticController@validateFolio');
 Route::post('extractAssistence', 'StatisticController@extractAssistence');
 Route::post('saveChangesQuesntions', 'CustomerController@saveChangesQuesntions');
 Route::post('downloadTickets', 'CustomerController@downloadTickets');
+Route::post('saveCode', 'CustomerController@saveCode');
+Route::post('deleteCode', 'CustomerController@deleteCode');
 
 // Routes usage for admin
 Route::post('extractUsersDocuments', 'AdminController@extractUsersDocuments');

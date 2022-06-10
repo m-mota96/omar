@@ -23,4 +23,8 @@ class Ticket extends Model
     public function questions() {
         return $this->belongsToMany(Question::class);
     }
+
+    public function codes() {
+        return $this->hasMany(Code::class);
+    }
 }
