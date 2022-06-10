@@ -47,7 +47,9 @@
                                     @if ($e->sales == 0)
                                         <span class="font-small mr-4"><a class="text-dark" href="">ELIMINAR</a></span>
                                     @endif
-                                    <input type="checkbox" {{($e->status == 1) ? "checked" : ""}} {{(empty(auth()->user()->contract) || empty($e->authorization)) ? "disabled" : ""}} data-toggle="toggle" data-width="100" data-on="Activo" data-off="Inactivo" data-onstyle="success" id="statusEvent" data-eventId="{{$e->id}}">
+                                    @if ($e->status == 1 || $e->status == 0)
+                                        <input class="statusEvent" type="checkbox" {{($e->status == 1) ? "checked" : ""}} {{(empty(auth()->user()->contract) && auth()->user()->email != 'miguel.angel9603@hotmail.com') ? "disabled" : ""}} data-toggle="toggle" data-width="100" data-on="Activo" data-off="Inactivo" data-onstyle="success" data-eventId="{{$e->id}}">
+                                    @endif
                                 </div>
                                 <div class="col-xl-4 text-right">
                                     <h3 class="mb-0"><span class="text-blue-400">{{$e->sales}}/</span><span class="text-blue-300">{{$e->quantity_tickets}}</span></h3>

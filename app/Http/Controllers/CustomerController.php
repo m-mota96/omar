@@ -19,6 +19,7 @@ use App\Turn;
 use App\Category;
 use App\Question;
 use App\Access;
+use App\Code;
 use DateTime;
 use File;
 use ZipArchive;
@@ -703,5 +704,49 @@ class CustomerController extends Controller {
                 'msj' => 'Error creando zip'
             ]);
         }
+    }
+
+    public function codes($id) {
+        $event = Event::where('id', $id)->where('user_id', auth()->user()->id)->first();
+        if (!empty($event)) {
+            $tickets = Ticket::where('event_id', $id)->get();
+            $codes = Code::with(['ticket'])->whereHas('ticket', function($query) use($id) {
+                $query->where('event_id', $id);
+            })->get();
+            return view('customers.codes')->with(['event' => $event, 'event_id' => $event->id, 'event_url' => $event->url, 'tickets' => $tickets, 'codes' => $codes]);
+        } else {
+            return redirect('/home');
+        }
+    }
+
+    public function saveCode(Request $request) {
+        if (empty($request->code_id)) {
+            $code = Code::create([
+                'ticket_id' => $request->ticket_id,
+                'code' => $request->code,
+                'quantity' => $request->quantity,
+                'discount' => $request->discount,
+            ]);
+            $code = Code::with(['ticket'])->where('id', $code->id)->first();
+        } else {
+            $code = Code::with(['ticket'])->where('id', $request->code_id)->first();
+            $code->ticket_id = $request->ticket_id;
+            $code->code = $request->code;
+            $code->quantity = $request->quantity;
+            $code->discount = $request->discount;
+            $code->save();
+            $code = Code::with(['ticket'])->where('id', $request->code_id)->first();
+        }
+        return response()->json([
+            'status' => true,
+            'code' => $code
+        ]);
+    }
+
+    public function deleteCode(Request $request) {
+        $code = Code::where('id', $request->code_id)->delete();
+        return response()->json([
+            'status' => true
+        ]);
     }
 }

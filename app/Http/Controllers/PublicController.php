@@ -59,7 +59,11 @@ class PublicController extends Controller
         $initial_date = Carbon::parse($event->eventDates[0]->date)->locale('es')->isoFormat('D-MM-Y');
         $pos = sizeof($event->eventDates) - 1;
         $final_date = Carbon::parse($event->eventDates[$pos]->date)->locale('es')->isoFormat('D-MM-Y');
-        $address = $event->location->name;
+        if (isset($event->location->name)) {
+            $address = $event->location->name;
+        } else {
+            $address = '';
+        }
 
         $tickets = Array();
         $folios = Array();
@@ -173,7 +177,7 @@ class PublicController extends Controller
                     // $this->deleteFiles($folios);
                     return response()->json([
                         'status' => false,
-                        'error' => $e->getMessage()
+                        'error' => 'Error al generar pdf: '.$e->getMessage()
                     ]);
                 }
             } else {
@@ -257,7 +261,8 @@ class PublicController extends Controller
 
         switch ($request->input('payment_method')) {
             case 'card':
-                $this->sendSmsAndWhatsapp($request, $event, $payment);
+                // $this->sendWhatsapp($request, $event, $payment);
+                // $this->sendSms($request, $event, $payment);
                 Mail::to($request->input('email'))->send(new SendTickets($event, $folios, $tickets, $request->input('name'), $request->input('quantities'), $total, $commission));
                 break;
             case 'oxxo':
@@ -479,7 +484,7 @@ class PublicController extends Controller
         }
     }
 
-    public function sendSmsAndWhatsapp($client, $event, $payment) {
+    public function sendWhatsapp($client, $event, $payment) {
         $hashids = new Hashids('', 25); // pad to length 10
         $paymentId = $hashids->encode($payment->id);
         // print_r($id);
@@ -521,6 +526,28 @@ class PublicController extends Controller
             // dd($conversation);
         } catch (\Exception $e) {
             dd('error: '.$e->getMessage());
+        }
+        return true;
+    }
+
+    public function sendSms($client, $event, $payment) {
+        $hashids = new Hashids('', 25); // pad to length 10
+        $paymentId = $hashids->encode($payment->id);
+        
+        $MessageBird = new \MessageBird\Client('6t5V0jHDlkOpEZXUfc5f8PDwD');
+        $Message = new \MessageBird\Objects\Message();
+        $Message->originator = '524371041976';
+        // $Message->recipients = array('52'.$value->telefono);
+        $Message->recipients = array('524371041976'); // Miguel
+        $Message->body = 'Hola '.$client->name.' agradecemos tu compra para asistir a '.$event->name.', puedes ver o descargar tus boletos en el siguiente enlace '.asset('').'download/tickets/'.$paymentId;
+        try {
+            $message = $MessageBird->messages->create($Message);
+            // $m['success'] = "Los SMS se enviaron correctamente";
+            // $m['sms'] = $message;
+            // $m['error'] = "";
+        } catch (\Exception $e) {
+            dd("Los SMS no pudieron ser enviados: ".$e->getMessage());
+            // echo sprintf("%s: %s", get_class($e), $e->getMessage());
         }
         return true;
     }

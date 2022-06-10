@@ -24,3 +24,4 @@ Route::get('eventos', function() {
     $events = Event::all();
     return response()->json($events);
 });
+Route::get('cronjob/{activitie}', 'CronjobController@cronjob');

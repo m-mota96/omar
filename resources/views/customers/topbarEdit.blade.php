@@ -83,6 +83,9 @@
                 <a class="nav-link text-white" href="{{route('customer.tickets', $event_id)}}"><i class="fas fa-tag"></i> Boletos</a>
             </li>
             <li class="mr-4">
+                <a class="nav-link text-white" href="{{route('customer.codes', $event_id)}}"><i class="fas fa-barcode"></i> Códigos</a>
+            </li>
+            <li class="mr-4">
                 <a class="nav-link text-white" href="{{route('customer.reservations', $event_id)}}"><i class="fas fa-shopping-cart"></i> Reservaciones</a>
             </li>
             <li class="mr-4">
