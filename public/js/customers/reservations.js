@@ -6,6 +6,8 @@ function tableSales() {
     $('#sales').dataTable().fnDestroy();
     var table = $('#sales').DataTable({
         "order": [[0, 'desc']],
+        "processing": true,
+        "serverSide": true,
         "lengthMenu": [[25, 50, 75, 100, -1], [25, 50, 75, 100, "Todos"]],
         "ajax": {
             url: $('#URL').val()+'extractSales',
@@ -36,6 +38,25 @@ function tableSales() {
                 }
             },
             {
+                "className": "text-center",
+                "render": (data, type, row, meta) => {
+                    var span = '', codeAux = '';
+                    for (var i = 0; i < row.accesses.length; i++) {
+                        if ((row.accesses[i].code != '' && row.accesses[i].code != null) && codeAux != row.accesses[i].code.code) {
+                            span += row.accesses[i].code.code+', ';
+                            codeAux = row.accesses[i].code.code;
+                        }
+                    }
+                    span += '';
+                    if (span == '') {
+                        span = 'N/A';
+                    } else {
+                        span = span.substr(0, span.length - 2);
+                    }
+                    return '<span>'+span+'</span>';
+                }
+            },
+            {
                 "render": (data, type, row, meta) => {
                     if (row.status == 'payed') {
                         return '<span class="text-green bold">Pagado</span>';
@@ -59,7 +80,7 @@ function tableSales() {
                     if (row.status == 'payed') {
                         btn += '<button type="button" class="btn btn-primary btn-sm mr-2" data-toggle="tooltip" data-placement="right" title="Reenviar boletos" onclick="resendTickets('+row.id+', \''+row.email+'\')"><i class="fas fa-envelope"></i></button>';
                         btn += '<button type="button" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="right" title="Descargar boletos" onclick="downloadFiles('+row.id+')"><i class="fas fa-file-download"></i></button>';
-                        $('[data-toggle="tooltip"]').tooltip();
+                        // $('[data-toggle="tooltip"]').tooltip();
                         return btn;
                     }
                     return btn;

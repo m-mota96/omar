@@ -79,6 +79,12 @@ class StatisticController extends Controller
         $totalExpired = Access::whereHas('payment', function($query) use ($event_id) {
             return $query->where('event_id', $event_id)->where('status', 'expired');
         })->get()->count();
+        $totalDiscount = Access::whereHas('payment', function($query) use ($event_id) {
+            return $query->where('event_id', $event_id)->where('status', 'payed');
+        })->where('code_id', '!=', null)->get()->count();
+        $totalNotDiscount = Access::whereHas('payment', function($query) use ($event_id) {
+            return $query->where('event_id', $event_id)->where('status', 'payed');
+        })->where('code_id', null)->get()->count();
 
         return response()->json([
             'status' => true,
@@ -87,7 +93,9 @@ class StatisticController extends Controller
             'expired' => $array_expired,
             'totalSales' => $totalSales,
             'totalPending' => $totalPending,
-            'totalExpired' => $totalExpired
+            'totalExpired' => $totalExpired,
+            'totalDiscount' => $totalDiscount,
+            'totalNotDiscount' => $totalNotDiscount
         ]);
     }
 
@@ -97,7 +105,7 @@ class StatisticController extends Controller
 
     public function extractSales(Request $request) {
         return datatables()->of(
-            Payment::where('event_id', $request->input('event_id'))->whereHas('event', function($query) {
+            Payment::with(['accesses.code'])->where('event_id', $request->input('event_id'))->whereHas('event', function($query) {
                 return $query->where('user_id', auth()->user()->id);
             })->get()
             )

@@ -15,12 +15,13 @@ class CreateCodesTable extends Migration
     {
         Schema::create('codes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('ticket_id');
-            $table->foreign('ticket_id')->references('id')->on('tickets');
+            $table->string('email', 255);
+            $table->string('customer_name', 255);
             $table->string('code', 30);
             $table->integer('quantity');
             $table->integer('used')->default(0);
             $table->integer('discount');
+            $table->date('expiration');
             $table->integer('status')->default(1);
             $table->timestamps();
         });

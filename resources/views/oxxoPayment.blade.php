@@ -1,4 +1,4 @@
-<div class="col-xl-12 mb-12 pr-0">
+<div class="col-xl-12 mb-3 pr-0">
     <div class="form-check">
         <input class="form-check-input" onchange="completeDataPaymet()" type="checkbox" value="" id="autocompleted_DataPayment">
         <label class="form-check-label pointer" for="autocompleted_DataPayment">

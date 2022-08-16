@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Code extends Model
 {
     protected $fillable = [
-        'ticket_id', 'code', 'quantity', 'used', 'discount', 'status', 
+        'email', 'customer_name', 'code', 'quantity', 'used', 'discount', 'expiration', 'status', 
     ];
 
-    public function ticket() {
-        return $this->belongsTo(Ticket::class);
+    public function tickets() {
+        return $this->belongsToMany(Ticket::class);
     }
 }

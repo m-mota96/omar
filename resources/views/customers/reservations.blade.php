@@ -22,6 +22,7 @@
                                 <th>Teléfono</th>
                                 <th>Método de pago</th>
                                 <th>Monto</th>
+                                <th>Código de descuento</th>
                                 <th>Estatus</th>
                                 <th>Fecha</th>
                                 <th>Acciones</th>

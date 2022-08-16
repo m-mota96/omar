@@ -1,6 +1,9 @@
 var ths=this;
 const ticketsComplete=[];
-Conekta.setPublicKey("key_BpoqCZd5rqzFZXrxfjjFVQQ");
+// Produccion
+//Conekta.setPublicKey("key_cbL4mKJzqrhq1Vya5enmehg");
+// Pruebas
+Conekta.setPublicKey("key_DV7ryzTwLNxT2Ye66xpm6uA");
 
 window.onload = function() {
     var myInput = document.getElementById('confirmEmail_orderData');
@@ -165,26 +168,32 @@ function ticketsGeneratedHtml(){
                         <h5 class="bold w-10">Boleto ${contTicket+1} - ${ticket.name}</h5>
                     </div>
                     <div class="row p-2">
-                        <div class="form-check">
-                            <input class="form-check-input" onchange="completeOrderData(${posTickets},${contTicket})" type="checkbox" value="" id="autocompleted_${contTicket}">
-                            <label class="form-check-label pointer" for="autocompleted_${contTicket}">
-                                Autocompletar este boleto con datos de la orden.
-                            </label>
+                        <div class="col-xl-12">
+                            <div class="form-check">
+                                <input class="form-check-input pointer" onchange="completeOrderData(${posTickets},${contTicket})" type="checkbox" value="" id="autocompleted_${contTicket}">
+                                <label class="form-check-label pointer" for="autocompleted_${contTicket}">
+                                    Autocompletar este boleto con datos de la orden.
+                                </label>
+                            </div>
                         </div>
                     </div>
 
                     <div class="row p-2">
-                        <div class="col-xl-4">
+                        <div class="col-xl-3">
                             <label for="name">Nombre *</label>
                             <input type="text" class="form-control" id="name_${contTicket}" name="name[${contTicket}]" required placeholder="Nombre">
                         </div>
-                        <div class="col-xl-4">
-                            <label for="name">Correo *</label>
-                            <input type="email"  class="form-control" id="email_${contTicket}" name="email[${contTicket}]" required placeholder="Correo">
+                        <div class="col-xl-3">
+                            <label for="name">Correo </label>
+                            <input type="email"  class="form-control" id="email_${contTicket}" name="email[${contTicket}]" placeholder="Correo">
                         </div>
-                        <div class="col-xl-4">
-                            <label for="name">Teléfono *</label>
-                            <input type="tel" pattern="[0-9]{10}" class="form-control" id="phone_${contTicket}" required name="phone[${contTicket}]" placeholder="Teléfono">
+                        <div class="col-xl-3">
+                            <label for="name">Teléfono</label>
+                            <input type="tel" pattern="[0-9]{10}" class="form-control" id="phone_${contTicket}" name="phone[${contTicket}]" placeholder="Teléfono">
+                        </div>
+                        <div class="col-xl-3">
+                            <label for="code_discount">¿Tienes un código de descuento?</label>
+                            <input class="form-control to-uppercase codes" type="text" placeholder="Ingrese su código" id="code_${contTicket}" name="code[${contTicket}]" data-ticketId="${ticket.id}">
                         </div>
                     </div>
                     <br>
@@ -314,6 +323,8 @@ function completeDataPaymet(){
     }
 }
 
+var codesInfo = [];
+var codesIndicator = false;
 function validateGlobalFields(){
     var cont=0;
 
@@ -347,6 +358,7 @@ function validateGlobalFields(){
     }
     
     if(cont == 4){
+        validateCodes();
         return true;
     }
     
@@ -361,6 +373,68 @@ $('#confirmEmail_orderData').change(()=>{
     }
     
 })
+
+function validateCodes() {
+    var codes = [];
+    var pos = 0;
+    $('#modalSale .codes').each(function() {
+        if ($(this).val() != '') {
+            codes[pos] = new Object;
+            codes[pos].code = $(this).val();
+            codes[pos].ticket_id = $(this).attr('data-ticketId');
+            pos++;
+        }
+    });
+    var code_aux = '', ticketId_aux = 0;
+    var agrupedCodes = [{code: '', ticket_id: 0, quantity: 0}];
+    pos = 0;
+    if (codes.length > 0) {
+        codesIndicator = true;
+        for (let i = 0; i < codes.length; i++) {
+            if ((code_aux == codes[i].code || code_aux == '') && (ticketId_aux == codes[i].ticket_id || ticketId_aux == '')) {
+                agrupedCodes[pos].code = codes[i].code;
+                agrupedCodes[pos].ticket_id = codes[i].ticket_id;
+                agrupedCodes[pos].quantity += 1;
+            } else {
+                pos++;
+                agrupedCodes[pos] = new Object;
+                agrupedCodes[pos].code = codes[i].code;
+                agrupedCodes[pos].ticket_id = codes[i].ticket_id;
+                agrupedCodes[pos].quantity = 1;
+            }
+            code_aux = codes[i].code;
+            ticketId_aux = codes[i].ticket_id;
+        }
+        $.ajax({
+            url: $('#URL').val()+'validateCodes',
+            type: 'POST',
+            data: {
+                _token: $("meta[name='csrf-token']").attr("content"),
+                codes: agrupedCodes
+            },
+            success: (res)=> {
+                codesInfo = res.data;
+                var infoCodes = '<ul class="list-group">';
+                for (var i = 0; i < res.data.length; i++) {
+                    if (res.data[i].status == false || (res.data[i].status == true && res.data[i].type == 'warning')) {
+                        infoCodes += '<li class="list-group-item list-group-item-'+res.data[i].type+'">'+res.data[i].error+'</li>';
+                    }
+                }
+                infoCodes += '</ul>';
+                $('#modalSale #infoCodes').html(infoCodes);
+                $('#modalSale #infoCodes').removeClass('hidden');
+                calculateTotals();
+            },
+            error: ()=> {
+                console.log('ERROR');
+            }
+        });
+    } else {
+        codesInfo = [];
+        codesIndicator = false;
+        calculateTotals();
+    }
+}
 
 function getGlobalDataOrder(){
     //obtener campos del encabezado (nombre, correo, telefono)
@@ -451,6 +525,7 @@ function getGlobalDataOrder(){
                     name:$(`#name_${contTicket}`).val(),
                     email:$(`#email_${contTicket}`).val(),
                     phone:$(`#phone_${contTicket}`).val(),
+                    code:$(`#code_${contTicket}`).val(),
                     idTicket:ticket[0].id,
                     event_id:ticket[0].event_id,
                     requestQuestion:arrayRequest
@@ -463,6 +538,7 @@ function getGlobalDataOrder(){
                     name:$(`#name_${contTicket}`).val(),
                     email:$(`#email_${contTicket}`).val(),
                     phone:$(`#phone_${contTicket}`).val(),
+                    code:$(`#code_${contTicket}`).val(),
                     idTicket:ticket[0].id,
                     event_id:ticket[0].event_id,
                     requestQuestion:arrayRequest
@@ -529,7 +605,7 @@ $('#payment-method').change(()=> {
     if ($('#model_payment').val() == 'separated') {
         $('#body-comisions').html('');
         var comision = (totalTickets * (0.12));
-        var tbody = '<tr><td colspan="3">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
+        var tbody = '<tr><td colspan="4">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
         var totalAux = totalTickets;
         totalAux = totalAux + comision;
         $('#body-comisions').html(tbody);
@@ -667,13 +743,14 @@ var ticketsGenerated=[];
 
 function calculateTotals(indicator = null) {
     var prices = [], names = [];
-    var pos = 0, quantitytTickets = 0;
+    var pos = 0, quantitytTickets = 0, discountCodes = 0;
     var tbody = ''; 
     ths.ticketsGenerated=[];
     total = 0;
     $('#body-comisions').html('');
     $(".quantities").each(function (e) {
         quantities[pos] = parseInt($(this).val());
+
         pos++;
     });
     pos = 0;
@@ -684,7 +761,7 @@ function calculateTotals(indicator = null) {
         idTickets[pos] = $(this).attr('data-idTicket');
         pos++;
     });
-    tbody += '<tr><td class="bold">Producto</td><td class="text-right bold">Cantidad</td><td class="text-right bold">P/U</td><td class="text-right bold">Subtotal</td></tr>';
+    tbody += '<tr><td class="bold">Producto</td><td class="text-center bold">Cantidad</td><td class="text-right bold">P/U</td><td class="text-center bold">Cupones</td><td class="text-right bold">Subtotal</td></tr>';
     for (var i = 0; i < quantities.length; i++) {
         posTurns = 0;
         turns[i] = new Array();
@@ -706,14 +783,31 @@ function calculateTotals(indicator = null) {
                 quanties:quantities[i],
                 id:idTickets[i]
             });
-            tbody += '<tr><td>'+names[i]+'</td><td class="text-right">'+quantities[i]+'</td><td class="text-right">$'+formatMoney(prices[i])+' MXN</td><td class="text-right">$'+formatMoney(quantities[i] * prices[i])+' MXN</td></tr>';
+            var discountCode = 0;
+            var txtCode = 'N/A';
+            // if(codesInfo[i] != undefined) {
+                for (var j = 0; j < codesInfo.length; j++) {
+                    if (codesInfo[j].status == true) {
+                        if (idTickets[i] == codesInfo[j].ticket_id) {
+                            discountCode = discountCode + ((codesInfo[j].total) * ((codesInfo[j].quantity * codesInfo[j].discount) / 100));
+                            txtCode = '- $'+formatMoney(discountCode)+' MXN';
+                            discountCodes = discountCodes + discountCode;
+                        }
+                    }
+                }
+            // }
+            tbody += '<tr><td>'+names[i]+'</td><td class="text-center">'+quantities[i]+'</td><td class="text-right">$'+formatMoney(prices[i])+' MXN</td><td class="text-center">'+txtCode+'</td><td class="text-right">$'+formatMoney((quantities[i] * prices[i]) - discountCode)+' MXN</td></tr>';
         }
     }
+    total = total - discountCodes;
+    
     if ($('#model_payment').val() == 'separated') {
         var comision = (total * (0.12));
-        var tbodyComisions = '<tr><td colspan="3">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
+        var tbodyComisions = '<tr><td colspan="4">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
         totalTickets = total;
         total = total + comision;
+        $('#body-sale').html(tbody);
+        $('#total-sale').html('$'+formatMoney(total)+' MXN');
         $('#body-comisions').html(tbodyComisions);
     }
     if (indicator == null) {
@@ -779,6 +873,8 @@ function jsPay(msgAlert, msgSuccess) {
             email: $('#email').val(),
             phone: $('#phone').val(),
             card: $('#card').val(),
+            indicatorCodes: codesIndicator,
+            codes: codesInfo,
             quantities: quantities,
             tickets: idTickets,
             payment_method: $('#payment-method').val(),
@@ -797,9 +893,9 @@ function jsPay(msgAlert, msgSuccess) {
                     title: 'Correcto',
                     html: msgSuccess,
                 });
-                // setTimeout(function(){
-                //     location.reload();
-                // },3000);
+                setTimeout(function(){
+                     location.reload();
+                },5000);
             } else {
                 jsRemoveWindowLoad();
                 if(response.error == 'exceeded') {
@@ -808,6 +904,9 @@ function jsPay(msgAlert, msgSuccess) {
                         title: '¡Atención!',
                         html: response.msj,
                     });
+                } else if (response.error == 'codesIncomplete' || response.error == 'codesAgoted') {
+                    // $('#modalSale #showContentPayment').trigger('click');
+                    validateCodes();
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -829,6 +928,3 @@ function jsPay(msgAlert, msgSuccess) {
     
 
 }
-
-
-

@@ -23,6 +23,7 @@ use App\Code;
 use DateTime;
 use File;
 use ZipArchive;
+use GuzzleHttp\Client;
 
 class CustomerController extends Controller {
 
@@ -710,9 +711,7 @@ class CustomerController extends Controller {
         $event = Event::where('id', $id)->where('user_id', auth()->user()->id)->first();
         if (!empty($event)) {
             $tickets = Ticket::where('event_id', $id)->get();
-            $codes = Code::with(['ticket'])->whereHas('ticket', function($query) use($id) {
-                $query->where('event_id', $id);
-            })->get();
+            $codes = Code::with(['tickets'])->get();
             return view('customers.codes')->with(['event' => $event, 'event_id' => $event->id, 'event_url' => $event->url, 'tickets' => $tickets, 'codes' => $codes]);
         } else {
             return redirect('/home');
@@ -720,22 +719,43 @@ class CustomerController extends Controller {
     }
 
     public function saveCode(Request $request) {
+        // dd($request->all());
+        if (!empty($request->customer_name) && !empty($request->email) && !empty($request->password) && !empty($request->password_confirm)) {
+            if ($request->password == $request->password_confirm) {
+                $client = new \GuzzleHttp\Client();
+                $client->request('POST', 'https://influencer.ticketland.mx/api/registro', [
+                    'form_params' => [ 'name' => $request->customer_name, 'email' => $request->email, 'password' => $request->password ]
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'passwords_incorrect'
+                ]);
+            }
+        }
         if (empty($request->code_id)) {
             $code = Code::create([
                 'ticket_id' => $request->ticket_id,
-                'code' => $request->code,
+                'email' => $request->email,
+                'customer_name' => $request->customer_name,
+                'code' => strtoupper($request->code),
                 'quantity' => $request->quantity,
+                'expiration' => $request->expiration,
                 'discount' => $request->discount,
             ]);
-            $code = Code::with(['ticket'])->where('id', $code->id)->first();
+            $code->tickets()->sync($request->ticket_id);
+            $code = Code::with(['tickets'])->where('id', $code->id)->first();
         } else {
-            $code = Code::with(['ticket'])->where('id', $request->code_id)->first();
-            $code->ticket_id = $request->ticket_id;
+            $code = Code::with(['tickets'])->where('id', $request->code_id)->first();
+            $code->email = $request->email;
+            $code->customer_name = $request->customer_name;
             $code->code = $request->code;
             $code->quantity = $request->quantity;
+            $code->expiration = $request->expiration;
             $code->discount = $request->discount;
+            $code->tickets()->sync($request->ticket_id);
             $code->save();
-            $code = Code::with(['ticket'])->where('id', $request->code_id)->first();
+            $code = Code::with(['tickets'])->where('id', $request->code_id)->first();
         }
         return response()->json([
             'status' => true,

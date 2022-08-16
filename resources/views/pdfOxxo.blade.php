@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <link href="css/stylesOxxo.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="{{URL::asset('css/stylesOxxo.css')}}" media="all" rel="stylesheet" type="text/css" />
 </head>
 <body>
     <div class="opps">
         <div class="opps-header">
             <div class="opps-reminder">Ficha digital. No es necesario imprimir.</div>
             <div class="opps-info">
-                <div class="opps-brand"><img src="media/general/oxxopay_brand.png" alt="OXXOPay"></div>
+                <div class="opps-brand"><img src="{{URL::asset('media/general/oxxopay_brand.png')}}" alt="OXXOPay"></div>
                 <div class="opps-ammount">
                     <h3>Monto a pagar</h3>
                     <h2>$ {{ number_format($monto, 2) }} <sup>MXN</sup></h2>

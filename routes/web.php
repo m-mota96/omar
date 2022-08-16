@@ -79,6 +79,9 @@ Route::post('makePayment', 'PublicController@makePayment');
 Route::post('reference_paid', 'WebhookController@reference_paid');
 Route::post('discount', 'StatisticController@discount');
 Route::post('sendEmailContact', 'PublicController@sendEmailContact');
+Route::get('download/tickets/{paymentId}', 'PublicController@downloadTickets');
+Route::get('download/reference/{reference}', 'PublicController@downloadReference');
+Route::post('validateCodes', 'PublicController@validateCodes');
 
 // Routes usage for customers
 Route::post('checkEvent', 'CustomerController@checkEvent');

@@ -73,6 +73,13 @@ body {
 .cover {
     object-fit: cover;
 }
+.to-uppercase {
+    text-transform: uppercase;
+}
+.heigth-tickets {
+    max-height: 30vh;
+    overflow-x: auto;
+}
 @media only screen and (max-width: 2500px) and (min-width: 1700px) {
     .content-head {
         height: 25rem !important;

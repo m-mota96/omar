@@ -38,6 +38,8 @@ function chargingGraphic() {
         },
         success: (res)=> {
             $('#totalSales').text(res.totalSales);
+            $('#totalDiscount').text(res.totalDiscount);
+            $('#totalNotDiscount').text(res.totalNotDiscount);
             $('#totalPending').text(res.totalPending);
             $('#totalExpired').text(res.totalExpired);
             chart(31, res.sales, res.pending, res.expired);

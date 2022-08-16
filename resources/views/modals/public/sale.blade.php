@@ -47,8 +47,7 @@
                             <br>
                             <h4 class="modal-title" id="modalSaleLabel"><strong>Datos de los boletos</strong></h4>
                             <br>
-                            <!-- style="display: block;height: 25vw;overflow-y: scroll;scroll-behavior: smooth;" -->
-                            <div class=""  id="container-tickets" >
+                            <div class="heigth-tickets"  id="container-tickets" >
                                 
                             </div>
                         </div>
@@ -64,34 +63,37 @@
                             <h4 class="modal-title" id="modalSaleLabel"><strong>Datos del pago</strong></h4>
                             <hr>
 
+                            <div class="table-responsive-sm table-responsive-md">
+                                <table class="table table-striped w-100 rounded mb-4">
+                                    <thead class="bg-gray-dark-400 text-center">
+                                        <tr>
+                                            <td colspan="5">
+                                                <h3 class="mb-0">Resumen de tu Compra</h3>
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="body-sale">
 
-                            
-                            <table class="table table-striped w-100 rounded mb-4">
-                                <thead class="bg-gray-dark-400 text-center">
-                                    <tr>
-                                        <td colspan="4">
-                                            <h3 class="mb-0">Resumen de tu Compra</h3>
-                                        </td>
-                                    </tr>
-                                </thead>
-                                <tbody id="body-sale">
+                                    </tbody>
+                                    <tbody id="body-comisions">
 
-                                </tbody>
-                                <tbody id="body-comisions">
+                                    </tbody>
+                                    <tbody>
+                                        <tr class="table-info">
+                                            <td class="bold text-right" colspan="4">TOTAL</td>
+                                            <td class="bold text-right" id="total-sale"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-xl-12 mt-3 mb-4 hidden" id="infoCodes">
 
-                                </tbody>
-                                <tbody>
-                                    <tr class="table-info">
-                                        <td class="bold text-right" colspan="3">TOTAL</td>
-                                        <td class="bold text-right" id="total-sale"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            </div>
                             <label>Método de pago</label>
                             <select class="form-control mb-3" id="payment-method" required>
                                 <option value="" selected disabled>Seleccione un método de pago</option>
                                 <option value="card">Tarjeta de Crédito/Débito</option>
-                                {{-- <option value="oxxo">Pago en OXXO</option> --}}
+                                <option value="oxxo">Pago en OXXO</option>
                                 <option id="optionFree" value="free">Gratis</option>
                             </select>
                             <div class="row" id="divContentPayment">

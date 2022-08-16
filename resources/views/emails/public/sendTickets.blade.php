@@ -71,6 +71,10 @@
                                                     <td colspan="1" style="color: black; text-align: right;">${{number_format($commission, 2)}} MXN</td>
                                                 </tr>
                                             @endif
+                                            <tr>
+                                                <td colspan="3" style="color: black; text-align: left;">Cupones</td>
+                                                <td colspan="1" style="color: black; text-align: right;">- ${{number_format($discount, 2)}} MXN</td>
+                                            </tr>
                                             <tr style="padding-top: 5px; padding-bottom: 5px;">
                                                 <td colspan="3" style="color: black; text-align: right; font-weight: bold;">TOTAL</td>
                                                 <td style="color: black; text-align: right; font-weight: bold;">${{number_format($total, 2)}} MXN</td>

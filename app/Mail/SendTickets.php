@@ -16,7 +16,7 @@ class SendTickets extends Mailable
      *
      * @return void
      */
-    public function __construct($event, $folios, $tickets, $buyer, $quantities, $total, $commission = null)
+    public function __construct($event, $folios, $tickets, $buyer, $quantities, $total, $commission = null, $discountCodesVal)
     {
         $this->event = $event;
         $this->folios = $folios;
@@ -25,6 +25,7 @@ class SendTickets extends Mailable
         $this->quantities = $quantities;
         $this->total = $total;
         $this->commission = $commission;
+        $this->discountCodesVal = $discountCodesVal;
     }
 
     /**
@@ -42,7 +43,8 @@ class SendTickets extends Mailable
             'tickets' => $this->tickets,
             'quantities' => $this->quantities,
             'total' => $this->total,
-            'commission' => $this->commission
+            'commission' => $this->commission,
+            'discount' => $this->discountCodesVal,
         ]);
         // $email = $this->markdown('emails.customer.paymentstore')->subject('Pago completado')->with([
         //     'name' => $this->data['name'],

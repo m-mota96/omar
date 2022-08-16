@@ -31,10 +31,22 @@
                 </div>
             </div>
             <div class="row pl-5 pr-5">
-                <div class="col-xl-2 text-center offset-xl-3">
+                <div class="col-xl-6 text-center offset-xl-1">
                     <div class="col-xl-12 pt-3 pb-2 w-100 btn-totalSales">
-                        <h1 class="bold mt-2 text-btn-totalSales" id="totalSales"></h1>
-                        <p class="text-btn-totalSales">Pagados</p>
+                        <div class="row">
+                            <div class="col-xl-4">
+                                <h1 class="bold mt-2 text-btn-totalSales" id="totalNotDiscount"></h1>
+                                <p class="text-btn-totalSales">S/Descuento</p>
+                            </div>
+                            <div class="col-xl-4">
+                                <h1 class="bold mt-2 text-btn-totalSales" id="totalDiscount"></h1>
+                                <p class="text-btn-totalSales">C/Descuento</p>
+                            </div>
+                            <div class="col-xl-4">
+                                <h1 class="bold mt-2 text-btn-totalSales" id="totalSales"></h1>
+                                <p class="text-btn-totalSales">Total</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-xl-2 text-center">
@@ -64,25 +76,25 @@
                             <tr>
                                 <td class="bold">Tarjeta de Crédito / Débito</td>
                                 <td>${{(isset($payments[0]->total)) ? number_format($payments[0]->total, 2) : "0.00"}} MXN</td>
-                                <td>${{(isset($payments[0]->total)) ? number_format($payments[0]->total * 0.05, 2) : "0.00"}} MXN</td>
-                                <td class="text-green bold">${{(isset($payments[0]->total)) ? number_format($payments[0]->total - ($payments[0]->total * 0.05), 2) : "0.00"}} MXN</td>
+                                <td>${{(isset($payments[0]->total)) ? number_format($payments[0]->total * 0.12, 2) : "0.00"}} MXN</td>
+                                <td class="text-green bold">${{(isset($payments[0]->total)) ? number_format($payments[0]->total - ($payments[0]->total * 0.12), 2) : "0.00"}} MXN</td>
                             </tr>
                             <tr>
                                 <td class="bold">Oxxo</td>
                                 <td>${{(isset($payments[1]->total)) ? number_format($payments[1]->total, 2) : "0.00"}} MXN</td>
-                                <td>${{(isset($payments[1]->total)) ? number_format($payments[1]->total * 0.05, 2) : "0.00"}} MXN</td>
-                                <td class="text-green bold">${{(isset($payments[1]->total)) ? number_format($payments[1]->total - ($payments[1]->total * 0.05), 2) : "0.00"}} MXN</td>
+                                <td>${{(isset($payments[1]->total)) ? number_format($payments[1]->total * 0.12, 2) : "0.00"}} MXN</td>
+                                <td class="text-green bold">${{(isset($payments[1]->total)) ? number_format($payments[1]->total - ($payments[1]->total * 0.12), 2) : "0.00"}} MXN</td>
                             </tr>
                             <tr>
                                 <td colspan="2"></td>
                                 <td class="bold">Total</td>
                                 <td class="bold text-orange">
                                     @if (isset($payments[0]->total) && !isset($payments[1]->total))
-                                        ${{number_format(($payments[0]->total - ($payments[0]->total * 0.05)), 2)}}
+                                        ${{number_format(($payments[0]->total - ($payments[0]->total * 0.12)), 2)}}
                                     @elseif (!isset($payments[0]->total) && isset($payments[1]->total))
-                                        ${{number_format(($payments[1]->total - ($payments[1]->total * 0.05)), 2)}}
+                                        ${{number_format(($payments[1]->total - ($payments[1]->total * 0.12)), 2)}}
                                     @elseif (isset($payments[0]->total) && isset($payments[1]->total))
-                                        ${{number_format(($payments[0]->total - ($payments[0]->total * 0.05)) + ($payments[1]->total - ($payments[1]->total * 0.05)), 2)}}
+                                        ${{number_format(($payments[0]->total - ($payments[0]->total * 0.12)) + ($payments[1]->total - ($payments[1]->total * 0.12)), 2)}}
                                     @else
                                         $0.00
                                     @endif

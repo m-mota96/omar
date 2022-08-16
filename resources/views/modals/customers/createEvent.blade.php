@@ -33,21 +33,22 @@
                             <label>Asistencia estimada:</label>
                             <input class="form-control" type="number" min="1" id="quantity" required>
                         </div>
+                         <div class="col-xl-6 mb-3">
+                            <label>Categoría:</label>
+                            <select class="form-control" id="categorySelect" aria-label="Default select example" required>
+                                <option value="0" selected disabled>Seleccione una categoría</option>
+                            </select>
+                        </div>
                         <div class="col-xl-6 mb-3">
-                            <label>Tipo de costo:</label><br>
-                            <div class="form-check form-check-inline mr-5">
+                            <label>Tipo de evento:</label><br>
+                            <div class="form-check form-check-inline">
                                 <input class="form-check-input pointer inputs-radio" type="radio" name="cost_type" id="paid" value="paid" checked >
                                 <label class="form-check-label pointer inputs-radio" for="paid">De consumo</label>
                             </div>
-                            <div class="form-check form-check-inline mb-2 ml-5">
+                            <div class="form-check form-check-inline mb-2 ml-3">
                                 <input class="form-check-input pointer inputs-radio" type="radio" name="cost_type" id="free" value="free">
                                 <label class="form-check-label pointer inputs-radio" for="free">De registro</label>
                             </div>
-                        </div>
-                         <div class="col-xl-6 mb-3">
-                        <select class="form-control" id="categorySelect" aria-label="Default select example" required>
-                            <option value="0" selected disabled>Seleccione una categoría</option>
-                        </select>
                         </div>
                         <div class="col-xl-6">
                             <label>Fechas del evento (<b>Inicial - Final</b>):</label><br>
