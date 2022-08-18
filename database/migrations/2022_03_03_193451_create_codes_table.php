@@ -19,7 +19,6 @@ class CreateCodesTable extends Migration
             $table->string('customer_name', 255);
             $table->string('code', 30);
             $table->integer('quantity');
-            $table->integer('used')->default(0);
             $table->integer('discount');
             $table->date('expiration');
             $table->integer('status')->default(1);

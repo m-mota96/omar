@@ -80,7 +80,7 @@
                                     </tbody>
                                     <tbody>
                                         <tr class="table-info">
-                                            <td class="bold text-right" colspan="4">TOTAL</td>
+                                            <td class="bold text-right" colspan="3">TOTAL</td>
                                             <td class="bold text-right" id="total-sale"></td>
                                         </tr>
                                     </tbody>

@@ -110,22 +110,31 @@ class PublicController extends Controller
         $globlaDataOrder = $request->input('globlaDataOrder');
         $infoTickets= $globlaDataOrder['infoTickets'];
         if ($request->input('indicatorCodes') == 'true') {
-            for ($i = 0; $i < sizeof($request->input('codes')); $i++) { 
-                $code = Code::with(['ticket'])
-                ->where('ticket_id', $request->input('codes')[$i]['ticket_id'])
+            for ($i = 0; $i < sizeof($request->input('codes')); $i++) {
+                $codeAux = $request->input('codes')[$i];
+                $code = Code::with(['tickets'])
                 ->where('code', strtoupper($request->input('codes')[$i]['code']))
                 ->where('expiration', '>=', date('Y-m-d'))
-                ->first();
+                ->whereHas('tickets', function($query) use($codeAux) {
+                    $query->where('ticket_id', $codeAux['ticket_id']);
+                })->first();
                 if (!empty($code)) {
-                    if ($request->input('codes')[$i]['quantity'] <= ($code->quantity - $code->used)) {
+                    $sales = 0;
+                    for ($j = 0; $j < sizeof($code->tickets); $j++) { 
+                        $sales = $sales + $code->tickets[$j]->pivot->used;
+                        if ($codeAux['ticket_id'] == $code->tickets[$j]->id) {
+                            $code->ticket = $code->tickets[$j];
+                        }
+                    }
+                    if ($request->input('codes')[$i]['quantity'] <= ($code->quantity - $sales)) {
                         $discountCodesVal = $discountCodesVal + (($request->input('codes')[$i]['quantity'] * $code->ticket->price) * ($code->discount / 100));
-                    } else if (($request->input('codes')[$i]['quantity'] > ($code->quantity - $code->used)) && (($code->quantity - $code->used) > 0)) {
+                    } else if (($request->input('codes')[$i]['quantity'] > ($code->quantity - $sales)) && (($code->quantity - $sales) > 0)) {
                         return response()->json([
                             'status' => false,
                             'error' => 'codesIncomplete',
                             'msj' => $msj
                         ]);
-                    } else if ($code->quantity - $code->used == 0 && $request->input('codes')[$i]['quantity'] != 0) {
+                    } else if ($code->quantity - $sales == 0 && $request->input('codes')[$i]['quantity'] != 0) {
                         return response()->json([
                             'status' => false,
                             'error' => 'codesAgoted',
@@ -312,12 +321,21 @@ class PublicController extends Controller
 
     private function discountCodes($codes) {
         for ($i = 0; $i < sizeof($codes); $i++) {
-            $code = Code::with(['ticket'])->where('ticket_id', $codes[$i]['ticket_id'])->where('code', $codes[$i]['code'])->first();
+            $codeAux = $codes[$i];
+            $code = Code::with(['tickets' => function($query) use($codeAux) {
+                $query->where('ticket_id', $codeAux['ticket_id']);
+            }])
+            ->whereHas('tickets', function($query) use($codeAux) {
+                $query->where('ticket_id', $codeAux['ticket_id']);
+            })
+            ->where('code', strtoupper($codes[$i]['code']))->first();
             if (!empty($code)) {
-                if ($codes[$i]['quantity'] <= ($code->quantity - $code->used)) {
-                    $code->used = $code->used +  $codes[$i]['quantity'];
-                    $code->save();
-                }
+                $code->tickets[0]->pivot->used = $code->tickets[0]->pivot->used + $codes[$i]['quantity'];
+                $code->tickets()->detach([$code->id, $code->tickets[0]->id]);
+                $code->tickets()->attach($code->id, [
+                    'ticket_id' => $code->tickets[0]->id,
+                    'used' => $code->tickets[0]->pivot->used
+                ]);
             }
         }
         return true;
@@ -346,7 +364,12 @@ class PublicController extends Controller
 
         for ($i = 0; $i < sizeof($folios); $i++) { 
             //dd($infoTickets[$i]);
-            $code = Code::where('code', $infoTickets[$i]['code'])->where('ticket_id', $folios[$i]['ticket_id'])->first();
+            // $code = Code::where('code', $infoTickets[$i]['code'])->where('ticket_id', $folios[$i]['ticket_id'])->first();
+            $code = Code::where('code', $infoTickets[$i]['code'])
+            ->whereHas('tickets', function($query) use($folios, $i) {
+                $query->where('ticket_id', $folios[$i]['ticket_id']);
+            })
+            ->first();
             $access = Access::create([
                 'payment_id' => $payment_id,
                 'ticket_id' => $folios[$i]['ticket_id'],
@@ -640,31 +663,40 @@ class PublicController extends Controller
         foreach ($request->codes as $key => $cod) {
             $codeExist = Code::where('code', strtoupper($cod['code']))->first();
             if (!empty($codeExist)) {
-                $code = Code::with(['ticket'])->where('code', strtoupper($cod['code']))->where('ticket_id', $cod['ticket_id'])->first();
+                $code = Code::with(['tickets'])->where('code', strtoupper($cod['code']))->whereHas('tickets', function($query) use($cod) {
+                    $query->where('ticket_id', $cod['ticket_id']);
+                })->first();
                 if (!empty($code)) {
+                    $sales = 0;
+                    for ($i = 0; $i < sizeof($code->tickets); $i++) { 
+                        $sales = $sales + $code->tickets[$i]->pivot->used;
+                        if ($cod['ticket_id'] == $code->tickets[$i]->id) {
+                            $code->ticket = $code->tickets[$i];
+                        }
+                    }
                     if (date('Y-m-d') <= $code->expiration) {
-                        if ($cod['quantity'] <= ($code->quantity - $code->used)) {
+                        if ($cod['quantity'] <= ($code->quantity - $sales)) {
                             $data[$key]['status'] = true;
                             $data[$key]['type'] = 'success';
                             $data[$key]['discount'] = $code->discount;
                             $data[$key]['quantity'] = $cod['quantity'];
-                            $data[$key]['ticket_id'] = $code->ticket_id;
+                            $data[$key]['ticket_id'] = $code->ticket->id;
                             $data[$key]['total'] = $code->ticket->price;
                             $data[$key]['code'] = strtoupper($cod['code']);
                             $data[$key]['error'] = '';
-                        } else if(($cod['quantity'] > ($code->quantity - $code->used)) && ($code->quantity - $code->used) > 0) {
+                        } else if(($cod['quantity'] > ($code->quantity - $sales)) && ($code->quantity - $sales) > 0) {
                             $data[$key]['status'] = true;
                             $data[$key]['type'] = 'warning';
                             $data[$key]['discount'] = $code->discount;
-                            $data[$key]['quantity'] = ($code->quantity - $code->used);
-                            $data[$key]['ticket_id'] = $code->ticket_id;
+                            $data[$key]['quantity'] = ($code->quantity - $sales);
+                            $data[$key]['ticket_id'] = $code->ticket->id;
                             $data[$key]['total'] = $code->ticket->price;
                             $data[$key]['code'] = strtoupper($cod['code']);
-                            $data[$key]['error'] = 'El código <b>'.strtoupper($cod['code']).'</b> solo sera aplicado '.($code->quantity - $code->used).' veces ya que no hay más disponibles';
+                            $data[$key]['error'] = 'El código <b>'.strtoupper($cod['code']).'</b> solo sera aplicado '.($code->quantity - $sales).' veces ya que no hay más disponibles';
                         } else {
                             $data[$key]['status'] = false;
                             $data[$key]['type'] = 'danger';
-                            $data[$key]['ticket_id'] = $code->ticket_id;
+                            $data[$key]['ticket_id'] = $code->ticket->id;
                             $data[$key]['code'] = strtoupper($cod['code']);
                             $data[$key]['quantity'] = 0;
                             $data[$key]['error'] = 'El código <b>'.strtoupper($cod['code']).'</b> se encuentra agotado';
@@ -672,7 +704,7 @@ class PublicController extends Controller
                     } else {
                         $data[$key]['status'] = false;
                         $data[$key]['type'] = 'danger';
-                        $data[$key]['ticket_id'] = $code->ticket_id;
+                        $data[$key]['ticket_id'] = $code->ticket->id;
                         $data[$key]['code'] = strtoupper($cod['code']);
                         $data[$key]['quantity'] = $cod['quantity'];
                         $data[$key]['error'] = 'El código <b>'.strtoupper($cod['code']).'</b> ha expirado';

@@ -215,14 +215,14 @@ function ticketsGeneratedHtml(){
 }
 
 function generateQuestionsHtml(_idTicket,_contTicket){
-    console.log("generateQuestionsHtml> "+_idTicket+"  > "+_contTicket);
+    // console.log("generateQuestionsHtml> "+_idTicket+"  > "+_contTicket);
     var container_questions=``;
 
     var ticket=ths.ticketsComplete.filter(ticket =>{
         return ticket.id == _idTicket
     });
     
-    console.log(ticket);
+    // console.log(ticket);
 
     if(ticket[0].questions.length>0){
         var contQuestion=0;
@@ -605,7 +605,7 @@ $('#payment-method').change(()=> {
     if ($('#model_payment').val() == 'separated') {
         $('#body-comisions').html('');
         var comision = (totalTickets * (0.12));
-        var tbody = '<tr><td colspan="4">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
+        var tbody = '<tr><td class="text-right bold" colspan="3">Comisiones</td><td class="text-right bold">$'+formatMoney(comision)+' MXN</td></tr>';
         var totalAux = totalTickets;
         totalAux = totalAux + comision;
         $('#body-comisions').html(tbody);
@@ -761,7 +761,7 @@ function calculateTotals(indicator = null) {
         idTickets[pos] = $(this).attr('data-idTicket');
         pos++;
     });
-    tbody += '<tr><td class="bold">Producto</td><td class="text-center bold">Cantidad</td><td class="text-right bold">P/U</td><td class="text-center bold">Cupones</td><td class="text-right bold">Subtotal</td></tr>';
+    tbody += '<tr><td class="bold">Producto</td><td class="text-center bold">Cantidad</td><td class="text-right bold">P/U</td><!--<td class="text-center bold">Cupones</td>--><td class="text-right bold">Subtotal</td></tr>';
     for (var i = 0; i < quantities.length; i++) {
         posTurns = 0;
         turns[i] = new Array();
@@ -784,29 +784,33 @@ function calculateTotals(indicator = null) {
                 id:idTickets[i]
             });
             var discountCode = 0;
-            var txtCode = 'N/A';
             // if(codesInfo[i] != undefined) {
                 for (var j = 0; j < codesInfo.length; j++) {
                     if (codesInfo[j].status == true) {
                         if (idTickets[i] == codesInfo[j].ticket_id) {
                             discountCode = discountCode + ((codesInfo[j].total) * ((codesInfo[j].quantity * codesInfo[j].discount) / 100));
-                            txtCode = '- $'+formatMoney(discountCode)+' MXN';
                             discountCodes = discountCodes + discountCode;
                         }
                     }
                 }
             // }
-            tbody += '<tr><td>'+names[i]+'</td><td class="text-center">'+quantities[i]+'</td><td class="text-right">$'+formatMoney(prices[i])+' MXN</td><td class="text-center">'+txtCode+'</td><td class="text-right">$'+formatMoney((quantities[i] * prices[i]) - discountCode)+' MXN</td></tr>';
+            tbody += '<tr><td>'+names[i]+'</td><td class="text-center">'+quantities[i]+'</td><td class="text-right">$'+formatMoney(prices[i])+' MXN</td><td class="text-right">$'+formatMoney(quantities[i] * prices[i])+' MXN</td></tr>';
         }
+    }
+    var tbodyCupons = '<tr><td class="text-right bold" colspan="3">SUBTOTAL</td><td class="text-right bold">$'+formatMoney(total)+' MXN</tr>';
+    tbodyCupons += '<tr><td class="text-right bold" colspan="3">Cupones</td><td class="text-right bold">N/A</tr>';
+    if (discountCodes > 0) {
+        tbodyCupons = '<tr><td class="text-right bold" colspan="3">SUBTOTAL</td><td class="text-right bold">$'+formatMoney(total)+' MXN</tr>';
+        tbodyCupons += '<tr><td class="text-right bold" colspan="3">Cupones</td><td class="text-right bold">- $'+formatMoney(discountCodes)+' MXN</td></tr>';
     }
     total = total - discountCodes;
     
     if ($('#model_payment').val() == 'separated') {
         var comision = (total * (0.12));
-        var tbodyComisions = '<tr><td colspan="4">Comisiones</td><td class="text-right">$'+formatMoney(comision)+' MXN</td></tr>';
+        var tbodyComisions = '<tr><td class="text-right bold" colspan="3">Comisiones</td><td class="text-right bold">$'+formatMoney(comision)+' MXN</td></tr>';
         totalTickets = total;
         total = total + comision;
-        $('#body-sale').html(tbody);
+        $('#body-sale').html(tbody+tbodyCupons);
         $('#total-sale').html('$'+formatMoney(total)+' MXN');
         $('#body-comisions').html(tbodyComisions);
     }
@@ -893,9 +897,9 @@ function jsPay(msgAlert, msgSuccess) {
                     title: 'Correcto',
                     html: msgSuccess,
                 });
-                setTimeout(function(){
-                     location.reload();
-                },5000);
+                // setTimeout(function(){
+                //      location.reload();
+                // },5000);
             } else {
                 jsRemoveWindowLoad();
                 if(response.error == 'exceeded') {

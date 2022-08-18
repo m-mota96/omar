@@ -711,7 +711,9 @@ class CustomerController extends Controller {
         $event = Event::where('id', $id)->where('user_id', auth()->user()->id)->first();
         if (!empty($event)) {
             $tickets = Ticket::where('event_id', $id)->get();
-            $codes = Code::with(['tickets'])->get();
+            $codes = Code::with(['tickets'])->whereHas('tickets.event', function($query) {
+                $query->where('user_id', auth()->user()->id);
+            })->get();
             return view('customers.codes')->with(['event' => $event, 'event_id' => $event->id, 'event_url' => $event->url, 'tickets' => $tickets, 'codes' => $codes]);
         } else {
             return redirect('/home');

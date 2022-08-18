@@ -1,6 +1,9 @@
 $(document).ready(()=> {
     $('#modalCodes #ticket_id').multiselect({
         includeSelectAllOption: true,
+        nonSelectedText: "Elija uno o más boletos",
+        allSelectedText: "Todo seleccionado",
+        selectAllText: 'Seleccionar todo'
     });
 });
 
@@ -102,8 +105,10 @@ function chargingDom(codes, action = '') {
     var content = '';
     for (var i = 0; i < codes.length; i++) {
         var ticketsName = '';
+        var sales = 0;
         if (codes[i].tickets.length > 0) {
             for (let j = 0; j < codes[i].tickets.length; j++) {
+                sales = sales + codes[i].tickets[j].pivot.used;
                 ticketsName += codes[i].tickets[j].name+', ';
             }
             ticketsName = ticketsName.substring(0, ticketsName.length - 2);
@@ -123,7 +128,7 @@ function chargingDom(codes, action = '') {
                     }
                 content += '</div>';
                 content += '<div class="col-xl-4 text-right">';
-                    content += '<h3 class="mb-0"><span class="text-blue-400">'+codes[i].used+'/</span><span class="text-blue-300 quantity">'+codes[i].quantity+'</span></h3>';
+                    content += '<h3 class="mb-0"><span class="text-blue-400">'+sales+'/</span><span class="text-blue-300 quantity">'+codes[i].quantity+'</span></h3>';
                     content += '<span class="font-small mt-0">CANTIDAD UTILIZADA</span>';
                 content += '</div>';
             content += '</div>';

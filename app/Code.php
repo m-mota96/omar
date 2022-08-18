@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Code extends Model
 {
     protected $fillable = [
-        'email', 'customer_name', 'code', 'quantity', 'used', 'discount', 'expiration', 'status', 
+        'email', 'customer_name', 'code', 'quantity', 'discount', 'expiration', 'status', 
     ];
 
     public function tickets() {
-        return $this->belongsToMany(Ticket::class);
+        return $this->belongsToMany(Ticket::class)->withPivot('used');
     }
 }
