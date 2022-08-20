@@ -15,8 +15,8 @@ class CreateCodesTable extends Migration
     {
         Schema::create('codes', function (Blueprint $table) {
             $table->id();
-            $table->string('email', 255);
-            $table->string('customer_name', 255);
+            $table->string('email', 255)->nullable();
+            $table->string('customer_name', 255)->nullable();
             $table->string('code', 30);
             $table->integer('quantity');
             $table->integer('discount');

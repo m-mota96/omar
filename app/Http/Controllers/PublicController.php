@@ -121,7 +121,7 @@ class PublicController extends Controller
                 if (!empty($code)) {
                     $sales = 0;
                     for ($j = 0; $j < sizeof($code->tickets); $j++) { 
-                        $sales = $sales + $code->tickets[$j]->pivot->used;
+                        $sales = $sales + ($code->tickets[$j]->pivot->used + $code->tickets[$i]->pivot->reserved);
                         if ($codeAux['ticket_id'] == $code->tickets[$j]->id) {
                             $code->ticket = $code->tickets[$j];
                         }
@@ -241,7 +241,7 @@ class PublicController extends Controller
                 $order = $this->createOrder($total, 'Compra de boletos para '.$event->name, 1);
                 if ($order['status'] == true) {
                     if ($request->input('indicatorCodes') == 'true') {
-                        $this->discountCodes($request->input('codes'));
+                        $this->discountCodes($request->input('codes'), 'card');
                     }
                     // Se registra en nuestra BDD la información de los pagos
                     $payment = $this->registerPayment($event->id, $request->input('name'), substr($request->input('card'), -4), 'card', $request->input('email'), 'payed', $total, $request->input('phone'));
@@ -265,7 +265,7 @@ class PublicController extends Controller
             $order = $this->createOrderOxxo($total, 'Compra de boletos para '.$event->name, $request->input('name'), $request->input('email'), $request->input('phone'), 1);
             if($order['status'] == true) {
                 if ($request->input('indicatorCodes') == 'true') {
-                    $this->discountCodes($request->input('codes'));
+                    $this->discountCodes($request->input('codes'), 'oxxo');
                 }
                 $payment = $this->registerPayment($event->id, $request->input('name'), $order['reference'], 'oxxo', $request->input('email'), 'pending', $total, $request->input('phone'));
                 $date = Carbon::now();
@@ -319,7 +319,7 @@ class PublicController extends Controller
         
     }
 
-    private function discountCodes($codes) {
+    private function discountCodes($codes, $payment_method) {
         for ($i = 0; $i < sizeof($codes); $i++) {
             $codeAux = $codes[$i];
             $code = Code::with(['tickets' => function($query) use($codeAux) {
@@ -330,11 +330,16 @@ class PublicController extends Controller
             })
             ->where('code', strtoupper($codes[$i]['code']))->first();
             if (!empty($code)) {
-                $code->tickets[0]->pivot->used = $code->tickets[0]->pivot->used + $codes[$i]['quantity'];
+                if ($payment_method == 'card') {
+                    $code->tickets[0]->pivot->used = $code->tickets[0]->pivot->used + $codes[$i]['quantity'];
+                } else {
+                    $code->tickets[0]->pivot->reserved = $code->tickets[0]->pivot->reserved + $codes[$i]['quantity'];
+                }
                 $code->tickets()->detach([$code->id, $code->tickets[0]->id]);
                 $code->tickets()->attach($code->id, [
                     'ticket_id' => $code->tickets[0]->id,
-                    'used' => $code->tickets[0]->pivot->used
+                    'used' => $code->tickets[0]->pivot->used,
+                    'reserved' => $code->tickets[0]->pivot->reserved
                 ]);
             }
         }
@@ -669,7 +674,7 @@ class PublicController extends Controller
                 if (!empty($code)) {
                     $sales = 0;
                     for ($i = 0; $i < sizeof($code->tickets); $i++) { 
-                        $sales = $sales + $code->tickets[$i]->pivot->used;
+                        $sales = $sales + ($code->tickets[$i]->pivot->used + $code->tickets[$i]->pivot->reserved);
                         if ($cod['ticket_id'] == $code->tickets[$i]->id) {
                             $code->ticket = $code->tickets[$i];
                         }

@@ -18,6 +18,7 @@ class CodeTicketTable extends Migration
             $table->unsignedBigInteger('code_id');
             $table->unsignedBigInteger('ticket_id');
             $table->integer('used')->default(0);
+            $table->integer('reserved')->default(0);
             $table->foreign('code_id')->references('id')->on('codes');
             $table->foreign('ticket_id')->references('id')->on('tickets');
         });

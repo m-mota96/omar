@@ -9,6 +9,7 @@ use App\Payment;
 use App\Event;
 use App\Ticket;
 use App\Access;
+use App\Code;
 
 class WebhookController extends Controller
 {
@@ -47,6 +48,20 @@ class WebhookController extends Controller
                     $quantities[$pos] = $quantities[$pos] + 1;
                 }
                 if (!empty($payment->accesses[$i]->code_id)) {
+                    $ticketId = $payment->accesses[$i]->ticket->id;
+                    $code = Code::with(['tickets' => function($query) use($ticketId) {
+                        $query->where('ticket_id', $ticketId);
+                    }])
+                    ->whereHas('tickets', function($query) use($ticketId) {
+                        $query->where('ticket_id', $ticketId);
+                    })
+                    ->where('id', $payment->accesses[$i]->code_id)->first();
+                    $code->tickets()->detach([$code->id, $code->tickets[0]->id]);
+                    $code->tickets()->attach($code->id, [
+                        'ticket_id' => $code->tickets[0]->id,
+                        'used' => $code->tickets[0]->pivot->used + 1,
+                        'reserved' => $code->tickets[0]->pivot->reserved - 1
+                    ]);
                     $discount = $discount + ($payment->accesses[$i]->ticket->price * ($payment->accesses[$i]->code->discount / 100));
                 }
                 $totalTickets = $totalTickets + $payment->accesses[$i]->ticket->price;
@@ -55,7 +70,9 @@ class WebhookController extends Controller
             $commission = ($totalTickets - $discount) * .12;
             Mail::to($payment->email)->send(new SendTickets($payment->event, $folios, $tickets, $payment->name, $quantities, $total, $commission, $discount));
         }
-        // return return response()->json($data, 200, $headers);
+        // return response()->json([
+        //     'data' => $payment
+        // ]);
         http_response_code(200); // Return 200 OK
     }
 

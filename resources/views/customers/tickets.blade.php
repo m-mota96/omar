@@ -45,6 +45,7 @@
     <script src="{{asset('js/wNumb.js')}}"></script>
     <script src="{{asset('js/customers/tickets.js')}}"></script>
     <script>
-        chargingDom('<?= $tickets; ?>');
+        var globalTickets = @json($tickets);
+        chargingDom(globalTickets);
     </script>
 @endsection

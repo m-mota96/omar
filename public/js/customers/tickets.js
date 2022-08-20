@@ -187,7 +187,6 @@ function deleteTicket(id) {
 }
 
 function chargingDom(tickets) {
-    tickets = JSON.parse(tickets);
     var content = '';
     for (var i = 0; i < tickets.length; i++) {
         content += '<div class="col-xl-12 bg-white p-4 mb-4" id="card-ticket-'+tickets[i].id+'">';
