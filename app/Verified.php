@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Verified extends Model
 {
     protected $fillable = [
-        'access_id', 'quantity', 'date', 'time', 
+        'event_id', 'access_id', 'quantity', 'date', 'time', 
     ];
 
     public $timestamps = false;

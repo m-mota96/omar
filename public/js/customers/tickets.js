@@ -1,4 +1,4 @@
-$(document).ready(()=> {
+$(document).ready(() => {
     $('[data-toggle="tooltip"]').tooltip();
     if ($('#model_payment').val() != 'separated') {
         typeModel = 1;
@@ -15,7 +15,7 @@ $(document).ready(()=> {
     }
 });
 
-$('input:radio[name=price]').click(()=> {	 
+$('input:radio[name=price]').click(() => {
     if ($('input:radio[name=price]:checked').val() == 1) {
         $('#priceTicket').css('display', 'block');
         $('#priceTicket').prop("required", true);
@@ -35,7 +35,7 @@ $("#modalTickets").on("hidden.bs.modal", function () {
     $('#promotion').prop('checked', false);
 });
 
-$('#promotion').click(()=> {
+$('#promotion').click(() => {
     if ($('#promotion').is(':checked') == true) {
         $('#discount').attr('required', true);
         $('#date_promotion').attr('required', true);
@@ -79,7 +79,7 @@ function saveTicket(id = null, name = null, description = '', min_reservation = 
             $("#turnInactive").prop("checked", false);
             $("#turnActive").prop("checked", true);
         }
-        if(price != null && price > 0) {
+        if (price != null && price > 0) {
             $('#cover').prop('checked', true);
             $('#free').prop('checked', false);
             $('#priceTicket').val(price);
@@ -107,7 +107,6 @@ function saveTicket(id = null, name = null, description = '', min_reservation = 
             }
         });
     } else {
-        console.log("Else");
         var stepSlider = document.getElementById('slider-step');
 
         noUiSlider.create(stepSlider, {
@@ -124,14 +123,14 @@ function saveTicket(id = null, name = null, description = '', min_reservation = 
                 density: 100,
             }
         });
-        
-        
+
+
 
         $('#modalTicketsLabel').text('Agrega un tipo de boleto');
         $('#submitTickets').text('Guardar boleto');
         var msj = 'El tipo de boleto se guardo correctamente';
 
-        
+
     }
     $('#modalTickets').modal('show');
 }
@@ -151,16 +150,16 @@ function deleteTicket(id) {
         if (result.value) {
             $.ajax({
                 method: 'POST',
-                url: $('#URL').val()+'deleteTicket',
+                url: $('#URL').val() + 'deleteTicket',
                 dataType: 'json',
                 async: false,
                 data: {
                     "_token": $("meta[name='csrf-token']").attr("content"),
                     ticket_id: id
                 },
-                success: (response)=> {
-                    if(response.status == true) {
-                        $('#card-ticket-'+id).remove();
+                success: (response) => {
+                    if (response.status == true) {
+                        $('#card-ticket-' + id).remove();
                         Swal.fire({
                             position: 'bottom-end',
                             icon: 'success',
@@ -178,7 +177,7 @@ function deleteTicket(id) {
                         });
                     }
                 },
-                error: ()=> {
+                error: () => {
                     console.log('ERROR');
                 }
             });
@@ -186,36 +185,38 @@ function deleteTicket(id) {
     });
 }
 
-function chargingDom(tickets) {
+function chargingDom(tickets, action = '') {
+    if (action != '') {
+        tickets = JSON.parse(tickets);
+    }
     var content = '';
     for (var i = 0; i < tickets.length; i++) {
-        content += '<div class="col-xl-12 bg-white p-4 mb-4" id="card-ticket-'+tickets[i].id+'">';
-            content += '<div class="row">';
-                content += '<div class="col-xl-8">';
-                    content += '<h4 class="bold mb-2 name">'+tickets[i].name+'</h4>';
-                    content += '<h4 class="bold text-gray-600 mb-2 price">$'+tickets[i].price+'.00 MXN</h4>';
-                    content += '<span class="mb-2 pointer text-blue" onclick="copyToClipboard(\'#linkTicket'+i+'\')" data-toggle="tooltip" data-placement="right" title="Copiar enlace"><i class="fas fa-link"></i> <span class="linkTicket" id="linkTicket'+i+'">'+$('#URL').val()+''+tickets[i].event.url+'/'+tickets[i].name+'</span></span>';
-                    content += '<p></p>';
-                    content += '<span class="font-small mr-4 pointer edit" onclick="saveTicket('+tickets[i].id+', \''+tickets[i].name+'\', \''+tickets[i].description+'\', '+tickets[i].min_reservation+', '+tickets[i].max_reservation+', '+tickets[i].quantity+', \''+tickets[i].start_sale+'\', \''+tickets[i].stop_sale+'\', '+tickets[i].price+', '+tickets[i].status+', '+tickets[i].valid+', '+tickets[i].promotion+', \''+tickets[i].date_promotion+'\', '+tickets[i].use_turns+')"><i class="fas fa-pen"></i> EDITAR</span>';
-                    content += '<span class="font-small mr-4 pointer delete" onclick="deleteTicket('+tickets[i].id+')"><i class="fas fa-trash-alt"></i> ELIMINAR</span>';
-                content += '</div>';
-                content += '<div class="col-xl-4 text-right">';
-                    content += '<h3 class="mb-0"><span class="text-blue-400">'+tickets[i].access.length+'/</span><span class="text-blue-300 quantity">'+tickets[i].quantity+'</span></h3>';
-                    if( (tickets[i].event.cost_type == 'free') || tickets[i].price == 0){
-                        content += '<span class="font-small mt-0">BOLETOS REGISTRADOS</span>';
-                    }else{
-                        content += '<span class="font-small mt-0">BOLETOS RESERVADOS</span>';
-                    }
-                    
-                content += '</div>';
-            content += '</div>';
+        content += '<div class="col-xl-12 bg-white p-4 mb-4" id="card-ticket-' + tickets[i].id + '">';
+        content += '<div class="row">';
+        content += '<div class="col-xl-8">';
+        content += '<h4 class="bold mb-2 name">' + tickets[i].name + '</h4>';
+        content += '<h4 class="bold text-gray-600 mb-2 price">$' + tickets[i].price + '.00 MXN</h4>';
+        content += '<span class="mb-2 pointer text-blue" onclick="copyToClipboard(\'#linkTicket' + i + '\')" data-toggle="tooltip" data-placement="right" title="Copiar enlace"><i class="fas fa-link"></i> <span class="linkTicket" id="linkTicket' + i + '">' + $('#URL').val() + '' + tickets[i].event.url + '/' + tickets[i].name + '</span></span>';
+        content += '<p></p>';
+        content += '<span class="font-small mr-4 pointer edit" onclick="saveTicket(' + tickets[i].id + ', \'' + tickets[i].name + '\', \'' + tickets[i].description + '\', ' + tickets[i].min_reservation + ', ' + tickets[i].max_reservation + ', ' + tickets[i].quantity + ', \'' + tickets[i].start_sale + '\', \'' + tickets[i].stop_sale + '\', ' + tickets[i].price + ', ' + tickets[i].status + ', ' + tickets[i].valid + ', ' + tickets[i].promotion + ', \'' + tickets[i].date_promotion + '\', ' + tickets[i].use_turns + ')"><i class="fas fa-pen"></i> EDITAR</span>';
+        content += '<span class="font-small mr-4 pointer delete" onclick="deleteTicket(' + tickets[i].id + ')"><i class="fas fa-trash-alt"></i> ELIMINAR</span>';
+        content += '</div>';
+        content += '<div class="col-xl-4 text-right">';
+        content += '<h3 class="mb-0"><span class="text-blue-400">' + tickets[i].access.length + '/</span><span class="text-blue-300 quantity">' + tickets[i].quantity + '</span></h3>';
+        if ((tickets[i].event.cost_type == 'free') || tickets[i].price == 0) {
+            content += '<span class="font-small mt-0">BOLETOS REGISTRADOS</span>';
+        } else {
+            content += '<span class="font-small mt-0">BOLETOS RESERVADOS</span>';
+        }
+
+        content += '</div>';
+        content += '</div>';
         content += '</div>';
     }
     $('#content-tickets').html(content);
 }
 
-$('#formTickets').submit((e)=> {
-    console.log("event");
+$('#formTickets').submit((e) => {
     e.preventDefault();
     var slider = document.getElementById('slider-step');
     var daysValid = parseInt(slider.noUiSlider.get());
@@ -226,24 +227,24 @@ $('#formTickets').submit((e)=> {
         }
     }
     if (ban == true) {
-        var auxTurns=0;
-        var price=0;
-        if(!$('input:radio[name=turns]:checked').val()){
-            auxTurns=0;
-        }else{
-            auxTurns=$('input:radio[name=turns]:checked').val();
+        var auxTurns = 0;
+        var price = 0;
+        if (!$('input:radio[name=turns]:checked').val()) {
+            auxTurns = 0;
+        } else {
+            auxTurns = $('input:radio[name=turns]:checked').val();
         }
-        
 
-        if($('input:radio[name=price]:checked').val() == 0){
-            price=0;
-        }else{
-            price=$('#priceTicket').val();
+
+        if ($('input:radio[name=price]:checked').val() == 0) {
+            price = 0;
+        } else {
+            price = $('#priceTicket').val();
         }
-        
+
         $.ajax({
             method: 'POST',
-            url: $('#URL').val()+'saveTicket',
+            url: $('#URL').val() + 'saveTicket',
             dataType: 'json',
             data: {
                 "_token": $("meta[name='csrf-token']").attr("content"),
@@ -258,21 +259,21 @@ $('#formTickets').submit((e)=> {
                 date_promotion: $('#date_promotion').val(),
                 start_sale: $('#start_sale').val(),
                 stop_sale: $('#stop_sale').val(),
-                turns: ($('input:radio[name=turns]:checked').val() == undefined) ? 0: $('input:radio[name=turns]:checked').val(),
+                turns: ($('input:radio[name=turns]:checked').val() == undefined) ? 0 : $('input:radio[name=turns]:checked').val(),
                 price: price,
                 daysValid: daysValid
             },
-            success: (response)=> {
-                if(response.status == true) {
+            success: (response) => {
+                if (response.status == true) {
                     if (response.operation == 'save') {
-                        chargingDom(JSON.stringify(response.ticket));
+                        chargingDom(JSON.stringify(response.ticket), 'new');
                         var msj = 'El boleto se guardo correctamente';
                     } else {
-                        $('#card-ticket-'+response.ticket.id+' .name').text(response.ticket.name);
-                        $('#card-ticket-'+response.ticket.id+' .price').text('$'+response.ticket.price+'.00 MXN');
-                        $('#card-ticket-'+response.ticket.id+' .edit').attr('onclick', 'saveTicket('+response.ticket.id+', \''+response.ticket.name+'\', \''+response.ticket.description+'\', '+response.ticket.min_reservation+', '+response.ticket.max_reservation+', '+response.ticket.quantity+', \''+response.ticket.start_sale+'\', \''+response.ticket.stop_sale+'\', '+response.ticket.price+', '+response.ticket.status+', '+response.ticket.valid+', '+response.ticket.promotion+', \''+response.ticket.date_promotion+'\', '+response.ticket.use_turns+')');
-                        $('#card-ticket-'+response.ticket.id+' .quantity').text(response.ticket.quantity);
-                        $('#card-ticket-'+response.ticket.id+' .linkTicket').text($('#URL').val()+''+$('#url_event').val()+'/'+response.ticket.name);
+                        $('#card-ticket-' + response.ticket.id + ' .name').text(response.ticket.name);
+                        $('#card-ticket-' + response.ticket.id + ' .price').text('$' + response.ticket.price + '.00 MXN');
+                        $('#card-ticket-' + response.ticket.id + ' .edit').attr('onclick', 'saveTicket(' + response.ticket.id + ', \'' + response.ticket.name + '\', \'' + response.ticket.description + '\', ' + response.ticket.min_reservation + ', ' + response.ticket.max_reservation + ', ' + response.ticket.quantity + ', \'' + response.ticket.start_sale + '\', \'' + response.ticket.stop_sale + '\', ' + response.ticket.price + ', ' + response.ticket.status + ', ' + response.ticket.valid + ', ' + response.ticket.promotion + ', \'' + response.ticket.date_promotion + '\', ' + response.ticket.use_turns + ')');
+                        $('#card-ticket-' + response.ticket.id + ' .quantity').text(response.ticket.quantity);
+                        $('#card-ticket-' + response.ticket.id + ' .linkTicket').text($('#URL').val() + '' + $('#url_event').val() + '/' + response.ticket.name);
                         var msj = 'El boleto se modifico correctamente';
                     }
                     $('#modalTickets').modal('hide');
@@ -293,7 +294,7 @@ $('#formTickets').submit((e)=> {
                     });
                 }
             },
-            error: ()=> {
+            error: () => {
                 console.log('ERROR');
             }
         });
@@ -322,14 +323,14 @@ function modelPayment(val) {
             }).then((result) => {
                 if (result.value) {
                     $.ajax({
-                        url: $('#URL').val()+'model_payment',
+                        url: $('#URL').val() + 'model_payment',
                         type: 'post',
                         data: {
                             "_token": $("meta[name='csrf-token']").attr("content"),
                             event_id: $('#event_id').val(),
                             model_payment: (val == 1) ? 'included' : 'separated',
                         },
-                        success: (res)=> {
+                        success: (res) => {
                             if (res.status == true) {
                                 Swal.fire({
                                     position: 'bottom-end',
@@ -359,7 +360,7 @@ function modelPayment(val) {
                                 });
                             }
                         },
-                        error: ()=> {
+                        error: () => {
                             console.log('ERROR');
                         }
                     });
@@ -373,6 +374,55 @@ function modelPayment(val) {
             });
         }
     }
+}
+
+function generateCourtesies() {
+    Swal.fire({
+        title: 'Cantidad de cortesías a generar',
+        html: '<B>Nota:</b> solo puede generar máximo 100 cortesías por vez.<br>Ejemplo: si encesita 150 primero ingrese 100 y posteriormente 50',
+        input: 'text',
+        showCancelButton: true,
+        confirmButtonText: 'Generar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.value) {
+            if (result.value.match(/^[0-9]+$/)) {
+                if (parseInt(result.value) <= 100) {
+                    jsShowWindowLoad('Generando cortesías, por favor espere!!');
+                    $.ajax({
+                        url: $('#URL').val()+'generateCourtesies',
+                        method: 'POST',
+                        data: {
+                            _token: $("meta[name='csrf-token']").attr("content"), 
+                            quantity: result.value,
+                            event_id: $('#event_id').val(),
+                        },
+                        success: (res)=> {
+                            jsRemoveWindowLoad();
+                            location.href = res.nameZip;
+                        },
+                        error: ()=> {
+                            jsRemoveWindowLoad();
+                            console.log('ERROR');
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        html: 'El valor ingresado debe ser menor o igual que 100',
+                    });
+                }
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    html: 'El valor ingresado debe ser número entero',
+                });
+            }
+        }
+    })
 }
 
 function copyToClipboard(elemento) {

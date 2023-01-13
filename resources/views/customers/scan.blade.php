@@ -12,8 +12,10 @@
                     <video class="w-100 h-mb" id="preview"></video>
                 </div>
                 <div class="col-12 col-xl-6">
-                    <h5><b>Folio:</b> <span id="folio"></span></h5>
-                    <input type="hidden" id="folioOculto">
+                    <h5><b>Folio:</b> <span class="text-primary" id="folio"></span></h5>
+                    <h5><b>Nombre:</b> <span class="text-primary" id="name"></span></h5>
+                    <h5><b>Tipo de boleto:</b> <span class="text-primary" id="ticket"></span></h5>
+                    <input type="hidden" id="folioOculto" autofocus>
                     <button class="btn btn-warning hidden" id="btnValidate" onclick="validateFolio()">Desactivar</button>
                 </div>
             </div>

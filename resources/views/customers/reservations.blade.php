@@ -1,7 +1,7 @@
 @extends('customers.layout')
 @section('heads')
     <title>Reservaciones</title>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="//cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
 @endsection
 @section('content')
     @include('customers.topbarEdit')
@@ -39,8 +39,7 @@
     @include('modals.customers.detailsSale')
 @endsection
 @section('scripts')
-    <script src="{{asset('datatables/datatables.min.js')}}"></script>
-    <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+    <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
     <script src="{{asset('js/charging.js')}}"></script>
-    <script src="{{asset('js/customers/reservations.js')}}"></script>
+    <script src="{{asset('js/customers/reservations2.js')}}"></script>
 @endsection

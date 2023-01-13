@@ -20,8 +20,8 @@
 @yield('content')
 <!-- End of Page Wrapper -->
 @include('customers.footer')
-<script src="{{asset('js/jquery-3.4.1.js')}}"></script>
-<script src="{{asset('js/bootstrap.bundle.min.js')}}"></script>
+<script src="{{asset('js/jquery-3.6.1.min.js')}}"></script>
+<script src="{{asset('/js/bootstrap.min.js')}}"></script>
 <script src="{{asset('js/sweetalert2.js')}}"></script>
 <script>
     function openSidebar() {

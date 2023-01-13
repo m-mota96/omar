@@ -119,6 +119,7 @@ Route::post('saveChangesQuesntions', 'CustomerController@saveChangesQuesntions')
 Route::post('downloadTickets', 'CustomerController@downloadTickets');
 Route::post('saveCode', 'CustomerController@saveCode');
 Route::post('deleteCode', 'CustomerController@deleteCode');
+Route::post('generateCourtesies', 'CustomerController@generateCourtesies');
 
 // Routes usage for admin
 Route::post('extractUsersDocuments', 'AdminController@extractUsersDocuments');

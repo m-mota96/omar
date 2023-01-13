@@ -8,6 +8,7 @@ use App\Exports\PaymentsExport;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Payment;
+use App\V_Payment;
 use App\Access;
 use App\Event;
 use App\EventDate;
@@ -105,7 +106,7 @@ class StatisticController extends Controller
 
     public function extractSales(Request $request) {
         return datatables()->of(
-            Payment::with(['accesses.code'])->where('event_id', $request->input('event_id'))->whereHas('event', function($query) {
+            V_Payment::where('event_id', $request->input('event_id'))->where('email', '!=', 'cortesias@mail.com')->whereHas('event', function($query) {
                 return $query->where('user_id', auth()->user()->id);
             })->get()
             )
@@ -123,7 +124,7 @@ class StatisticController extends Controller
     }
 
     public function detailsSale(Request $request) {
-        $access = Access::with(['ticket'])->where('payment_id', $request->input('payment_id'))->get();
+        $access = Access::with(['ticket', 'code'])->where('payment_id', $request->input('payment_id'))->get();
         return response()->json([
             'status' => true,
             'data' => $access
@@ -147,11 +148,11 @@ class StatisticController extends Controller
     }
 
     public function searchAccess(Request $request) {
-        $access = Access::with(['payment', 'turns.eventDate'])->where('folio', $request->input('folio'))->whereHas('payment', function($query) {
+        $access = Access::with(['payment', 'turns.eventDate', 'ticket'])->where('folio', $request->input('folio'))->whereHas('payment', function($query) {
             $payment = $query->where('status', 'payed');
         })->first();
         $date = date('Y-m-d');
-        // $date = '2021-05-15';
+        //$date = '2022-11-12';
         $time = date('H:i:s');
         // $time = '12:50:00';
         $dataTurn = null;
@@ -254,6 +255,7 @@ class StatisticController extends Controller
             $access->quantity = $access->quantity - 1;
             $access->save();
             Verified::create([
+                'event_id' => $access->ticket->event_id,
                 'access_id' => $access->id,
                 'date' => date('Y-m-d'),
                 'time' => date('H')

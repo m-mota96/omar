@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
@@ -450,12 +451,13 @@ class CustomerController extends Controller {
     }
 
     public function resendTickets(Request $request) {
-        $payment = Payment::with(['accesses.ticket', 'event'])->where('id', $request->input('payment_id'))->first();
+        $payment = Payment::with(['accesses.ticket', 'accesses.code', 'event'])->where('id', $request->input('payment_id'))->first();
         $payment->email = $request->input('email');
         $payment->save();
         $tickets = Array();
         $folios = Array();
         $quantities = Array();
+        $discount = 0;
         $total = $payment->amount;
         $aux = 0;
         $pos = -1;
@@ -482,8 +484,11 @@ class CustomerController extends Controller {
                 $quantities[$pos] = $quantities[$pos] + 1;
             }
             $aux = $payment->accesses[$i]->ticket_id;
+            if (!empty($payment->accesses[$i]->code_id)) {
+                $discount = $discount + ($payment->accesses[$i]->ticket->price * ($payment->accesses[$i]->code->discount / 100));
+            }
         }
-        Mail::to($request->input('email'))->send(new SendTickets($payment->event, $folios, $tickets, $payment->name, $quantities, $total, $commission));
+        Mail::to($request->input('email'))->send(new SendTickets($payment->event, $folios, $tickets, $payment->name, $quantities, $total, $commission, $discount));
         return response()->json([
             'status' => true
         ]);
@@ -713,7 +718,9 @@ class CustomerController extends Controller {
             $tickets = Ticket::where('event_id', $id)->get();
             $codes = Code::with(['tickets'])->whereHas('tickets.event', function($query) {
                 $query->where('user_id', auth()->user()->id);
-            })->get();
+            })->whereHas('tickets', function($query) use($event) {
+                $query->where('event_id', $event->id);
+            })->where('status', 1)->get();
             return view('customers.codes')->with(['event' => $event, 'event_id' => $event->id, 'event_url' => $event->url, 'tickets' => $tickets, 'codes' => $codes]);
         } else {
             return redirect('/home');
@@ -770,5 +777,74 @@ class CustomerController extends Controller {
         return response()->json([
             'status' => true
         ]);
+    }
+    public function generateCourtesies(Request $request) {
+        $ticket = Ticket::where('name', 'Cortesías')->where('event_id', $request->event_id)->first();
+        // dd($ticket);
+        if (empty($ticket)) {
+            $ticket = Ticket::create([
+                'event_id' => $request->event_id,
+                'name' => 'Cortesías',
+                'price' => 0,
+                'quantity' => $request->quantity,
+                'valid' => 0,
+                'start_sale' => date('Y-m-d'),
+                'stop_sale' => date('Y-m-d'),
+                'status' => 0
+            ]);
+        } else {
+            $ticket->quantity = $ticket->quantity + intval($request->quantity);
+            $ticket->save();
+        }
+        $paymentFree = Payment::where('name', 'cortesias')->where('status', 'pay_free')->where('event_id', $request->event_id)->first();
+        if (empty($paymentFree)) {
+            $paymentFree = Payment::create([
+                'event_id' => $request->event_id,
+                'name' => 'cortesias',
+                'email' => 'cortesias@mail.com',
+                'phone' => '0123456789',
+                'reference' => '0000',
+                'type' => 'card',
+                'amount' => 0,
+                'status' => 'pay_free'
+            ]);
+        }
+
+        $zip = new ZipArchive();
+        $zipName = uniqid();
+        $filename = 'media/zips/'.$zipName.'.zip';
+        
+        if($zip->open($filename, ZIPARCHIVE::CREATE) === true) {
+            for ($i = 0; $i < $request->quantity; $i++) { 
+                $folio = strtoupper(uniqid());
+                $code_QR = QrCode::backgroundColor(255, 125, 0, 0.5)->size(550)->format('png')->generate($folio, 'media/qr/'.$folio.'.png');
+                $url = 'media/qr/'.$folio.'.png';
+                $name = basename($url);
+                $zip->addFile($url, $name);
+                Access::create([
+                    'payment_id' => $paymentFree->id,
+                    'ticket_id' => $ticket->id,
+                    'folio' => $folio,
+                    'quantity' => 1
+                ]);
+            }
+            $result = $zip->close();
+            if ($result) {
+                return response()->json([
+                    'status' => true,
+                    'nameZip' => asset('media/zips/'.$zipName.'.zip')
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'msj' => 'Error creando pdf'
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'msj' => 'Error creando zip'
+            ]);
+        }
     }
 }

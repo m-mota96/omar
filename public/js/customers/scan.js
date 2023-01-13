@@ -1,19 +1,42 @@
+var codigos = new Array();
+$(document).keypress(function (tecla) {
+    if (tecla.keyCode === 13) {
+        //LIMPIAMOS ESCRITURA(CONVERTIMOS A STRING)
+        procesarCodigo(codigos.join(""), null);
+        codigos = [];
+    }else{
+        //GUARDAMOS ESCRITURA
+        codigos.push(tecla.key);
+    }
+});
+function procesarCodigo(codigo="", id_cliente="") {
+    if(codigo !== "") {
+        searchFolio(codigo);
+    }
+}
+
 let scanner = new Instascan.Scanner({
     video: document.getElementById('preview'),
     mirror: false
 });
 
 scanner.addListener('scan', function (content) {
+    searchFolio(content);
+});
+
+function searchFolio(folio) {
     $.ajax({
         url: $('#URL').val()+'searchAccess',
         method: 'post',
         data: {
             "_token": $("meta[name='csrf-token']").attr("content"),
-            folio: content
+            folio: folio
         },
         success: function(response) {
             if (response.status == true) {
                 $('#folio').text(response.access.folio);
+                $('#name').text(response.access.name);
+                $('#ticket').text(response.access.ticket.name);
                 $('#folioOculto').val(response.access.folio);
                 $('#btnValidate').removeClass('hidden');
             } else {
@@ -48,7 +71,7 @@ scanner.addListener('scan', function (content) {
             console.log('error');
         },
     });
-});
+}
 
 Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
@@ -75,10 +98,15 @@ function validateFolio() {
         success: function(response) {
             if (response.status == true) {
                 $('#folio').text('');
+                $('#name').text('');
+                $('#ticket').text('');
                 $('#btnValidate').addClass('hidden');
                 Swal.fire({
+                    position: 'bottom-end',
                     icon: 'success',
                     text: 'El boleto se desactivo correctamente',
+                    showConfirmButton: false,
+                    timer: 1000
                 });
             }
         },

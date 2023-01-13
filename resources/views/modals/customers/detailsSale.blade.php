@@ -1,5 +1,5 @@
 <div class="modal fade" id="modaldetailsSale" tabindex="-1" aria-labelledby="modaldetailsSaleLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="formdetailsSale" enctype="multipart/form-data">
                 <div class="modal-header">
@@ -13,6 +13,7 @@
                         <thead>
                             <tr>
                                 <th>Tipo de boleto</th>
+                                <th>Código de descuento</th>
                                 <th>Precio</th>
                                 <th>Estatus</th>
                             </tr>

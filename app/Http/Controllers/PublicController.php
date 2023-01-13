@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 require_once('bin/conekta-php-master/lib/Conekta.php');
-//require_once('bin/messagebird/autoload.php');
+require_once('bin/messagebird/autoload.php');
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -78,6 +78,9 @@ class PublicController extends Controller
             mkdir('media/pdf/events/'.$event->id, 0777, true);
         }
         $msj = null;
+        if ($event->cost_type == 'paid' && $request->input('payment_method') == 'free') {
+            $msj = 'Debe elegir un método de pago válido';
+        }
         // for ($i = 0; $i < sizeof($request->input('turns')); $i++) {
             if (!empty($request->input('turns'))) {
                 for ($j = 0; $j < sizeof($request->input('turns')); $j++) { 
@@ -298,12 +301,12 @@ class PublicController extends Controller
 
         switch ($request->input('payment_method')) {
             case 'card':
-                // $this->sendWhatsapp($request, $event, $payment);
+                $this->sendWhatsapp($request, $event, $payment);
                 // $this->sendSms($request, $event, $payment);
                 Mail::to($request->input('email'))->send(new SendTickets($event, $folios, $tickets, $request->input('name'), $request->input('quantities'), $total, $commission, $discountCodesVal));
                 break;
             case 'oxxo':
-                // $this->sendSmsReference($request, $event, $order['reference']);
+                $this->sendWhatsAppReference($request, $event, $order['reference']);
                 Mail::to($request->input('email'))->send(new SendReference($event, $order['reference'], $request->input('name'), $payment));
                 break;
             case 'free':
@@ -328,7 +331,9 @@ class PublicController extends Controller
             ->whereHas('tickets', function($query) use($codeAux) {
                 $query->where('ticket_id', $codeAux['ticket_id']);
             })
-            ->where('code', strtoupper($codes[$i]['code']))->first();
+            ->where('code', strtoupper($codes[$i]['code']))
+            ->where('expiration', '>=', date('Y-m-d'))
+            ->first();
             if (!empty($code)) {
                 if ($payment_method == 'card') {
                     $code->tickets[0]->pivot->used = $code->tickets[0]->pivot->used + $codes[$i]['quantity'];
@@ -371,6 +376,7 @@ class PublicController extends Controller
             //dd($infoTickets[$i]);
             // $code = Code::where('code', $infoTickets[$i]['code'])->where('ticket_id', $folios[$i]['ticket_id'])->first();
             $code = Code::where('code', $infoTickets[$i]['code'])
+            ->where('expiration', '>=', date('Y-m-d'))
             ->whereHas('tickets', function($query) use($folios, $i) {
                 $query->where('ticket_id', $folios[$i]['ticket_id']);
             })
@@ -564,7 +570,7 @@ class PublicController extends Controller
         // print_r($id);
         // $idDecode = $hashids->decode($id);
         // dd($idDecode[0]);
-        $messageBird = new \MessageBird\Client('PEEB1YEK2oMAZslARp7EAyxxw'); // Set your own API access key here.
+        $messageBird = new \MessageBird\Client('F4JCaJDSSNBJPUkzcLBQScb7i'); // Set your own API access key here.
 
         $hsmParam1 = new \MessageBird\Objects\Conversation\HSM\Params();
         $hsmParam1->default = $client->name;
@@ -573,15 +579,16 @@ class PublicController extends Controller
         $hsmParam2->default = $event->name;
 
         $hsmParam3 = new \MessageBird\Objects\Conversation\HSM\Params();
-        $hsmParam3->default = asset('').'download/tickets/'.$paymentId;
+        // $hsmParam3->default = asset('').'download/tickets/'.$paymentId;
+        $hsmParam3->default = 'http://015e-187-247-139-61.ngrok.io/download/tickets/'.$paymentId;
 
         $hsmLanguage = new \MessageBird\Objects\Conversation\HSM\Language();
         $hsmLanguage->policy = \MessageBird\Objects\Conversation\HSM\Language::DETERMINISTIC_POLICY;
         $hsmLanguage->code = 'es_MX';
 
         $hsm = new \MessageBird\Objects\Conversation\HSM\Message();
-        $hsm->templateName = 'prueba_2';
-        $hsm->namespace = '4f323d59_c5fa_478d_8a3f_4eb145ca0b2f';
+        $hsm->templateName = 'payment_success2';
+        $hsm->namespace = '761b9b95_04f0_4ea9_9fa2_547e0efdb21c';
         $hsm->params = [$hsmParam1, $hsmParam2, $hsmParam3];
         $hsm->language = $hsmLanguage;
 
@@ -589,7 +596,7 @@ class PublicController extends Controller
         $content->hsm = $hsm;
 
         $message = new \MessageBird\Objects\Conversation\Message();
-        $message->channelId = '397492bb-c325-4438-a20d-83fea267d8ac';
+        $message->channelId = 'af4120f7-4c93-4aec-b4fa-d5e3335470c1';
         $message->content = $content;
         $message->to = '521'.$client->phone;
         $message->type = 'hsm';
@@ -599,7 +606,7 @@ class PublicController extends Controller
 
             // dd($conversation);
         } catch (\Exception $e) {
-            dd('error: '.$e->getMessage());
+            // dd('error: '.$e->getMessage());
         }
         return true;
     }
@@ -648,20 +655,74 @@ class PublicController extends Controller
         return true;
     }
 
+    public function sendWhatsAppReference($client, $event, $reference) {
+        $hashids = new Hashids('', 25); // pad to length 10
+        $reference = $hashids->encode($reference);
+        // print_r($id);
+        // $idDecode = $hashids->decode($id);
+        // dd($idDecode[0]);
+        $messageBird = new \MessageBird\Client('F4JCaJDSSNBJPUkzcLBQScb7i'); // Set your own API access key here.
+
+        $hsmParam1 = new \MessageBird\Objects\Conversation\HSM\Params();
+        $hsmParam1->default = $client->name;
+
+        $hsmParam2 = new \MessageBird\Objects\Conversation\HSM\Params();
+        $hsmParam2->default = $event->name;
+
+        $hsmParam3 = new \MessageBird\Objects\Conversation\HSM\Params();
+        $hsmParam3->default = asset('').'download/reference/'.$reference;
+
+        $hsmLanguage = new \MessageBird\Objects\Conversation\HSM\Language();
+        $hsmLanguage->policy = \MessageBird\Objects\Conversation\HSM\Language::DETERMINISTIC_POLICY;
+        $hsmLanguage->code = 'es_MX';
+
+        $hsm = new \MessageBird\Objects\Conversation\HSM\Message();
+        $hsm->templateName = 'send_reference2';
+        $hsm->namespace = '761b9b95_04f0_4ea9_9fa2_547e0efdb21c';
+        $hsm->params = [$hsmParam1, $hsmParam2, $hsmParam3];
+        $hsm->language = $hsmLanguage;
+
+        $content = new \MessageBird\Objects\Conversation\Content();
+        $content->hsm = $hsm;
+
+        $message = new \MessageBird\Objects\Conversation\Message();
+        $message->channelId = 'af4120f7-4c93-4aec-b4fa-d5e3335470c1';
+        $message->content = $content;
+        $message->to = '521'.$client->phone;
+        $message->type = 'hsm';
+
+        try {
+            $conversation = $messageBird->conversations->start($message);
+
+            // dd($conversation);
+        } catch (\Exception $e) {
+            // dd('error: '.$e->getMessage());
+        }
+        return true;
+    }
+
     public function downloadTickets($paymentId) {
         $hashids = new Hashids('', 25);
         $paymentId = $hashids->decode($paymentId);
-        $access = Access::with(['payment'])->where('payment_id', $paymentId[0])->whereHas('payment', function($query) {
+        $access = Access::with(['payment', 'ticket'])->where('payment_id', $paymentId[0])->whereHas('payment', function($query) {
             $query->where('status', 'payed');
         })->get();
-        // dd($access);
-        return view('access')->with(['access' => $access, 'type' => 'tickets']);
+        if (sizeof($access) > 0) {
+            return view('access')->with(['access' => $access, 'type' => 'tickets']);
+        } else {
+            return redirect('/');
+        }
     }
 
     public function downloadReference($reference) {
         $hashids = new Hashids('', 25);
         $reference = $hashids->decode($reference);
-        return view('access')->with(['access' => $access, 'type' => 'reference']);
+        $payment = Payment::with(['event'])->where('reference', $reference[0])->first();
+        if (!empty($payment)) {
+            return view('access')->with(['payment' => $payment, 'type' => 'reference']);
+        } else {
+            return redirect('/');
+        }
     }
 
     public function validateCodes(Request $request) {

@@ -11,6 +11,7 @@ use App\Event;
 use App\Ticket;
 use App\Access;
 use App\Payment;
+use App\EventDate;
 
 class HomeController extends Controller
 {
@@ -35,9 +36,11 @@ class HomeController extends Controller
             return view('admin.index');
         } elseif($user->role_id == 2) {
             $status = 1;
+            $order = 'DESC';
             switch ($search) {
                 case null:
                     $status = 1;
+                    $order = 'ASC';
                     break;
                 case 'inactive':
                     $status = 0;
@@ -59,14 +62,21 @@ class HomeController extends Controller
                 }])->addSelect(['quantity_tickets' => Ticket::selectRaw('SUM(quantity) as quantity')
                     ->whereColumn('event_id', 'events.id')
                     ->groupBy('event_id')
-                ])->where('user_id', auth()->user()->id)->where('status', $status)->paginate(10);
+                ])->addSelect(['date' => EventDate::select('date')
+                    ->whereColumn('event_id', 'events.id')
+                    ->orderBy('date')->limit(1)
+                ])->where('user_id', auth()->user()->id)->where('status', $status)->orderBy('date', $order)->paginate(10);
                 // dd($events);
             } else {
-                $events = Event::with(['profile', 'eventDates'])->addSelect(['quantity_tickets' => Ticket::selectRaw('SUM(quantity) as quantity')
+                $events = Event::with(['profile', 'eventDates', 'payments' => function($query) {
+                    $query->addSelect(['quantity' => Access::selectRaw('COUNT(id) as quantity')->whereColumn('payment_id', 'payments.id')->groupBy('payment_id')]);
+                }])->addSelect(['quantity_tickets' => Ticket::selectRaw('SUM(quantity) as quantity')
                     ->whereColumn('event_id', 'events.id')
                     ->groupBy('event_id')
-                ])
-                ->where('user_id', auth()->user()->id)->paginate(10);
+                ])->addSelect(['date' => EventDate::select('date')
+                    ->whereColumn('event_id', 'events.id')
+                    ->orderBy('date')->limit(1)
+                ])->where('user_id', auth()->user()->id)->orderBy('date', $order)->paginate(10);
             }
             $total = 0;
             foreach ($events as $key => $e) {

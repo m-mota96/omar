@@ -21,6 +21,7 @@
                     <input type="hidden" id="model_payment" value="{{$event->model_payment}}">
                     <input type="hidden" id="quantity_payments" value="{{$quantityPayments}}">
                     <p class="btn bg-orange-400 text-white w-100" onclick="saveTicket()"><i class="fas fa-plus"></i> Nuevo tipo de boleto</p>
+                    <p class="btn bg-purple text-white w-100" onclick="generateCourtesies()"><i class="fas fa-plus"></i> Generar cortesías</p>
                 </div>
             </div>
             <div class="card mt-3">
@@ -43,6 +44,7 @@
 @section('scripts')
     <script src="{{asset('js/nouislider.js')}}"></script>
     <script src="{{asset('js/wNumb.js')}}"></script>
+    <script src="{{asset('js/charging.js')}}"></script>
     <script src="{{asset('js/customers/tickets.js')}}"></script>
     <script>
         var globalTickets = @json($tickets);
