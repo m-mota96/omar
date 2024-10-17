@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use App\Event;
 use App\Payment;
 use App\Code;
+use App\Access;
 
 class CronjobController extends Controller {
 
@@ -71,5 +72,28 @@ class CronjobController extends Controller {
                 $p->save();
             }
         }
+    }
+
+    public function searchCodes(Request $request) {
+        $codes = Code::with(['accesses_payed.ticket'])->where('email', $request->email)->get();
+        foreach($codes as $key => $c) {
+            $total = 0;
+            foreach ($c->accesses_payed as $key2 => $a) {
+                $a->pivot->ticket_price_discount = $a->pivot->ticket_price - ($a->pivot->ticket_price * ($a->pivot->discount / 100));
+                $a->pivot->profits = ($a->pivot->ticket_price - ($a->pivot->ticket_price * ($a->pivot->discount / 100))) * .10;
+                $total = $total + $a->pivot->profits;
+            }
+            $c->total = $total;
+            // $used = 0;
+            // if (sizeof($c->tickets) > 0) {
+            //     foreach($c->tickets as $key2 => $t) {
+            //         $used = $used + $t->pivot->used;
+            //     }
+            // }
+            // $c->used = $used;
+        }
+        return response()->json([
+            'codes' => $codes
+        ]);
     }
 }

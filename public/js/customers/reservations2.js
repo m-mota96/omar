@@ -120,10 +120,10 @@ function detailsSale(payment_id) {
             for (var i = 0; i < response.data.length; i++) {
                 tr += '<tr>';
                     tr += '<td>'+response.data[i].ticket.name+'</td>';
-                    tr += '<td>'+((response.data[i].code != null) ? response.data[i].code.code : 'N/A')+'</td>';
+                    tr += '<td>'+((response.data[i].codes.length > 0) ? response.data[i].codes[0].code : 'N/A')+'</td>';
                     var amount = response.data[i].ticket.price;
-                    if (response.data[i].code != null) {
-                        amount = response.data[i].ticket.price - (response.data[i].ticket.price * (response.data[i].code.discount / 100));
+                    if (response.data[i].codes.length > 0) {
+                        amount = response.data[i].codes[0].pivot.ticket_price - (response.data[i].codes[0].pivot.ticket_price * (response.data[i].codes[0].discount / 100));
                     }
                     tr += '<td>$'+formatMoney(amount)+'</td>';
                     tr += (response.data[i].status == 1) ? '<td class="text-green">Activo</td>' : '<td class="text-orange">Escaneado</td>';

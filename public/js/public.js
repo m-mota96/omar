@@ -410,7 +410,8 @@ function validateCodes() {
             type: 'POST',
             data: {
                 _token: $("meta[name='csrf-token']").attr("content"),
-                codes: agrupedCodes
+                codes: agrupedCodes,
+                event_id: $('#idEvent').val()
             },
             success: (res)=> {
                 codesInfo = res.data;

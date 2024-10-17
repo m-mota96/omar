@@ -82,10 +82,9 @@ class StatisticController extends Controller
         })->get()->count();
         $totalDiscount = Access::whereHas('payment', function($query) use ($event_id) {
             return $query->where('event_id', $event_id)->where('status', 'payed');
-        })->where('code_id', '!=', null)->get()->count();
-        $totalNotDiscount = Access::whereHas('payment', function($query) use ($event_id) {
-            return $query->where('event_id', $event_id)->where('status', 'payed');
-        })->where('code_id', null)->get()->count();
+        })->whereHas('codes', function($query) {
+            return $query;
+        })->get()->count();
 
         return response()->json([
             'status' => true,
@@ -96,7 +95,7 @@ class StatisticController extends Controller
             'totalPending' => $totalPending,
             'totalExpired' => $totalExpired,
             'totalDiscount' => $totalDiscount,
-            'totalNotDiscount' => $totalNotDiscount
+            'totalNotDiscount' => $totalSales - $totalDiscount
         ]);
     }
 
@@ -124,7 +123,7 @@ class StatisticController extends Controller
     }
 
     public function detailsSale(Request $request) {
-        $access = Access::with(['ticket', 'code'])->where('payment_id', $request->input('payment_id'))->get();
+        $access = Access::with(['ticket', 'codes'])->where('payment_id', $request->input('payment_id'))->get();
         return response()->json([
             'status' => true,
             'data' => $access

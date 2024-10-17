@@ -25,4 +25,8 @@ class Access extends Model
     public function code() {
         return $this->belongsTo(Code::class);
     }
+
+    public function codes() {
+        return $this->belongsToMany(Code::class)->withPivot('ticket_price', 'discount');
+    }
 }

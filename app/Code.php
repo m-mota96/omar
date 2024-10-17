@@ -13,4 +13,14 @@ class Code extends Model
     public function tickets() {
         return $this->belongsToMany(Ticket::class)->withPivot('used', 'reserved');
     }
+
+    public function accesses() {
+        return $this->belongsToMany(Access::class)->withPivot('ticket_price', 'discount');
+    }
+
+    public function accesses_payed() {
+        return $this->belongsToMany(Access::class)->withPivot('ticket_price', 'discount')->whereHas('payment', function($query) {
+            return $query->where('status', 'payed');
+        });
+    }
 }

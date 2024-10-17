@@ -25,3 +25,4 @@ Route::get('eventos', function() {
     return response()->json($events);
 });
 Route::get('cronjob/{activitie}', 'CronjobController@cronjob');
+Route::post('searchCodes', 'CronjobController@searchCodes');

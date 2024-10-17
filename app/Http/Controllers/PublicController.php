@@ -118,13 +118,13 @@ class PublicController extends Controller
                 $code = Code::with(['tickets'])
                 ->where('code', strtoupper($request->input('codes')[$i]['code']))
                 ->where('expiration', '>=', date('Y-m-d'))
-                ->whereHas('tickets', function($query) use($codeAux) {
-                    $query->where('ticket_id', $codeAux['ticket_id']);
+                ->whereHas('tickets', function($query) use($codeAux, $event) {
+                    $query->where('ticket_id', $codeAux['ticket_id'])->where('event_id', $event->id);
                 })->first();
                 if (!empty($code)) {
                     $sales = 0;
                     for ($j = 0; $j < sizeof($code->tickets); $j++) { 
-                        $sales = $sales + ($code->tickets[$j]->pivot->used + $code->tickets[$i]->pivot->reserved);
+                        $sales = $sales + ($code->tickets[$j]->pivot->used + $code->tickets[$j]->pivot->reserved);
                         if ($codeAux['ticket_id'] == $code->tickets[$j]->id) {
                             $code->ticket = $code->tickets[$j];
                         }
@@ -204,6 +204,7 @@ class PublicController extends Controller
                         $pdf->save('media/pdf/events/'.$event->id.'/'.$folio.'.pdf');
                         $folios[$pos]['folio'] = $folio;
                         $folios[$pos]['ticket_id'] = $ticket->id;
+                        $folios[$pos]['ticket_price'] = $ticket->price;
                         $folios[$pos]['valid'] = $ticket->valid;
                         $pos++;
                     }
@@ -244,11 +245,11 @@ class PublicController extends Controller
                 $order = $this->createOrder($total, 'Compra de boletos para '.$event->name, 1);
                 if ($order['status'] == true) {
                     if ($request->input('indicatorCodes') == 'true') {
-                        $this->discountCodes($request->input('codes'), 'card');
+                        $this->discountCodes($request->input('codes'), 'card', $event->id);
                     }
                     // Se registra en nuestra BDD la información de los pagos
                     $payment = $this->registerPayment($event->id, $request->input('name'), substr($request->input('card'), -4), 'card', $request->input('email'), 'payed', $total, $request->input('phone'));
-                    $this->saveAccesses($payment->id, $folios,$infoTickets);
+                    $this->saveAccesses($payment, $folios,$infoTickets);
                 } else {
                     // $this->deleteFiles($folios);
                     return response()->json([
@@ -268,7 +269,7 @@ class PublicController extends Controller
             $order = $this->createOrderOxxo($total, 'Compra de boletos para '.$event->name, $request->input('name'), $request->input('email'), $request->input('phone'), 1);
             if($order['status'] == true) {
                 if ($request->input('indicatorCodes') == 'true') {
-                    $this->discountCodes($request->input('codes'), 'oxxo');
+                    $this->discountCodes($request->input('codes'), 'oxxo', $event->id);
                 }
                 $payment = $this->registerPayment($event->id, $request->input('name'), $order['reference'], 'oxxo', $request->input('email'), 'pending', $total, $request->input('phone'));
                 $date = Carbon::now();
@@ -284,7 +285,7 @@ class PublicController extends Controller
                     mkdir('media/pdf/events/'.$event->id, 0777, true);
                 }
                 $pdf->save('media/pdf/events/'.$event->id.'/reference'.$payment->id.'.pdf');
-                $this->saveAccesses($payment->id, $folios,$infoTickets);
+                $this->saveAccesses($payment, $folios,$infoTickets);
             } else {
                 // $this->deleteFiles($folios);
                 return response()->json([
@@ -295,7 +296,7 @@ class PublicController extends Controller
             }
         }else if($request->input('payment_method') == 'free'){
             $payment = $this->registerPayment($event->id, $request->input('name'),'Gratis', 'free', $request->input('email'), 'payed', $total, $request->input('phone'));
-            $this->saveAccesses($payment->id, $folios,$infoTickets);
+            $this->saveAccesses($payment, $folios,$infoTickets);
             
         }
 
@@ -322,11 +323,11 @@ class PublicController extends Controller
         
     }
 
-    private function discountCodes($codes, $payment_method) {
+    private function discountCodes($codes, $payment_method, $event_id) {
         for ($i = 0; $i < sizeof($codes); $i++) {
             $codeAux = $codes[$i];
-            $code = Code::with(['tickets' => function($query) use($codeAux) {
-                $query->where('ticket_id', $codeAux['ticket_id']);
+            $code = Code::with(['tickets' => function($query) use($codeAux, $event_id) {
+                $query->where('ticket_id', $codeAux['ticket_id'])->where('event_id', $event_id);
             }])
             ->whereHas('tickets', function($query) use($codeAux) {
                 $query->where('ticket_id', $codeAux['ticket_id']);
@@ -365,7 +366,7 @@ class PublicController extends Controller
         return $payment;
     }
 
-    public function saveAccesses($payment_id, $folios,$infoTickets) {
+    public function saveAccesses($payment, $folios,$infoTickets) {
 
         /* $questions=array_filter($infoTickets, function($ticket,$key) use($request,$i) {
             echo "| ".$ticket['idTicket']." == ".$request->input('tickets')[$i];
@@ -377,20 +378,25 @@ class PublicController extends Controller
             // $code = Code::where('code', $infoTickets[$i]['code'])->where('ticket_id', $folios[$i]['ticket_id'])->first();
             $code = Code::where('code', $infoTickets[$i]['code'])
             ->where('expiration', '>=', date('Y-m-d'))
-            ->whereHas('tickets', function($query) use($folios, $i) {
-                $query->where('ticket_id', $folios[$i]['ticket_id']);
+            ->whereHas('tickets', function($query) use($folios, $i, $payment) {
+                $query->where('ticket_id', $folios[$i]['ticket_id'])->where('event_id', $payment->event_id);
             })
             ->first();
             $access = Access::create([
-                'payment_id' => $payment_id,
+                'payment_id' => $payment->id,
                 'ticket_id' => $folios[$i]['ticket_id'],
-                'code_id' => (isset($code->id)) ? $code->id : null,
+                // 'code_id' => (isset($code->id)) ? $code->id : null,
                 'folio' => $folios[$i]['folio'],
                 'quantity' => $folios[$i]['valid'],
                 'name' => $infoTickets[$i]['name'],
                 'email' => $infoTickets[$i]['email'],
                 'phone' => $infoTickets[$i]['phone'],
-            ]);            
+            ]);
+            if (!empty($code)) {
+                $access->codes()->attach([
+                    $code->id => ['discount' => $code->discount, 'ticket_price' => $folios[$i]['ticket_price']]
+                ]);
+            }
             
             if (isset($infoTickets[$i]['requestQuestion'])) {
                 $response = '';
@@ -579,7 +585,6 @@ class PublicController extends Controller
         $hsmParam2->default = $event->name;
 
         $hsmParam3 = new \MessageBird\Objects\Conversation\HSM\Params();
-        // $hsmParam3->default = asset('').'download/tickets/'.$paymentId;
         $hsmParam3->default = 'http://015e-187-247-139-61.ngrok.io/download/tickets/'.$paymentId;
 
         $hsmLanguage = new \MessageBird\Objects\Conversation\HSM\Language();
@@ -727,7 +732,9 @@ class PublicController extends Controller
 
     public function validateCodes(Request $request) {
         foreach ($request->codes as $key => $cod) {
-            $codeExist = Code::where('code', strtoupper($cod['code']))->first();
+            $codeExist = Code::where('code', strtoupper($cod['code']))->whereHas('tickets', function($query) use($request) {
+                $query->where('event_id', $request->event_id);
+            })->first();
             if (!empty($codeExist)) {
                 $code = Code::with(['tickets'])->where('code', strtoupper($cod['code']))->whereHas('tickets', function($query) use($cod) {
                     $query->where('ticket_id', $cod['ticket_id']);

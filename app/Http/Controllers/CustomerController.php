@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+require_once('bin/messagebird/autoload.php');
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -25,6 +26,7 @@ use DateTime;
 use File;
 use ZipArchive;
 use GuzzleHttp\Client;
+use Hashids\Hashids;
 
 class CustomerController extends Controller {
 
@@ -488,10 +490,57 @@ class CustomerController extends Controller {
                 $discount = $discount + ($payment->accesses[$i]->ticket->price * ($payment->accesses[$i]->code->discount / 100));
             }
         }
+        $this->sendWhatsapp($payment, $payment->event, $payment);
         Mail::to($request->input('email'))->send(new SendTickets($payment->event, $folios, $tickets, $payment->name, $quantities, $total, $commission, $discount));
         return response()->json([
             'status' => true
         ]);
+    }
+
+    public function sendWhatsapp($client, $event, $payment) {
+        $hashids = new Hashids('', 25); // pad to length 10
+        $paymentId = $hashids->encode($payment->id);
+        // print_r($id);
+        // $idDecode = $hashids->decode($id);
+        // dd($idDecode[0]);
+        $messageBird = new \MessageBird\Client('F4JCaJDSSNBJPUkzcLBQScb7i'); // Set your own API access key here.
+
+        $hsmParam1 = new \MessageBird\Objects\Conversation\HSM\Params();
+        $hsmParam1->default = $client->name;
+
+        $hsmParam2 = new \MessageBird\Objects\Conversation\HSM\Params();
+        $hsmParam2->default = $event->name;
+
+        $hsmParam3 = new \MessageBird\Objects\Conversation\HSM\Params();
+        $hsmParam3->default = 'http://015e-187-247-139-61.ngrok.io/download/tickets/'.$paymentId;
+
+        $hsmLanguage = new \MessageBird\Objects\Conversation\HSM\Language();
+        $hsmLanguage->policy = \MessageBird\Objects\Conversation\HSM\Language::DETERMINISTIC_POLICY;
+        $hsmLanguage->code = 'es_MX';
+
+        $hsm = new \MessageBird\Objects\Conversation\HSM\Message();
+        $hsm->templateName = 'payment_success2';
+        $hsm->namespace = '761b9b95_04f0_4ea9_9fa2_547e0efdb21c';
+        $hsm->params = [$hsmParam1, $hsmParam2, $hsmParam3];
+        $hsm->language = $hsmLanguage;
+
+        $content = new \MessageBird\Objects\Conversation\Content();
+        $content->hsm = $hsm;
+
+        $message = new \MessageBird\Objects\Conversation\Message();
+        $message->channelId = 'af4120f7-4c93-4aec-b4fa-d5e3335470c1';
+        $message->content = $content;
+        $message->to = '521'.$client->phone;
+        $message->type = 'hsm';
+
+        try {
+            $conversation = $messageBird->conversations->start($message);
+
+            dd($conversation);
+        } catch (\Exception $e) {
+            dd('error: '.$e->getMessage());
+        }
+        return true;
     }
 
     public function saveTurns(Request $request) {
