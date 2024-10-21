@@ -27,6 +27,10 @@
                 <br><h3>Fecha de expiración</h3>
                 <h1>{{$expiration}}</h1>
             </div>
+            <div>
+                <br><h3>Hora de expiración</h3>
+                <h1>Antes de las {{$expiration2}} hrs.<br>(Hora del centro de México)</h1>
+            </div>
         </div>
         <div class="opps-instructions">
             <h3>Instrucciones</h3>

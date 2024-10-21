@@ -273,12 +273,14 @@ class PublicController extends Controller
                 }
                 $payment = $this->registerPayment($event->id, $request->input('name'), $order['reference'], 'oxxo', $request->input('email'), 'pending', $total, $request->input('phone'));
                 $date = Carbon::now();
-                $expiration = Carbon::parse($date->addDays(2)->format('Y-m-d'))->locale('es')->isoFormat('D MMMM Y');
+                $expiration = Carbon::parse($date->addDays(2)->format('Y-m-d 22:00:00'))->locale('es')->isoFormat('D MMMM Y');
+                $expiration2 = Carbon::parse($date->addDays(2)->format('Y-m-d 22:00:00'))->locale('es')->isoFormat('H:mm');
                 $dataReference = array(
                     'reference' => $order['reference'],
-                    'monto' => $total,
+                    'monto' => intval($total),
                     'name_event' => $event->name,
-                    'expiration' => $expiration
+                    'expiration' => $expiration,
+                    'expiration2' => $expiration2,
                 );
                 $pdf = PDF::loadView('pdfOxxo', $dataReference);
                 if (!file_exists('media/pdf/events/'.$event->id)) {
@@ -504,11 +506,17 @@ class PublicController extends Controller
     public function createOrderOxxo($price, $description, $name, $email, $phone, $quantity) {
         $data['status'] = true;
         $date = Carbon::now();
-        $expiration = (new DateTime($date->addDays(2)->format('Y-m-d')))->getTimestamp();
+        $expiration = (new DateTime($date->addDays(2)->format('Y-m-d 22:00:00')))->getTimestamp();
         $price = intval($price);
-        try{
-            $this->order = \Conekta\Order::create(
-                array(
+
+        // Configure Bearer authorization: bearerAuth
+        $config = \DigitalFemsa\Configuration::getDefaultConfiguration()->setAccessToken('key_j1mdHCFuCwHnEQHKwbwDwVF');
+
+        $apiInstance = new \DigitalFemsa\Api\OrdersApi(
+            new \GuzzleHttp\Client(),
+            $config
+        );
+        $order_request = new \DigitalFemsa\Model\OrderRequest([
                 "line_items" => array(
                     array(
                     "name" => $description,
@@ -530,16 +538,52 @@ class PublicController extends Controller
                         )//payment_method
                     ) //first charge
                 ) //charges
-                )//order
-            );
-        } catch (\Conekta\ParameterValidationError $error) {
-            $data['msj'] = $error->getMessage();
-            $data['status'] = false;
-        } catch (\Conekta\Handler $error) {
-            $data['msj'] = $error->getMessage();
+            //order
+        ]); // \DigitalFemsa\Model\OrderRequest | requested field for order
+        $accept_language = 'es'; // string | Use for knowing which language to use
+        $x_child_company_id = '6441b6376b60c3a638da80af'; // string | In the case of a holding company, the company id of the child company to which will process the request.
+        
+        try {
+            $result = $apiInstance->createOrder($order_request, $accept_language, $x_child_company_id);
+            $data['reference'] = $result['charges']['data'][0]['payment_method']['reference'];
+        } catch (\Exception $e) {
+            $data['msj'] = $e->getMessage();
             $data['status'] = false;
         }
-        $data['reference'] = $this->order->charges[0]->payment_method->reference;
+        // try{
+        //     $this->order = \Conekta\Order::create(
+        //         array(
+        //         "line_items" => array(
+        //             array(
+        //             "name" => $description,
+        //             "unit_price" => $price*100,
+        //             "quantity" => $quantity
+        //             )//first line_item
+        //         ), //line_items
+        //         "currency" => "MXN",
+        //         "customer_info" => array(
+        //             "name" => $name,
+        //             "email" => $email,
+        //             "phone" => $phone
+        //         ), //customer_info
+        //         "charges" => array(
+        //             array(
+        //                 "payment_method" => array(
+        //                     "type" => "oxxo_cash",
+        //                     "expires_at" => $expiration
+        //                 )//payment_method
+        //             ) //first charge
+        //         ) //charges
+        //         )//order
+        //     );
+        // } catch (\Conekta\ParameterValidationError $error) {
+        //     $data['msj'] = $error->getMessage();
+        //     $data['status'] = false;
+        // } catch (\Conekta\Handler $error) {
+        //     $data['msj'] = $error->getMessage();
+        //     $data['status'] = false;
+        // }
+        // $data['reference'] = $this->order->charges[0]->payment_method->reference;
         return $data;
     }
 
